@@ -51,6 +51,10 @@ write_csv(rf_data, here::here("data", "raw_data", "rf_data.csv"))
 
 # PISCO Merge -------------------------------------------------------------
 
+mpas_of_interest = c("anacapa island smca", "anacapa island smr", "harris point smr", "south point smr",
+                     "carrington point smr", "gull island smr", "painted cave smca", "scorpion smr",
+                     "santa barbara island smr", "naples smca", "campus point smca")
+
 pisco_merge = settle %>% 
   mutate(affiliated_mpa = str_to_lower(affiliated_mpa)) %>% 
   full_join(mpa_traits) %>% 
@@ -59,6 +63,7 @@ pisco_merge = settle %>%
   filter(!is.na(size)) %>% 
   filter(!is.na(site)) %>% 
   full_join(pisco) %>% 
-  filter(!is.na(count))
+  filter(!is.na(count)) %>% 
+  filter(affiliated_mpa %in% mpas_of_interest)
 
 write_csv(pisco_merge, here::here("data", "raw_data", "full_pisco.csv"))

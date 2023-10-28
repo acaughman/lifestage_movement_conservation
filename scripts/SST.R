@@ -3,10 +3,10 @@ library(rerddap)
 library(lubridate)
 library(tidyverse)
 
-lat_min <- 33.35
-lat_max <- 34.5
-lon_min <- -120.75
-lon_max <- -118.95
+lat_min <- 33.45
+lat_max <- 38.95
+lon_min <- -123.74
+lon_max <- -118.48
 
 lat <- c(lat_min, lat_max)
 lon <- c(lon_min, lon_max)
