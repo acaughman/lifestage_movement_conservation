@@ -1,6 +1,7 @@
 library(tidyverse)
 library(lme4)
 library(jtools)
+library(patchwork)
 library(marginaleffects)
 library(MASS)
 
@@ -193,59 +194,135 @@ data02 = data %>%
 
 glm11 = glmer(total_count ~ scale(size) * scale(settlement_mpa_total) + (1|sciname), data = data11, family = poisson)
 summary(glm11)
-glm12 = glmer(total_count ~ scale(size) * scale(settlement_mpa_total) + (1 + total_count|sciname), data = data12, family = poisson)
+glm12 = glmer(total_count ~ scale(size) * scale(settlement_mpa_total) + (1|sciname), data = data12, family = poisson)
 summary(glm12)
-glm20 = glmer(total_count ~ scale(size) * scale(settlement_mpa_total) + (0 + total_count|sciname), data = data20, family = poisson)
+glm20 = glmer(total_count ~ scale(size) * scale(settlement_mpa_total) + (1|sciname), data = data20, family = poisson)
 summary(glm20)
-glm22 = glmer(total_count ~ scale(size) * scale(settlement_mpa_total) + (1 + total_count|sciname), data = data22, family = poisson)
+glm22 = glmer(total_count ~ scale(size) * scale(settlement_mpa_total) + (1|sciname), data = data22, family = poisson)
 summary(glm22)
-glm30 = glm(total_count ~ scale(size) * scale(settlement_mpa_total), data = data30, family = poisson)
-summary(glm30)
 glm32 = glmer(total_count ~ scale(size) * scale(settlement_mpa_total) + (1|sciname), data = data32, family = poisson)
 summary(glm32)
-glm02 = glm(total_count ~ scale(size) * scale(settlement_mpa_total), data = data02, family = poisson)
-summary(glm02)
 
-plot_summs(glm30, glm32, glm20, glm22, glm11, glm12)
-plot_summs(glm32, glm22, glm12, glm02)
+glm11.2 = lm(log(weight_kg) ~ scale(size) * scale(settlement_mpa_total), data = data11)
+summary(glm11.2)
+glm12.2 = lmer(log(weight_kg) ~ scale(size) * scale(settlement_mpa_total) + (1|sciname), data = data12)
+summary(glm12.2)
+glm20.2 = lmer(log(weight_kg) ~ scale(size) * scale(settlement_mpa_total) + (1|sciname), data = data20)
+summary(glm20.2)
+glm22.2 = lmer(log(weight_kg) ~ scale(size) * scale(settlement_mpa_total) + (1|sciname), data = data22)
+summary(glm22.2)
+glm32.2 = lmer(log(weight_kg) ~ scale(size) * scale(settlement_mpa_total) + (1|sciname), data = data32)
+summary(glm32.2)
 
-sjPlot::plot_model(glm32,
-                   show.values=TRUE, show.p=TRUE)
-sjPlot::plot_model(glm20,
-                   show.values=TRUE, show.p=TRUE)
-sjPlot::plot_model(glm22,
-                   show.values=TRUE, show.p=TRUE)
-sjPlot::plot_model(glm11,
-                   show.values=TRUE, show.p=TRUE)
-sjPlot::plot_model(glm12,
-                   show.values=TRUE, show.p=TRUE)
+p = plot_summs(glm20, glm11, glm32, glm22, glm12) 
+p
+
+ggsave(p, file = paste0("count_pld.pdf"), path = here::here("figs"), height = 12, width = 12)
+
+p = plot_summs(glm32, glm20, glm22, glm12, glm11)
+p
+
+ggsave(p, file = paste0("count_hr.pdf"), path = here::here("figs"), height = 12, width = 12)
+
+p = plot_summs(glm20.2, glm11.2, glm32.2, glm22.2, glm12.2) 
+p
+
+ggsave(p, file = paste0("biomass_pld.pdf"), path = here::here("figs"), height = 12, width = 12)
+
+p = plot_summs(glm32.2, glm20.2, glm22.2, glm12.2, glm11.2, pvals=FALSE, t.df="s")
+p
+
+ggsave(p, file = paste0("biomass_hr.pdf"), path = here::here("figs"), height = 12, width = 12)
+
+# sjPlot::plot_model(glm32,
+#                    show.values=TRUE, show.p=TRUE)
+# sjPlot::plot_model(glm30,
+#                    show.values=TRUE, show.p=TRUE)
+# sjPlot::plot_model(glm20,
+#                    show.values=TRUE, show.p=TRUE)
+# sjPlot::plot_model(glm22,
+#                    show.values=TRUE, show.p=TRUE)
+# sjPlot::plot_model(glm11,
+#                    show.values=TRUE, show.p=TRUE)
+# sjPlot::plot_model(glm12,
+#                    show.values=TRUE, show.p=TRUE)
+
+# sjPlot::plot_model(glm32,
+#                    show.values=TRUE, show.p=TRUE)
+# sjPlot::plot_model(glm20,
+#                    show.values=TRUE, show.p=TRUE)
+# sjPlot::plot_model(glm22,
+#                    show.values=TRUE, show.p=TRUE)
+# sjPlot::plot_model(glm11,
+#                    show.values=TRUE, show.p=TRUE)
+# sjPlot::plot_model(glm12,
+#                    show.values=TRUE, show.p=TRUE)
+
+#glm20, glm11, glm32, glm22, glm12
+#glm32, glm20, glm22, glm12, glm11
+
+p1 = plot_comparisons(glm11, variables = "size", condition = c("settlement_mpa_total")) +
+  labs(
+    x = "Settlement Total",
+    y = "Count Difference with Change in MPA Size",
+    title = "HR Mag (1), PLD Month (1)"
+  ) +
+  theme_bw() +
+  scale_color_viridis_d() +
+  scale_fill_viridis_d()
+
+p2 = plot_comparisons(glm12, variables = "size", condition = c("settlement_mpa_total")) +
+  labs(
+    x = "Settlement Total",
+    y = "Count Difference with Change in MPA Size",
+    title = "HR Mag (1), PLD Month (2)"
+  ) +
+  theme_bw() +
+  scale_color_viridis_d() +
+  scale_fill_viridis_d()
+
+p3 = plot_comparisons(glm22, variables = "size", condition = c("settlement_mpa_total")) +
+  labs(
+    x = "Settlement Total",
+    y = "Count Difference with Change in MPA Size",
+    title = "HR Mag (2), PLD Month (2)"
+  ) +
+  theme_bw() +
+  scale_color_viridis_d() +
+  scale_fill_viridis_d()
 
 
-glm11 = lm(log(weight_kg) ~ scale(size) * scale(settlement_mpa_total), data = data11)
-summary(glm11)
-glm12 = lmer(log(weight_kg) ~ scale(size) * scale(settlement_mpa_total) + (1|sciname), data = data12)
-summary(glm12)
-glm20 = lmer(log(weight_kg) ~ scale(size) * scale(settlement_mpa_total) + (1|sciname), data = data20)
-summary(glm20)
-glm22 = lmer(log(weight_kg) ~ scale(size) * scale(settlement_mpa_total) + (1|sciname), data = data22)
-summary(glm22)
-glm30 = lm(log(weight_kg) ~ scale(size) * scale(settlement_mpa_total), data = data30)
-summary(glm30)
-glm32 = lmer(log(weight_kg) ~ scale(size) * scale(settlement_mpa_total) + (1|sciname), data = data32)
-summary(glm32)
-glm02 = lm(log(weight_kg) ~ scale(size) * scale(settlement_mpa_total), data = data02)
-summary(glm02)
+p4 = plot_comparisons(glm11.2, variables = "size", condition = c("settlement_mpa_total")) +
+  labs(
+    x = "Settlement Total",
+    y = "Count Difference with Change in MPA Size",
+    title = "HR Mag (1), PLD Month (1)"
+  ) +
+  theme_bw() +
+  scale_color_viridis_d() +
+  scale_fill_viridis_d()
 
-plot_summs(glm30, glm32, glm20, glm22, glm11, glm12)
-plot_summs(glm32, glm22, glm12, glm02)
+p5 = plot_comparisons(glm12.2, variables = "size", condition = c("settlement_mpa_total")) +
+  labs(
+    x = "Settlement Total",
+    y = "Count Difference with Change in MPA Size",
+    title = "HR Mag (1), PLD Month (2)"
+  ) +
+  theme_bw() +
+  scale_color_viridis_d() +
+  scale_fill_viridis_d()
 
-sjPlot::plot_model(glm32,
-                   show.values=TRUE, show.p=TRUE)
-sjPlot::plot_model(glm20,
-                   show.values=TRUE, show.p=TRUE)
-sjPlot::plot_model(glm22,
-                   show.values=TRUE, show.p=TRUE)
-sjPlot::plot_model(glm11,
-                   show.values=TRUE, show.p=TRUE)
-sjPlot::plot_model(glm12,
-                   show.values=TRUE, show.p=TRUE)
+p6 = plot_comparisons(glm22.2, variables = "size", condition = c("settlement_mpa_total")) +
+  labs(
+    x = "Settlement Total",
+    y = "Count Difference with Change in MPA Size",
+    title = "HR Mag (2), PLD Month (2)"
+  ) +
+  theme_bw() +
+  scale_color_viridis_d() +
+  scale_fill_viridis_d()
+
+plot = (p1 + p2 + p3) / (p4 + p5 + p6)
+plot
+
+ggsave(plot, file = paste0("interactions.pdf"), path = here::here("figs"), height = 15, width = 15)
