@@ -14,10 +14,6 @@ data = read_csv(here::here("data", "processed_data", "pisco_SST.csv")) %>%
   mutate(move_combo = paste(magnitude_homerange, month_pld)) %>% 
   mutate()
 
-ggplot(data, aes(magnitude_homerange, month_pld)) +
-  geom_jitter(aes(color = as.factor(magnitude_homerange), shape = as.factor(month_pld))) +
-  theme_bw() 
-
 ggplot(data, aes(date, total_count)) +
   geom_point(aes(color = as.factor(magnitude_homerange), shape = as.factor(month_pld))) +
   theme_bw() +
