@@ -19,28 +19,31 @@ rf_no_species = pisco %>%
 
 rf_no = unique(rf_no_species$sciname)
 
-ggplot(mpa, aes(magnitude_homerange, month_pld)) +
-  geom_jitter(aes(color = as.factor(magnitude_homerange), shape = as.factor(month_pld))) +
-  theme_bw()
-
-pisco_rf = inner_join(pisco, rf_data) 
+pisco_rf = left_join(rf_species, rf_data) 
 
 write_csv(pisco_rf, here::here("data", "raw_data", "pisco_rf.csv"))
 
-pisco_post_hw = mpa %>% 
-  filter(year > 2016)
 
-ggplot(pisco_post_hw, aes(magnitude_homerange, month_pld)) +
-  geom_jitter(aes(color = as.factor(magnitude_homerange), shape = as.factor(month_pld))) +
-  theme_bw()
+# Species of Interest -----------------------------------------------------
 
-ggplot(pisco_post_hw, aes(date, count)) +
-  geom_point(aes(color = as.factor(magnitude_homerange), shape = as.factor(month_pld))) +
-  theme_bw() +
-  facet_wrap(~affiliated_mpa, scales = "free_y")
+species_num = pisco %>% 
+  group_by(sciname) %>% 
+  summarize(count = n())
 
-ggplot(pisco_post_hw, aes(date, log(count))) +
-  geom_jitter(alpha = .5, aes(color = as.factor(magnitude_homerange), shape = as.factor(month_pld))) +
-  theme_bw() +
-  facet_wrap(~affiliated_mpa, scales = "free_y") +
-  geom_smooth(method = "glm", se = FALSE, aes(group = sciname, color = as.factor(magnitude_homerange), linetype = as.factor(month_pld)))
+species_mpa_num = pisco %>% 
+  group_by(sciname, affiliated_mpa) %>% 
+  summarize(count = n()) %>% 
+  filter(count > 10) %>% 
+  group_by(sciname) %>% 
+  mutate(mpa_count = n()) %>% 
+  filter(mpa_count > 1)
+
+scinames = species_mpa_num %>% 
+  select(sciname) %>% 
+  distinct() %>% 
+  filter(!is.na(sciname))
+
+write_csv(scinames, here::here("data", "raw_data", "species_of_interest.csv"))
+
+scinames_in_rf = scinames %>% 
+  filter(sciname %in% pisco_rf$sciname)
