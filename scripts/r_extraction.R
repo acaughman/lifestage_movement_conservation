@@ -23,3 +23,5 @@ for(i in 1:nrow(missing_data)) {
 missing_data$r_fin = data_filled$r
 
 all_data = rbind(have_data, missing_data)
+
+write_csv(all_data, here::here("data", "raw_data", "species_of_interest.csv"))
