@@ -3,27 +3,27 @@ library(tidyverse)
 library(rfishbase)
 library(FishLife)
 
-pisco = read_csv(here::here("data", "raw_data", "full_pisco.csv")) %>% 
+pisco <- read_csv(here::here("data", "raw_data", "full_pisco.csv")) %>%
   distinct()
 
-species_num = pisco %>% 
-  group_by(sciname) %>% 
+species_num <- pisco %>%
+  group_by(sciname) %>%
   summarize(count = n())
 
-species_mpa_num = pisco %>% 
-  group_by(sciname, affiliated_mpa) %>% 
-  summarize(count = n()) %>% 
-  filter(count > 10) %>% 
-  group_by(sciname) %>% 
-  mutate(mpa_count = n()) %>% 
-  filter(mpa_count > 1) %>% 
+species_mpa_num <- pisco %>%
+  group_by(sciname, affiliated_mpa) %>%
+  summarize(count = n()) %>%
+  filter(count > 10) %>%
+  group_by(sciname) %>%
+  mutate(mpa_count = n()) %>%
+  filter(mpa_count > 1) %>%
   left_join(pisco)
 
-scinames = species_mpa_num %>% 
-  dplyr::select(sciname) %>% 
-  arrange(sciname) %>% 
-  distinct() %>% 
-  filter(!is.na(sciname)) %>% 
+scinames <- species_mpa_num %>%
+  dplyr::select(sciname) %>%
+  arrange(sciname) %>%
+  distinct() %>%
+  filter(!is.na(sciname)) %>%
   filter(!grepl("spp", sciname))
 
 
@@ -32,7 +32,7 @@ scinames = species_mpa_num %>%
 life_history <- readRDS(here::here("data", "raw_data", "MegaData_Ray.rds")) %>%
   as.data.frame() %>% # convert to dataframe
   janitor::clean_names() %>%
-  filter(sci_name %in% scinames$sciname) %>% 
+  filter(sci_name %in% scinames$sciname) %>%
   dplyr::select(sci_name, r_fin, kfin) # select relevant columns
 
 names(life_history)[names(life_history) == "sci_name"] <- "species" # rename column so that it matches empirical_homeranges.csv
@@ -51,9 +51,9 @@ geog <- read_csv(here::here("data", "raw_data", "geog_range.csv")) %>%
 species_list <- geog %>%
   pull(species) # get list of 811 species
 
-fish <- load_taxa(server = "fishbase") %>% 
-  as.data.frame() %>% 
-  filter(Species %in% scinames$sciname) %>% 
+fish <- load_taxa(server = "fishbase") %>%
+  as.data.frame() %>%
+  filter(Species %in% scinames$sciname) %>%
   dplyr::select(Species, SpecCode, Genus)
 
 datLength <- species(fish$Species, fields = c("Species", "Length", "LTypeMaxM", "DemersPelag", "FBname")) # get wanted information from fishbase
@@ -98,10 +98,10 @@ fish_df <- fish %>%
 
 fish_data <- merge(datLength, predDat2) %>%
   janitor::clean_names() %>% # clean the names
-  dplyr::select(-genus_2, -diet_troph2, -avg_diet_troph)# merge all data and remove columns that are not relevant
+  dplyr::select(-genus_2, -diet_troph2, -avg_diet_troph) # merge all data and remove columns that are not relevant
 
 fish_data_o <- left_join(fish_df, fish_data) %>%
-  dplyr::select(species,demers_pelag) # merge all data
+  dplyr::select(species, demers_pelag) # merge all data
 
 fish_data_means <- left_join(fish_df, fish_data) %>%
   group_by(species) %>%
@@ -114,38 +114,37 @@ fish_data <- left_join(fish_data_means, fish_data_o, by = "species") %>%
   distinct() # get all the data for each fish species with length and trophic level data
 
 # geog2 = read_csv(here::here("data", "raw_data", "all_hcaf_species_native.csv"))
-# geog_species = read_csv(here::here("data", "raw_data", "all_speciesid.csv")) %>% 
-#   rename(SpeciesID = SPECIESID) %>% 
-#   mutate(species = paste(Genus, Species)) %>% 
+# geog_species = read_csv(here::here("data", "raw_data", "all_speciesid.csv")) %>%
+#   rename(SpeciesID = SPECIESID) %>%
+#   mutate(species = paste(Genus, Species)) %>%
 #   filter(species %in% scinames$sciname)
-# 
-# geog2 = left_join(geog_species, geog2, multiple = "all") %>% 
-#   filter(probability >= .5) %>% 
-#   select(species, CsquareCode, CenterLat, CenterLong) %>% 
-#   group_by(species) %>% 
+#
+# geog2 = left_join(geog_species, geog2, multiple = "all") %>%
+#   filter(probability >= .5) %>%
+#   select(species, CsquareCode, CenterLat, CenterLong) %>%
+#   group_by(species) %>%
 #   summarize(geog = n())
 
-fishlife = list(fish_data, life_history_means, geog) %>% 
-  reduce(full_join) %>% 
+fishlife <- list(fish_data, life_history_means, geog) %>%
+  reduce(full_join) %>%
   filter(species %in% scinames$sciname)
 
 
 # get missing r values ------------------------------------------------------
 
-data = fishlife
+data <- fishlife
 
-fish_data = FishLife::FishBase_and_RAM$beta_gv %>% 
+fish_data <- FishLife::FishBase_and_RAM$beta_gv %>%
   as.data.frame()
 
-data_filled = data.frame()
+data_filled <- data.frame()
 
-for(i in 1:nrow(data)) {
-  species = Match_species(genus_species = data$species[i])
-  
-  data_filled = rbind(fish_data[species[[1]],], data_filled)
+for (i in 1:nrow(data)) {
+  species <- Match_species(genus_species = data$species[i])
+
+  data_filled <- rbind(fish_data[species[[1]], ], data_filled)
 }
 
-data$r_fin_fishlife = data_filled$r
+data$r_fin_fishlife <- data_filled$r
 
 write_csv(data, here::here("data", "raw_data", "species_of_interest.csv"))
-

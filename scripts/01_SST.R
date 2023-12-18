@@ -13,11 +13,11 @@ lon <- c(lon_min, lon_max)
 
 tm <- c(
   "2003-01-02T12:00:00Z",
-  '2019-12-30T12:00:00Z'
+  "2019-12-30T12:00:00Z"
 )
 
-data <- 'jplMURSST41'
-field <- 'analysed_sst'
+data <- "jplMURSST41"
+field <- "analysed_sst"
 
 murSST <- griddap(
   datasetx = data,
@@ -25,16 +25,18 @@ murSST <- griddap(
   longitude = lon,
   time = tm,
   fields = field
-) 
+)
 
-SST = murSST$data 
+SST <- murSST$data
 rm(murSST)
 
-SST = SST %>% 
+SST <- SST %>%
   dplyr::rename(t = time, temp = analysed_sst) %>%
-  na.omit() %>% 
-  mutate(latitude = as.character(latitude),
-         longitude = as.character(longitude))
+  na.omit() %>%
+  mutate(
+    latitude = as.character(latitude),
+    longitude = as.character(longitude)
+  )
 
 write_csv(SST, here::here("data", "raw_data", "SST.csv"))
 
