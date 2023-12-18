@@ -5,7 +5,7 @@ library(tidyverse)
 rf_data = read_csv(here::here("data", "raw_data", "rf_data.csv"))
 pisco = read_csv(here::here("data", "raw_data", "full_pisco.csv")) %>% 
   distinct()
-pisco$date <- as.Date(with(pisco, paste(year, month, day, sep = "-")), "%Y-%m-%d")
+
 
 rf_in_pisco = rf_data %>% 
   filter(sciname %in% pisco$sciname) 
@@ -42,8 +42,6 @@ scinames = species_mpa_num %>%
   select(sciname) %>% 
   distinct() %>% 
   filter(!is.na(sciname))
-
-write_csv(scinames, here::here("data", "raw_data", "species_of_interest.csv"))
 
 scinames_in_rf = scinames %>% 
   filter(sciname %in% pisco_rf$sciname)

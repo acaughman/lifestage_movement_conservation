@@ -1,7 +1,5 @@
 library(tidyverse)
 
-SST = read_csv(here::here("data", "raw_data", "SST.csv")) %>% 
-  as.data.frame()
 pisco = read_csv(here::here("data", "raw_data", "pisco_rf.csv")) %>% 
   mutate(lat_c = as.character(round(latitude,2)),
          lon_c = as.character(round(longitude,2)))
@@ -25,4 +23,4 @@ rm(SST)
 
 pisco_SST = left_join(pisco, SST_filter)
 
-write_csv(pisco_SST, here::here("data", "processed_data", "pisco_SST.csv"))
+
