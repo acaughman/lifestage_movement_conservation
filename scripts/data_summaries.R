@@ -7,18 +7,22 @@ library(jtools)
 library(marginaleffects)
 library(MASS)
 
-data = read_csv(here::here("data", "processed_data", "pisco_SST.csv")) %>% 
-  filter(site_status == "MPA") %>% 
+data = read_csv(here::here("data", "raw_data", "pisco_rf.csv")) %>% 
+  filter(!is.na(homerange)) %>% 
   filter(level != "CAN") %>% 
   group_by(sciname, length_to_use, year, transect, date, affiliated_mpa, level, zone) %>% 
   mutate(total_count = sum(count),
-         biomass= sum(weight_kg)) %>% 
+         biomass = sum(weight_kg)) %>% 
   ungroup() %>% 
-  dplyr::select(-transect, -level, -zone) %>% 
-  group_by(sciname, year, date, affiliated_mpa) %>% 
-  mutate(total_count = sum(total_count)) %>% 
+  dplyr::select(-transect, -level, -zone, -count, -weight_kg, -weight_g, -lat_c, -lon_c) %>% 
   distinct() %>% 
-  mutate(move_combo = paste(magnitude_homerange, month_pld)) 
+  group_by(sciname, year, date, affiliated_mpa) %>% 
+  mutate(total_count = sum(total_count),
+         total_biomass = sum(biomass, na.rm=TRUE)) %>% 
+  ungroup() %>% 
+  distinct() %>% 
+  mutate(move_combo = paste(magnitude_homerange, month_pld)) %>% 
+  filter(site_status == "MPA")
 
 
 # Species Summary ---------------------------------------------------------
@@ -26,8 +30,6 @@ data = read_csv(here::here("data", "processed_data", "pisco_SST.csv")) %>%
 scinames = data %>% 
   dplyr::select(sciname, common_name, month_pld, magnitude_homerange) %>% 
   distinct()
-
-# write_csv(scinames, here::here("data", "overlap_species.csv"))
 
 move_data = data %>% 
   dplyr::select(sciname, magnitude_homerange, month_pld) %>% 
@@ -100,10 +102,10 @@ mpa_sf = list(mpa1, mpa2, mpa3) %>%
 
 mpa_data = data %>% 
   dplyr::select(affiliated_mpa, settlement_mpa_total, implementation_date, size, 
-         habitat_richness, habitat_diversity, prop_rock, site_status, temp) %>% 
+         habitat_richness, habitat_diversity, prop_rock, site_status, temp, min_dist, max_dist) %>% 
   distinct() %>% 
   group_by(affiliated_mpa, settlement_mpa_total, implementation_date, size, 
-           habitat_richness, habitat_diversity, prop_rock, site_status) %>% 
+           habitat_richness, habitat_diversity, prop_rock, site_status, min_dist, max_dist) %>% 
   summarize(temp = mean(temp, na.rm=TRUE)) %>% 
   full_join(mpa_sf) %>% 
   st_as_sf()
@@ -153,10 +155,24 @@ p6 = ggplot() +
   labs(fill = "Average Temp") +
   scale_fill_viridis_c()
 
-plot = (p1 + p6) / (p3 + p2) / (p4 + p5) + plot_annotation(tag_levels = "A")
+p7 = ggplot() +
+  geom_sf(data = ca, fill = "transparent") +
+  geom_sf(data = mpa_data, aes(fill = min_dist)) +
+  theme_bw() +
+  labs(fill = "Minimum Distance") +
+  scale_fill_viridis_c()
+
+p8 = ggplot() +
+  geom_sf(data = ca, fill = "transparent") +
+  geom_sf(data = mpa_data, aes(fill = max_dist)) +
+  theme_bw() +
+  labs(fill = "Maximum Distance") +
+  scale_fill_viridis_c()
+
+plot = (p1 + p6) / (p7 + p8) / (p3 + p2) / (p4 + p5) + plot_annotation(tag_levels = "A")
 plot
 
-ggsave(plot, file = paste0("mpa_summary.pdf"), path = here::here("figs"), height = 15, width = 15)
+ggsave(plot, file = paste0("mpa_summary.pdf"), path = here::here("figs"), height = 20, width = 15)
 
 # time series summary -----------------------------------------------------
 
@@ -195,36 +211,37 @@ p1
 ggsave(p1, file = paste0("species_move_summary_largeN.pdf"), path = here::here("figs"), height = 8, width = 10)
 
 sub_data = data %>% 
-  filter(sciname %in% species_mpa_num$sciname) %>% 
-  dplyr::select(-count)
+  filter(sciname %in% species_mpa_num$sciname) 
 
 sub_count = sub_data %>% 
-  dplyr::select(-length_to_use, -weight_g, -weight_kg, -biomass) %>% 
+  dplyr::select(-length_to_use, -biomass) %>% 
   distinct()
 
-ggplot(sub_count, aes(sciname, total_count, color = move_combo)) +
+p1 = ggplot(sub_count, aes(sciname, total_count, color = move_combo)) +
   geom_boxplot() +
   theme_bw()+
-  facet_wrap(~affiliated_mpa, scales = "free") +
+  facet_wrap(~affiliated_mpa) +
   scale_y_log10()+
   theme(strip.background = element_rect(fill = "transparent")) +
   scale_color_viridis_d() +
-  theme(axis.text.x = element_text(angle = 45, hjust=1))
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank()) +
+  labs(y = "Count", x = "", color = "Movement (hr/pld)")
 
-ggplot(sub_data, aes(sciname, biomass, color = move_combo)) +
+p2 = ggplot(sub_data, aes(sciname, biomass, color = move_combo)) +
   geom_boxplot() +
   theme_bw()+
-  facet_wrap(~affiliated_mpa, scales = "free") +
+  facet_wrap(~affiliated_mpa) +
   scale_y_log10()+
   theme(strip.background = element_rect(fill = "transparent")) +
-  scale_color_viridis_d() +
-  theme(axis.text.x = element_text(angle = 45, hjust=1))
+  scale_color_viridis_d()  +
+  theme(axis.text.x = element_text(angle = 90, vjust= 0.5, hjust=1),) +
+  labs(y = "Biomass", x = "", color = "Movement (hr/pld)")
 
-ggplot(sub_data, aes(date, biomass, color = sciname)) +
-  geom_line(aes(group = length_to_use)) +
-  theme_bw()+
-  facet_wrap(~affiliated_mpa, scales = "free")+
-  scale_color_viridis_d() 
+plot = p1 / p2 + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
+plot
+
+ggsave(plot, file = paste0("biomass_count_summary.pdf"), path = here::here("figs"), height = 10, width = 12)
 
 # predictors summary ------------------------------------------------------
 
@@ -232,13 +249,32 @@ ggplot(sub_count) +
   geom_histogram(aes(total_count), bins = 5) +
   facet_grid(month_pld~magnitude_homerange, scales = "free")
 
-ggplot(sub_count, aes(size, total_count, color = move_combo)) +
-  geom_jitter(alpha = 0.5) +
+p1 = ggplot(sub_count, aes(size, total_count, color = move_combo, group = sciname)) +
+  geom_jitter(alpha = 0.2) +
   theme_bw() +
-  facet_wrap(~sciname, scales = "free") +
   theme(strip.background = element_rect(fill = "transparent")) +
   geom_smooth(method = "glm", se = FALSE,  method.args = list(family = "poisson")) +
-  scale_color_viridis_d()
+  scale_color_viridis_d() +
+  scale_y_log10()+
+  labs(y = "Count", x = "MPA Size", color = "Movement (hr/pld)")
+
+p2 = ggplot(sub_count, aes(min_dist, total_count, color = move_combo, group = sciname)) +
+  geom_jitter(alpha = 0.2) +
+  theme_bw() +
+  theme(strip.background = element_rect(fill = "transparent")) +
+  geom_smooth(method = "glm", se = FALSE,  method.args = list(family = "poisson")) +
+  scale_color_viridis_d() +
+  scale_y_log10()+
+  labs(y = "Count", x = "Minimum Distance", color = "Movement (hr/pld)")
+
+p3 = ggplot(sub_count, aes(max_dist, total_count, color = move_combo, group = sciname)) +
+  geom_jitter(alpha = 0.2) +
+  theme_bw() +
+  theme(strip.background = element_rect(fill = "transparent")) +
+  geom_smooth(method = "glm", se = FALSE,  method.args = list(family = "poisson")) +
+  scale_color_viridis_d() +
+  scale_y_log10()+
+  labs(y = "Count", x = "Maximum Distance", color = "Movement (hr/pld)")
 
 ggplot(sub_count, aes(as.factor(implementation_date), total_count, color = move_combo)) +
   geom_boxplot(alpha = 0.5) +
@@ -255,13 +291,14 @@ ggplot(sub_count, aes(habitat_richness, total_count, color = move_combo)) +
   geom_smooth(method = "glm", se = FALSE,  method.args = list(family = "poisson")) +
   scale_color_viridis_d()
 
-ggplot(sub_count, aes(habitat_diversity, total_count, color = move_combo)) +
-  geom_jitter(alpha = 0.5) +
+p4 = ggplot(sub_count, aes(habitat_diversity, total_count, color = move_combo, group = sciname)) +
+  geom_jitter(alpha = 0.2) +
   theme_bw() +
-  facet_wrap(~sciname, scales = "free") +
   theme(strip.background = element_rect(fill = "transparent")) +
   geom_smooth(method = "glm", se = FALSE,  method.args = list(family = "poisson")) +
-  scale_color_viridis_d()
+  scale_color_viridis_d() +
+  scale_y_log10()+
+  labs(y = "Count", x = "Habitat Diversity", color = "Movement (hr/pld)")
 
 ggplot(sub_count, aes(prop_rock, total_count, color = move_combo)) +
   geom_jitter(alpha = 0.5) +
@@ -271,13 +308,13 @@ ggplot(sub_count, aes(prop_rock, total_count, color = move_combo)) +
   geom_smooth(method = "glm", se = FALSE,  method.args = list(family = "poisson")) +
   scale_color_viridis_d()
 
-ggplot(sub_count, aes(fishing_pressure, total_count, color = move_combo)) +
+ggplot(sub_count, aes(fishing_pressure, total_count, color = move_combo, group = sciname)) +
   geom_jitter(alpha = 0.5) +
   theme_bw() +
-  facet_wrap(~sciname, scales = "free") +
   theme(strip.background = element_rect(fill = "transparent")) +
   geom_smooth(method = "glm", se = FALSE,  method.args = list(family = "poisson")) +
-  scale_color_viridis_d()
+  scale_color_viridis_d() +
+  scale_y_log10()
 
 ggplot(sub_count, aes(as.factor(mpa_defacto_designation), total_count, color = move_combo)) +
   geom_boxplot(alpha = 0.5) +
@@ -286,27 +323,32 @@ ggplot(sub_count, aes(as.factor(mpa_defacto_designation), total_count, color = m
   theme(strip.background = element_rect(fill = "transparent")) +
   scale_color_viridis_d()
 
-ggplot(sub_count, aes(temp, total_count, color = move_combo)) +
-  geom_jitter(alpha = 0.5) +
-  theme_bw() +
-  facet_wrap(~sciname, scales = "free") +
-  theme(strip.background = element_rect(fill = "transparent")) +
-  geom_smooth(method = "glm", se = FALSE,  method.args = list(family = "poisson")) +
-  scale_color_viridis_d()
-
-ggplot(sub_count, aes(date, total_count, color = move_combo)) +
+p5 = ggplot(sub_count, aes(temp, total_count, color = move_combo, group = sciname)) +
   geom_jitter(alpha = 0.2) +
   theme_bw() +
-  facet_wrap(~sciname, scales = "free") +
   theme(strip.background = element_rect(fill = "transparent")) +
   geom_smooth(method = "glm", se = FALSE,  method.args = list(family = "poisson")) +
-  scale_color_viridis_d()
+  scale_color_viridis_d() +
+  scale_y_log10()+
+  labs(y = "Count", x = "Temperature", color = "Movement (hr/pld)")
+
+p6 = ggplot(sub_count, aes(date, total_count, color = move_combo, group = sciname)) +
+  geom_jitter(alpha = 0.2) +
+  theme_bw() +
+  theme(strip.background = element_rect(fill = "transparent")) +
+  geom_smooth(method = "glm", se = FALSE,  method.args = list(family = "poisson")) +
+  scale_color_viridis_d() +
+  scale_y_log10() +
+  labs(y = "Count", x = "Date", color = "Movement (hr/pld)")
+
+plot = (p1 + p2) /(p3 + p4) / (p5 + p6)+ plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
+plot
+
+ggsave(plot, file = paste0("count_preditors_summary.pdf"), path = here::here("figs"), height = 10, width = 12)
 
 glms = sub_count %>% 
   group_by(move_combo, sciname) %>% 
-  do(model = glmer(total_count ~ scale(size) +  
-                     temp + 
-                     prop_rock +
+  do(model = glmer(total_count ~ scale(size)*min_dist + 
                      (1|date), 
                    data = ., 
                    family = poisson))
@@ -319,13 +361,32 @@ ggplot(sub_data) +
   geom_histogram(aes(log(biomass)), bins = 10)+
   facet_grid(month_pld~magnitude_homerange, scales = "free")
 
-ggplot(sub_data, aes(size, biomass, color = move_combo)) +
-  geom_jitter(alpha = 0.5) +
+p1 = ggplot(sub_data, aes(size, total_biomass, color = move_combo, group = sciname)) +
+  geom_jitter(alpha = 0.2) +
   theme_bw() +
-  facet_wrap(~sciname, scales = "free") +
   theme(strip.background = element_rect(fill = "transparent")) +
   geom_smooth(method = "lm", se = FALSE) +
-  scale_color_viridis_d()
+  scale_color_viridis_d() +
+  scale_y_log10() +
+  labs(y = "Count", x = "MPA Size", color = "Movement (hr/pld)")
+
+p2 = ggplot(sub_data, aes(min_dist, total_biomass, color = move_combo, group = sciname)) +
+  geom_jitter(alpha = 0.2) +
+  theme_bw() +
+  theme(strip.background = element_rect(fill = "transparent")) +
+  geom_smooth(method = "lm", se = FALSE) +
+  scale_color_viridis_d() +
+  scale_y_log10()+
+  labs(y = "Count", x = "Minimum Distance", color = "Movement (hr/pld)")
+
+p3 = ggplot(sub_data, aes(max_dist, total_biomass, color = move_combo, group = sciname)) +
+  geom_jitter(alpha = 0.2) +
+  theme_bw() +
+  theme(strip.background = element_rect(fill = "transparent")) +
+  geom_smooth(method = "lm", se = FALSE) +
+  scale_color_viridis_d() +
+  scale_y_log10()+
+  labs(y = "Count", x = "Maximum Distance", color = "Movement (hr/pld)")
 
 ggplot(sub_data, aes(as.factor(implementation_date), biomass, color = move_combo)) +
   geom_boxplot(alpha = 0.5) +
@@ -344,13 +405,14 @@ ggplot(sub_data, aes(habitat_richness, biomass, color = move_combo)) +
   geom_smooth(method = "lm", se = FALSE) +
   scale_color_viridis_d()
 
-ggplot(sub_data, aes(habitat_diversity, biomass, color = move_combo)) +
-  geom_jitter(alpha = 0.5) +
+p4 = ggplot(sub_data, aes(habitat_diversity, total_biomass, color = move_combo, group = sciname)) +
+  geom_jitter(alpha = 0.2) +
   theme_bw() +
-  facet_wrap(~sciname, scales = "free") +
   theme(strip.background = element_rect(fill = "transparent")) +
   geom_smooth(method = "lm", se = FALSE) +
-  scale_color_viridis_d()
+  scale_color_viridis_d() +
+  scale_y_log10()+
+  labs(y = "Count", x = "Habitat Diversity", color = "Movement (hr/pld)")
 
 ggplot(sub_data, aes(prop_rock, biomass, color = move_combo)) +
   geom_jitter(alpha = 0.5) +
@@ -377,30 +439,33 @@ ggplot(sub_data, aes(as.factor(mpa_defacto_designation), biomass, color = move_c
   scale_y_log10() +
   scale_color_viridis_d()
 
-ggplot(sub_data, aes(temp, biomass, color = move_combo)) +
-  geom_jitter(alpha = 0.5) +
+p5 = ggplot(sub_data, aes(temp, total_biomass, color = move_combo, group = sciname)) +
+  geom_jitter(alpha = 0.2) +
   theme_bw() +
-  facet_wrap(~sciname, scales = "free") +
   theme(strip.background = element_rect(fill = "transparent")) +
   geom_smooth(method = "lm", se = FALSE) +
-  scale_color_viridis_d()
+  scale_color_viridis_d() +
+  scale_y_log10()+
+  labs(y = "Count", x = "Temperature", color = "Movement (hr/pld)")
 
-ggplot(sub_data, aes(date, biomass, color = move_combo)) +
-  geom_jitter(alpha = 0.5) +
+p6 = ggplot(sub_data, aes(date, total_biomass, color = move_combo, group = sciname)) +
+  geom_jitter(alpha = 0.2) +
   theme_bw() +
-  facet_wrap(~sciname, scales = "free") +
   theme(strip.background = element_rect(fill = "transparent")) +
   geom_smooth(method = "lm", se = FALSE) +
-  scale_color_viridis_d()
+  scale_color_viridis_d() +
+  scale_y_log10()+
+  labs(y = "Count", x = "Date", color = "Movement (hr/pld)")
 
+plot = (p1 + p2) /(p3 + p4) / (p5 + p6)+ plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
+plot
+
+ggsave(plot, file = paste0("biomass_preditors_summary.pdf"), path = here::here("figs"), height = 10, width = 12)
 
 glms2 = sub_data %>% 
   group_by(sciname, move_combo) %>% 
-  do(model = lmer(log(biomass) ~ scale(size) + 
-                    temp +
-                    prop_rock +
-                     (1|date) +
-                    (1|length_to_use), 
+  do(model = lmer(log(total_biomass) ~ scale(size)*min_dist + 
+                     (1|date) , 
                    data = .,))
 
 glms2$model
