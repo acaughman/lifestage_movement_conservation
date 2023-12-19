@@ -3,6 +3,7 @@ library(patchwork)
 library(spData)
 library(sf)
 library(lme4)
+library(lubridate)
 library(jtools)
 library(marginaleffects)
 library(MASS)
@@ -251,13 +252,58 @@ p2 <- ggplot(sub_data, aes(sciname, biomass, color = move_combo)) +
   scale_y_log10() +
   theme(strip.background = element_rect(fill = "transparent")) +
   scale_color_viridis_d() +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1), ) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
   labs(y = "Biomass", x = "", color = "Movement (hr/pld)")
 
 plot <- p1 / p2 + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
 plot
 
 ggsave(plot, file = paste0("biomass_count_summary.pdf"), path = here::here("figs"), height = 10, width = 12)
+
+tsp <- ggplot(sub_count, aes(date, total_count)) +
+  geom_vline(aes(xintercept = ymd(2014, truncated = 2L)), color = "red", linetype = "dashed", alpha = 0.5) +
+  geom_vline(aes(xintercept = ymd(2016, truncated = 2L)), color = "red", linetype = "dashed", alpha = 0.5) +
+  geom_line() +
+  theme_bw() +
+  facet_grid(sciname ~ affiliated_mpa) +
+  scale_y_log10() +
+  theme(strip.background = element_rect(fill = "transparent")) +
+  scale_color_viridis_d() +
+  labs(x = "", y = "Count") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+tsp
+
+ggsave(tsp, file = paste0("species_mpa_timeseries.pdf"), path = here::here("figs"), height = 12, width = 15)
+
+tsp2 <- ggplot(sub_count) +
+  geom_vline(aes(xintercept = ymd(2014, truncated = 2L)), color = "red", linetype = "dashed", alpha = 0.5) +
+  geom_vline(aes(xintercept = ymd(2016, truncated = 2L)), color = "red", linetype = "dashed", alpha = 0.5) +
+  geom_line(aes(date, total_count)) +
+  geom_line(aes(date, temp), color = "blue") +
+  theme_bw() +
+  facet_grid(sciname ~ affiliated_mpa) +
+  scale_y_log10() +
+  theme(strip.background = element_rect(fill = "transparent")) +
+  scale_color_viridis_d() +
+  labs(x = "", y = "Count") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+tsp2
+
+temp <- ggplot(sub_count) +
+  geom_vline(aes(xintercept = ymd(2014, truncated = 2L)), color = "red", linetype = "dashed", alpha = 0.5) +
+  geom_vline(aes(xintercept = ymd(2016, truncated = 2L)), color = "red", linetype = "dashed", alpha = 0.5) +
+  geom_line(aes(date, temp), linewidth = 1) +
+  theme_bw() +
+  facet_wrap(~affiliated_mpa) +
+  scale_y_log10() +
+  theme(strip.background = element_rect(fill = "transparent")) +
+  scale_color_viridis_d() +
+  labs(x = "", y = "Temperature") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+  geom_smooth(aes(date, temp), method = "lm", se = FALSE, linetype = "dashed")
+temp
+
+ggsave(temp, file = paste0("temp_summary.pdf"), path = here::here("figs"), height = 10, width = 12)
 
 # predictors summary ------------------------------------------------------
 
