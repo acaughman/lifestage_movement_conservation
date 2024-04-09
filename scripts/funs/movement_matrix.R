@@ -49,10 +49,10 @@ movement_matrix <- function(time_step, resolution, habitat) {
   
   movement_matrix = movement_matrix[[1]]
   
-  movement_matrix_reshape = array(0, dim=c(resolution[1],resolution[2],nrow(movement_matrix)))
+  movement_matrix_reshape = array(0, dim=c(resolution[1],resolution[2], 2, nrow(movement_matrix)))
   
   for (i in 1:nrow(movement_matrix)) {
-    movement_matrix_reshape[, ,i] = t(Reshape(movement_matrix[, i], resolution[1], resolution[2]))
+    movement_matrix_reshape[, , , i] = t(Reshape(movement_matrix[, i], resolution[1], resolution[2]))
   }
   
   return(movement_matrix_reshape)
