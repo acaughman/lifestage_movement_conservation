@@ -6,6 +6,16 @@ output_df2 = read_csv(here::here("outputs", "base_model_4x4.csv"))
 output_df3 = read_csv(here::here("outputs", "base_model_8x8.csv"))
 output_df4 = read_csv(here::here("outputs", "base_model_16x16.csv"))
 
+# output_df1 = read_csv(here::here("outputs", "base_model_4x4.csv"))
+# output_df2 = read_csv(here::here("outputs", "base_model_4x4_2.csv"))
+# output_df3 = read_csv(here::here("outputs", "base_model_4x4_4.csv"))
+# output_df4 = read_csv(here::here("outputs", "base_model_4x4_8.csv"))
+
+# output_df1 = read_csv(here::here("outputs", "base_model_8x8.csv"))
+# output_df2 = read_csv(here::here("outputs", "base_model_8x8_2.csv"))
+# output_df3 = read_csv(here::here("outputs", "base_model_8x8_4.csv"))
+# output_df4 = read_csv(here::here("outputs", "base_model_8x8_8.csv"))
+
 # summary -----------------------------------------------------------------
 
 # f_mort[25:26, 25:26, ] <- 1 # size 2x2
