@@ -18,7 +18,7 @@ prep_movement <-
     # .2^2 == exp(2 * log(.2)), hence notation in Thorson et al. going back and forth between different structures
     
     # set up spatial grid
-    adjacent <<-
+    adjacent <-
       tidyr::expand_grid(x = 1:resolution[1], y = 1:resolution[2]) %>%
       dist() %>%
       as.matrix()
