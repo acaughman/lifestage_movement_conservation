@@ -66,7 +66,7 @@ adult_movement_matrix <- array(0, dim = c(resolution[1], resolution[2], nrow(adu
 for (i in 1:nrow(adult_mm)) {
   adult_movement_matrix[, , i] <- t(Reshape(adult_mm[, i], resolution[1], resolution[2]))
 }
-# 
+#
 # recruit_mm <- movement_matrix(time_step, resolution, recruit_habitat)
 
 # save(recruit_mm, file = here::here("outputs", "recruit_diffusion_4.rda"))
@@ -122,7 +122,7 @@ for (rep in 1:reps) {
       # f_mort[22:29, 30:37, ] <- 1 # size 8x8, spacing 8
       # f_mort[22:29, 9:17, ] <- 1 # size 8x8, spacing 16
       # f_mort[22:29, 34:41, ] <- 1 # size 8x8, spacing 16
-      }
+    }
     # fishing mortality
     if (t > 20) {
       pop[, , 2, ] <- pop[, , 2, ] * f_mort
