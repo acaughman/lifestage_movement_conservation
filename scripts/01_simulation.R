@@ -32,8 +32,6 @@ f_mort <- 1 - array(0.5, c(resolution, age_classes)) # fishing mortality (same d
 opt.temp <- 25 # optimal temperature of species
 temp.range <- 4 # thermal breath of species
 
-n_mort/dd
-
 initial <- 100
 
 max_hab_mult <- 2
