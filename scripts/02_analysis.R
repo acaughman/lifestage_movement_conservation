@@ -1,79 +1,146 @@
 library(tidyverse)
 library(patchwork)
 
-# output_df1 = read_csv(here::here("outputs", "base_model_2x2.csv"))
-# output_df2 = read_csv(here::here("outputs", "base_model_4x4.csv"))
-# output_df3 = read_csv(here::here("outputs", "base_model_8x8.csv"))
-# output_df4 = read_csv(here::here("outputs", "base_model_16x16.csv"))
+output_df1 <- read_csv(here::here("outputs", "2x2.csv")) %>%
+  mutate(
+    mpa_size = 2,
+    mpa_spacing = 0,
+    mpa = case_when(
+      (lat %in% c(25, 26) & lon %in% c(25, 26)) ~ "MPA 1",
+      TRUE ~ "Non-MPA"
+    )
+  )
+output_df2 <- read_csv(here::here("outputs", "4x4.csv")) %>%
+  mutate(
+    mpa_size = 4,
+    mpa_spacing = 0,
+    mpa = case_when(
+      (lat %in% c(24:27) & lon %in% c(24:27)) ~ "MPA 1",
+      TRUE ~ "Non-MPA"
+    )
+  )
+output_df3 <- read_csv(here::here("outputs", "8x8.csv")) %>%
+  mutate(
+    mpa_size = 8,
+    mpa_spacing = 0,
+    mpa = case_when(
+      (lat %in% c(22:29) & lon %in% c(22:29)) ~ "MPA 1",
+      TRUE ~ "Non-MPA"
+    )
+  )
+output_df4 <- read_csv(here::here("outputs", "16x16.csv")) %>%
+  mutate(
+    mpa_size = 16,
+    mpa_spacing = 0,
+    mpa = case_when(
+      (lat %in% c(17:32) & lon %in% c(17:32)) ~ "MPA 1",
+      TRUE ~ "Non-MPA"
+    )
+  )
+output_df5 <- read_csv(here::here("outputs", "4x4_2.csv")) %>%
+  mutate(
+    mpa_size = 4,
+    mpa_spacing = 2,
+    mpa = case_when(
+      (lat %in% c(21:24) & lon %in% c(24:27)) ~ "MPA 1",
+      (lat %in% c(27:30) & lon %in% c(24:27)) ~ "MPA 2",
+      TRUE ~ "Non-MPA"
+    )
+  )
+output_df6 <- read_csv(here::here("outputs", "4x4_4.csv")) %>%
+  mutate(
+    mpa_size = 4,
+    mpa_spacing = 4,
+    mpa = case_when(
+      (lat %in% c(20:23) & lon %in% c(24:27)) ~ "MPA 1",
+      (lat %in% c(28:31) & lon %in% c(24:27)) ~ "MPA 2",
+      TRUE ~ "Non-MPA"
+    )
+  )
+output_df7 <- read_csv(here::here("outputs", "4x4_8.csv")) %>%
+  mutate(
+    mpa_size = 4,
+    mpa_spacing = 8,
+    mpa = case_when(
+      (lat %in% c(18:21) & lon %in% c(24:27)) ~ "MPA 1",
+      (lat %in% c(30:33) & lon %in% c(24:27)) ~ "MPA 2",
+      TRUE ~ "Non-MPA"
+    )
+  )
+output_df8 <- read_csv(here::here("outputs", "4x4_16.csv")) %>%
+  mutate(
+    mpa_size = 4,
+    mpa_spacing = 16,
+    mpa = case_when(
+      (lat %in% c(14:17) & lon %in% c(24:27)) ~ "MPA 1",
+      (lat %in% c(34:37) & lon %in% c(24:27)) ~ "MPA 2",
+      TRUE ~ "Non-MPA"
+    )
+  )
+output_df9 <- read_csv(here::here("outputs", "8x8_2.csv")) %>%
+  mutate(
+    mpa_size = 8,
+    mpa_spacing = 2,
+    mpa = case_when(
+      (lat %in% c(17:24) & lon %in% c(22:29)) ~ "MPA 1",
+      (lat %in% c(27:34) & lon %in% c(22:29)) ~ "MPA 2",
+      TRUE ~ "Non-MPA"
+    )
+  )
+output_df10 <- read_csv(here::here("outputs", "8x8_4.csv")) %>%
+  mutate(
+    mpa_size = 8,
+    mpa_spacing = 4,
+    mpa = case_when(
+      (lat %in% c(16:23) & lon %in% c(22:29)) ~ "MPA 1",
+      (lat %in% c(28:35) & lon %in% c(22:29)) ~ "MPA 2",
+      TRUE ~ "Non-MPA"
+    )
+  )
+output_df11 <- read_csv(here::here("outputs", "8x8_8.csv")) %>%
+  mutate(
+    mpa_size = 8,
+    mpa_spacing = 8,
+    mpa = case_when(
+      (lat %in% c(14:21) & lon %in% c(22:29)) ~ "MPA 1",
+      (lat %in% c(30:37) & lon %in% c(22:29)) ~ "MPA 2",
+      TRUE ~ "Non-MPA"
+    )
+  )
+output_df12 <- read_csv(here::here("outputs", "8x8_16.csv")) %>%
+  mutate(
+    mpa_size = 8,
+    mpa_spacing = 16,
+    mpa = case_when(
+      (lat %in% c(10:17) & lon %in% c(22:29)) ~ "MPA 1",
+      (lat %in% c(34:41) & lon %in% c(22:29)) ~ "MPA 2",
+      TRUE ~ "Non-MPA"
+    )
+  )
 
-# output_df1 = read_csv(here::here("outputs", "base_model_4x4_2.csv"))
-# output_df2 = read_csv(here::here("outputs", "base_model_4x4_4.csv"))
-# output_df3 = read_csv(here::here("outputs", "base_model_4x4_8.csv"))
-# output_df4 = read_csv(here::here("outputs", "base_model_4x4_16.csv"))
+output <- list(
+  output_df1, output_df2, output_df3, output_df4, output_df5, output_df6, output_df7, output_df8,
+  output_df9, output_df10, output_df11, output_df12
+) %>%
+  reduce(full_join)
 
-output_df1 = read_csv(here::here("outputs", "base_model_8x8_2.csv"))
-output_df2 = read_csv(here::here("outputs", "base_model_8x8_4.csv"))
-output_df3 = read_csv(here::here("outputs", "base_model_8x8_8.csv"))
-output_df4 = read_csv(here::here("outputs", "base_model_8x8_16.csv"))
+rm(
+  output_df1, output_df2, output_df3, output_df4, output_df5, output_df6, output_df7, output_df8,
+  output_df9, output_df10, output_df11, output_df12
+)
 
-# summary -----------------------------------------------------------------
+mpa <- output %>%
+  filter(mpa != "Non-MPA") %>%
+  group_by(mpa, mpa_size, mpa_spacing, larval_movement, adult_movement, generation, age) %>%
+  summarize(mean_pop = mean(pop, na.rm = TRUE)) %>%
+  mutate(movement = c(paste0(adult_movement, " / ", larval_movement)))
 
-# f_mort[25:26, 25:26, ] <- 1 # size 2x2
-# f_mort[24:27, 24:27, ] <- 1 # size 4x4
-# f_mort[22:29, 22:29, ] <- 1 # size 8x8
-# f_mort[17:32, 17:32, ] <- 1 # size 16x16
-
-p1 = ggplot(output_df1 %>% filter(generation == 100) %>% filter(age == "adult")) +
-  geom_tile(aes(lon, lat, fill = pop, color = pop)) +
-  scale_fill_viridis_c() +
-  scale_color_viridis_c() +
-  # geom_rect(xmin = 25, ymin = 25, xmax=26, ymax=26, fill = NA, color= "red") +
-  theme_bw()
-p2 = ggplot(output_df2 %>% filter(generation == 100) %>% filter(age == "adult")) +
-  geom_tile(aes(lon, lat, fill = pop, color = pop)) +
-  scale_fill_viridis_c() +
-  scale_color_viridis_c() +
-  # geom_rect(xmin = 24, ymin = 24, xmax=27, ymax=27, fill = NA, color= "red") +
-  theme_bw()
-p3 = ggplot(output_df3 %>% filter(generation == 100) %>% filter(age == "adult")) +
-  geom_tile(aes(lon, lat, fill = pop, color = pop)) +
-  scale_fill_viridis_c() +
-  scale_color_viridis_c() +
-  # geom_rect(xmin = 22, ymin = 22, xmax=29, ymax=29, fill = NA, color= "red") +
-  theme_bw()
-p4 = ggplot(output_df4 %>% filter(generation == 100) %>% filter(age == "adult")) +
-  geom_tile(aes(lon, lat, fill = pop, color = pop)) +
-  scale_fill_viridis_c() +
-  scale_color_viridis_c() +
-  # geom_rect(xmin = 17, ymin = 17, xmax=32, ymax=32, fill = NA, color= "red") +
-  theme_bw()
-p4
-
-(p1 + p2) / (p3 + p4)
-
-# p1  + p4
-
-# Other Plots -------------------------------------------------------------
-
-mpa_df = output_df1 %>% 
-  filter(lat %in% c(25))%>% 
-  filter(lon %in% c(13)) %>% 
-  group_by(rep, age, generation) %>% 
-  summarize(pop = sum(pop))
-
-ggplot(mpa_df) +
-  geom_line(aes(generation, pop, color = age, group = age)) +
+ggplot(mpa %>% filter(age == "adult")) +
+  geom_line(aes(generation, mean_pop, color = as.factor(mpa_spacing))) +
   theme_bw() +
-  theme(axis.text.x = element_blank(),
-        axis.ticks.x= element_blank())
-
-overall_df = output_df4%>% 
-  group_by(rep, age, generation) %>% 
-  summarize(pop = sum(pop))
-
-ggplot(overall_df) +
-  geom_line(aes(generation, pop, color = age, group = age)) +
-  theme_bw() +
-  theme(axis.text.x = element_blank(),
-        axis.ticks.x= element_blank())
-
+  facet_grid(movement ~ mpa_size) +
+  labs(
+    x = "Time",
+    y = "Average Population Size in MPA"
+  ) +
+  scale_color_viridis_d()
