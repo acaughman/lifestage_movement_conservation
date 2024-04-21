@@ -28,7 +28,7 @@ recruit_diffusion <- 4 # km2/year
 num_eggs <- 5 # number of eggs per female fish
 dd <- 0.005 # density dependence for larval mortality
 n_mort <- 1 - 0.3 # natural mortality
-f_mort <- 1 - array(0.5, c(resolution, age_classes)) # fishing mortality (same dimension as simulation)
+f_mort <- 1 - array(0.5, c(resolution, sexes)) # fishing mortality (same dimension as simulation)
 opt.temp <- 25 # optimal temperature of species
 temp.range <- 4 # thermal breath of species
 
@@ -56,7 +56,7 @@ recruit_habitat <- expand_grid(x = 1:resolution[1], y = 1:resolution[2]) %>%
   as.matrix()
 
 # adult_mm <- movement_matrix(time_step, resolution, adult_habitat)
-
+#
 # save(adult_mm, file = here::here("outputs", "adult_diffusion_2.rda"))
 
 load(here::here("outputs", "adult_diffusion_2.rda"))
@@ -64,25 +64,27 @@ load(here::here("outputs", "adult_diffusion_2.rda"))
 adult_movement_matrix <- array(0, dim = c(resolution[1], resolution[2], nrow(adult_mm)))
 
 for (i in 1:nrow(adult_mm)) {
-  adult_movement_matrix[, , i] <- t(Reshape(adult_mm[, i], resolution[1], resolution[2]))
+  adult_movement_matrix[, , i] <- Reshape(adult_mm[, i], resolution[1], resolution[2])
 }
-#
-# recruit_mm <- movement_matrix(time_step, resolution, recruit_habitat)
 
-# save(recruit_mm, file = here::here("outputs", "recruit_diffusion_4.rda"))
+# recruit_mm <- movement_matrix(time_step, resolution, recruit_habitat)
+#
+# save(recruit_mm, file = here::here("outputs", "recruit_diffusion_2.rda"))
 
 load(here::here("outputs", "recruit_diffusion_4.rda"))
 
 recruit_movement_matrix <- array(0, dim = c(resolution[1], resolution[2], nrow(recruit_mm)))
 
 for (i in 1:nrow(recruit_mm)) {
-  recruit_movement_matrix[, , i] <- t(Reshape(recruit_mm[, i], resolution[1], resolution[2]))
+  recruit_movement_matrix[, , i] <- Reshape(recruit_mm[, i], resolution[1], resolution[2])
 }
 
 pop <- array(0, c(resolution, age_classes, sexes)) # initialize grid
 pop[, , 2, ] <- initial / 2 # add initial adults
 
 output <- array(0, c(resolution, age_classes, sexes, years, reps)) # create array to hold outputs
+
+# # Simulation --------------------------------------------------------------
 
 start_time <- Sys.time()
 
@@ -101,27 +103,27 @@ for (rep in 1:reps) {
     # adult natural mortality
     pop[, , 2, ] <- pop[, , 2, ] * n_mort
     # add MPA
-    if (t > 30) {
+    if (t > 40) {
       # f_mort[25:26, 25:26, ] <- 1 # size 2x2
       f_mort[24:27, 24:27, ] <- 1 # size 4x4
       # f_mort[22:29, 22:29, ] <- 1 # size 8x8
       # f_mort[17:32, 17:32, ] <- 1 # size 16x16
-      # f_mort[24:27, 21:24, ] <- 1 # size 4x4, spacing 2
-      # f_mort[24:27, 27:30, ] <- 1 # size 4x4, spacing 2
-      # f_mort[24:27, 19:23, ] <- 1 # size 4x4, spacing 4
-      # f_mort[24:27, 28:31, ] <- 1 # size 4x4, spacing 4
-      # f_mort[24:27, 18:21, ] <- 1 # size 4x4, spacing 8
-      # f_mort[24:27, 30:33, ] <- 1 # size 4x4, spacing 8
-      # f_mort[24:27, 13:17, ] <- 1 # size 4x4, spacing 16
-      # f_mort[24:27, 34:37, ] <- 1 # size 4x4, spacing 16
-      # f_mort[22:29, 17:24, ] <- 1 # size 8x8, spacing 2
-      # f_mort[22:29, 27:34, ] <- 1 # size 8x8, spacing 2
-      # f_mort[22:29, 18:23, ] <- 1 # size 8x8, spacing 4
-      # f_mort[22:29, 28:25, ] <- 1 # size 8x8, spacing 4
-      # f_mort[22:29, 14:21, ] <- 1 # size 8x8, spacing 8
-      # f_mort[22:29, 30:37, ] <- 1 # size 8x8, spacing 8
-      # f_mort[22:29, 9:17, ] <- 1 # size 8x8, spacing 16
-      # f_mort[22:29, 34:41, ] <- 1 # size 8x8, spacing 16
+      # f_mort[21:24, 24:27, ] <- 1 # size 4x4, spacing 2
+      # f_mort[27:30, 24:27, ] <- 1 # size 4x4, spacing 2
+      # f_mort[20:23, 24:27, ] <- 1 # size 4x4, spacing 4
+      # f_mort[28:31, 24:27, ] <- 1 # size 4x4, spacing 4
+      # f_mort[18:21, 24:27, ] <- 1 # size 4x4, spacing 8
+      # f_mort[30:33, 24:27, ] <- 1 # size 4x4, spacing 8
+      # f_mort[14:17, 24:27, ] <- 1 # size 4x4, spacing 16
+      # f_mort[34:37, 24:27, ] <- 1 # size 4x4, spacing 16
+      # f_mort[17:24, 22:29, ] <- 1 # size 8x8, spacing 2
+      # f_mort[27:34, 22:29, ] <- 1 # size 8x8, spacing 2
+      # f_mort[16:23, 22:29, ] <- 1 # size 8x8, spacing 4
+      # f_mort[28:35, 22:29, ] <- 1 # size 8x8, spacing 4
+      # f_mort[14:21, 22:29, ] <- 1 # size 8x8, spacing 8
+      # f_mort[30:37, 22:29, ] <- 1 # size 8x8, spacing 8
+      # f_mort[10:17, 22:29, ] <- 1 # size 8x8, spacing 16
+      # f_mort[34:41, 22:29, ] <- 1 # size 8x8, spacing 16
     }
     # fishing mortality
     if (t > 20) {
@@ -129,7 +131,7 @@ for (rep in 1:reps) {
     }
     # adult move
     pop[, , 2, 1] <- rowSums(adult_movement_matrix * array(rep(pop[, , 2, 1], each = resolution[1] * resolution[2]), c(resolution, resolution[1] * resolution[2])), dims = 2)
-    pop[, , 2, 2] <- rowSums(adult_movement_matrix * array(rep(pop[, , 2, 2], each = resolution[1] * resolution[2]), c(resolution, resolution[1] * resolution[2])), dims = 2)
+    pop[, , 2, 2] <- rowSums(adult_movement_matrix * array(rep(pop[, , 2, 1], each = resolution[1] * resolution[2]), c(resolution, resolution[1] * resolution[2])), dims = 2)
     # larvae become adults
     pop[, , 2, ] <- pop[, , 1, ] + pop[, , 2, ]
 

@@ -1,22 +1,20 @@
 library(tidyverse)
 library(patchwork)
 
-output_df1 = read_csv(here::here("outputs", "base_model_2x2.csv"))
-output_df2 = read_csv(here::here("outputs", "base_model_4x4.csv"))
-output_df3 = read_csv(here::here("outputs", "base_model_8x8.csv"))
-output_df4 = read_csv(here::here("outputs", "base_model_16x16.csv"))
+# output_df1 = read_csv(here::here("outputs", "base_model_2x2.csv"))
+# output_df2 = read_csv(here::here("outputs", "base_model_4x4.csv"))
+# output_df3 = read_csv(here::here("outputs", "base_model_8x8.csv"))
+# output_df4 = read_csv(here::here("outputs", "base_model_16x16.csv"))
 
 # output_df1 = read_csv(here::here("outputs", "base_model_4x4_2.csv"))
 # output_df2 = read_csv(here::here("outputs", "base_model_4x4_4.csv"))
 # output_df3 = read_csv(here::here("outputs", "base_model_4x4_8.csv"))
 # output_df4 = read_csv(here::here("outputs", "base_model_4x4_16.csv"))
 
-# output_df1 = read_csv(here::here("outputs", "base_model_8x8_2.csv"))
-# output_df2 = read_csv(here::here("outputs", "base_model_8x8_4.csv"))
-# output_df3 = read_csv(here::here("outputs", "base_model_8x8_8.csv"))
-# output_df4 = read_csv(here::here("outputs", "base_model_8x8_16.csv"))
-
-# output_df1 = read_csv(here::here("outputs", "base_model_8x8_16_movetest.csv"))
+output_df1 = read_csv(here::here("outputs", "base_model_8x8_2.csv"))
+output_df2 = read_csv(here::here("outputs", "base_model_8x8_4.csv"))
+output_df3 = read_csv(here::here("outputs", "base_model_8x8_8.csv"))
+output_df4 = read_csv(here::here("outputs", "base_model_8x8_16.csv"))
 
 # summary -----------------------------------------------------------------
 
@@ -49,16 +47,17 @@ p4 = ggplot(output_df4 %>% filter(generation == 100) %>% filter(age == "adult"))
   scale_color_viridis_c() +
   # geom_rect(xmin = 17, ymin = 17, xmax=32, ymax=32, fill = NA, color= "red") +
   theme_bw()
+p4
 
-# (p1 + p2) / (p3 + p4)
+(p1 + p2) / (p3 + p4)
 
 # p1  + p4
 
 # Other Plots -------------------------------------------------------------
 
-mpa_df = output_df2 %>% 
-  filter(lat %in% c(24, 25,26, 27))%>% 
-  filter(lon %in% c(24, 25,26, 27)) %>% 
+mpa_df = output_df1 %>% 
+  filter(lat %in% c(25))%>% 
+  filter(lon %in% c(13)) %>% 
   group_by(rep, age, generation) %>% 
   summarize(pop = sum(pop))
 
