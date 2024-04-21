@@ -1,4 +1,4 @@
-source(here::here("scripts", "funs", "movement_matrix.R"))
+library(pracma)
 
 addTaskCallback(function(...) {
   set.seed(42)
@@ -23,8 +23,6 @@ age_classes <- 2 # babies, adult
 sexes <- 2 # female, male
 
 # fish variables
-adult_diffusion <- 2 # km2/year
-recruit_diffusion <- 4 # km2/year
 num_eggs <- 5 # number of eggs per female fish
 dd <- 0.005 # density dependence for larval mortality
 n_mort <- 1 - 0.3 # natural mortality
@@ -32,67 +30,36 @@ f_mort <- 1 - array(0.5, c(resolution, sexes)) # fishing mortality (same dimensi
 opt.temp <- 25 # optimal temperature of species
 temp.range <- 4 # thermal breath of species
 
+adult_move <- c(1, 2, 4, 8, 16, 32)
+larval_move <- c(1, 2, 4, 8, 16, 32)
+move_combos <- expand.grid(adult_move, larval_move)
+names(move_combos) <- c("adult", "larval")
+
 initial <- 100
-
-max_hab_mult <- 2
-
-# habitats
-adult_habitat <- expand_grid(x = 1:resolution[1], y = 1:resolution[2]) %>%
-  mutate(
-    habitat = 1,
-    habitat = habitat / max(habitat) * adult_diffusion
-  ) %>%
-  pivot_wider(names_from = y, values_from = habitat) %>%
-  select(-x) %>%
-  as.matrix()
-
-recruit_habitat <- expand_grid(x = 1:resolution[1], y = 1:resolution[2]) %>%
-  mutate(
-    habitat = 1,
-    habitat = habitat / max(habitat) * recruit_diffusion
-  ) %>%
-  pivot_wider(names_from = y, values_from = habitat) %>%
-  select(-x) %>%
-  as.matrix()
-
-# adult_mm <- movement_matrix(time_step, resolution, adult_habitat)
-#
-# save(adult_mm, file = here::here("outputs", "adult_diffusion_2.rda"))
-
-load(here::here("outputs", "adult_diffusion_2.rda"))
-
-adult_movement_matrix <- array(0, dim = c(resolution[1], resolution[2], nrow(adult_mm)))
-
-for (i in 1:nrow(adult_mm)) {
-  adult_movement_matrix[, , i] <- Reshape(adult_mm[, i], resolution[1], resolution[2])
-}
-
-# recruit_mm <- movement_matrix(time_step, resolution, recruit_habitat)
-#
-# save(recruit_mm, file = here::here("outputs", "recruit_diffusion_2.rda"))
-
-load(here::here("outputs", "recruit_diffusion_4.rda"))
-
-recruit_movement_matrix <- array(0, dim = c(resolution[1], resolution[2], nrow(recruit_mm)))
-
-for (i in 1:nrow(recruit_mm)) {
-  recruit_movement_matrix[, , i] <- Reshape(recruit_mm[, i], resolution[1], resolution[2])
-}
 
 pop <- array(0, c(resolution, age_classes, sexes)) # initialize grid
 pop[, , 2, ] <- initial / 2 # add initial adults
 
-output <- array(0, c(resolution, age_classes, sexes, years, reps)) # create array to hold outputs
+output <- array(0, c(resolution, age_classes, sexes, years)) # create array to hold outputs
+output_df <- data.frame() # create dataframe to hold results
 
 # # Simulation --------------------------------------------------------------
 
 start_time <- Sys.time()
 
-for (rep in 1:reps) {
-  print(rep)
+for (i in 1:nrow(move_combos)) {
+  print(i)
+  # set movement rates
+  adult_diffusion <- move_combos$adult[i] # km2/year
+  recruit_diffusion <- move_combos$larval[i] # km2/year
+
+  # load habitats
+  load(here::here("outputs", paste0("adult_movement_matrix_", move_combos$adult[i], ".rda")))
+  load(here::here("outputs", paste0("recruit_movement_matrix_", move_combos$larval[i], ".rda")))
+
   for (t in 1:years) {
     print(t)
-    output[, , , , t, rep] <- pop
+    output[, , , , t] <- pop
     # births
     pop[, , 1, ] <- pop[, , 2, 1] * num_eggs / 2
     # larvae move
@@ -135,9 +102,28 @@ for (rep in 1:reps) {
     # larvae become adults
     pop[, , 2, ] <- pop[, , 1, ] + pop[, , 2, ]
 
-    output[, , 1, , t, rep] <- pop[, , 1, ]
+    output[, , 1, , t] <- pop[, , 1, ]
     pop[, , 1, ] <- 0
   }
+  
+  # creates dataframe from array data
+  for (a in 1:years) {
+    for (b in 1:sexes) {
+      for (c in 1:age_classes) {
+        world_sub <- output[, , c, b, a] %>%
+          as.data.frame()
+        world_sub$generation <- paste0(a)
+        world_sub$sex <- paste0(b)
+        world_sub$age <- paste0(c)
+        world_sub$lat <- c(1:resolution[2])
+        world_sub$adult <- adult_diffusion
+        world_sub$larval <- recruit_diffusion
+        output_df <- bind_rows(output_df, world_sub)
+      }
+    }
+  }
+  
+  rm(adult_movement_matrix, recruit_movement_matrix) # remove movement matrices
   gc() # clear memory
 }
 gc()
@@ -145,28 +131,7 @@ gc()
 end_time <- Sys.time()
 end_time - start_time
 
-# Output results into a dataframe
-output_df <- data.frame() # create dataframe to hold results
-
-# creates dataframe from array data
-for (a in 1:reps) {
-  for (b in 1:years) {
-    for (c in 1:sexes) {
-      for (d in 1:age_classes) {
-        world_sub <- output[, , d, c, b, a] %>%
-          as.data.frame()
-        world_sub$rep <- paste0(a)
-        world_sub$generation <- paste0(b)
-        world_sub$sex <- paste0(c)
-        world_sub$age <- paste0(d)
-        world_sub$lat <- c(1:resolution[2])
-        output_df <- bind_rows(output_df, world_sub)
-      }
-    }
-  }
-}
-
-names(output_df) <- c(1:resolution[1], "rep", "generation", "sex", "age", "lat")
+names(output_df) <- c(1:resolution[1], "generation", "sex", "age", "lat", "adult", "larval")
 
 output_df <- output_df %>%
   pivot_longer(1:resolution[1],
@@ -184,11 +149,12 @@ output_df <- output_df %>%
   )) %>%
   mutate(sex = as.factor(sex)) %>%
   mutate(age = as.factor(age)) %>% # age as factor
+  mutate(sex = as.factor(adult)) %>%
+  mutate(sex = as.factor(larval)) %>%
   mutate(lat = as.numeric(lat)) %>%
   mutate(lon = as.numeric(lon)) %>%
-  mutate(rep = as.numeric(rep)) %>%
   mutate(generation = as.numeric(generation)) %>%
-  group_by(lat, lon, rep, age, generation) %>%
+  group_by(lat, lon, age, generation, adult, larval) %>%
   summarize(pop = sum(pop))
 
-write_csv(output_df, here::here("outputs", "base_model_4x4.csv"))
+write_csv(output_df, here::here("outputs", "4x4_0.csv"))
