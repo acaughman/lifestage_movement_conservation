@@ -1,3 +1,4 @@
+library(tidyverse)
 library(pracma)
 
 addTaskCallback(function(...) {
