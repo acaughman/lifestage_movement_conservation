@@ -119,8 +119,7 @@ output_df12 <- read_csv(here::here("outputs", "8x8_16.csv")) %>%
   )
 
 output <- list(
-  output_df1, output_df2, output_df3, output_df4, output_df5, output_df6, output_df7, output_df8,
-  output_df9, output_df10, output_df11, output_df12
+  output_df2, output_df6
 ) %>%
   reduce(full_join)
 
@@ -148,14 +147,10 @@ mpa <- output %>%
   )))
 
 
-
-
-
-
 ggplot(mpa %>% filter(age == "adult")) +
-  geom_line(aes(generation, mean_pop, color = as.factor(movement))) +
+  geom_line(aes(generation, mean_pop, color = as.factor(mpa_spacing))) +
   theme_bw() +
-  facet_wrap(~mpa_size) +
+  facet_wrap(movement~mpa_size) +
   labs(
     x = "Time",
     y = "Average Population Size in MPA"
