@@ -1,7 +1,7 @@
 library(tidyverse)
 library(patchwork)
 
-output_df1 <- read_csv(here::here("outputs", "2x2.csv")) %>%
+output_df1 <- read_csv(here::here("outputs", "2x2_0.csv")) %>%
   mutate(
     mpa_size = 2,
     mpa_spacing = 0,
@@ -10,7 +10,7 @@ output_df1 <- read_csv(here::here("outputs", "2x2.csv")) %>%
       TRUE ~ "Non-MPA"
     )
   )
-output_df2 <- read_csv(here::here("outputs", "4x4.csv")) %>%
+output_df2 <- read_csv(here::here("outputs", "4x4_0.csv")) %>%
   mutate(
     mpa_size = 4,
     mpa_spacing = 0,
@@ -19,7 +19,7 @@ output_df2 <- read_csv(here::here("outputs", "4x4.csv")) %>%
       TRUE ~ "Non-MPA"
     )
   )
-output_df3 <- read_csv(here::here("outputs", "8x8.csv")) %>%
+output_df3 <- read_csv(here::here("outputs", "8x8_0.csv")) %>%
   mutate(
     mpa_size = 8,
     mpa_spacing = 0,
@@ -28,7 +28,7 @@ output_df3 <- read_csv(here::here("outputs", "8x8.csv")) %>%
       TRUE ~ "Non-MPA"
     )
   )
-output_df4 <- read_csv(here::here("outputs", "16x16.csv")) %>%
+output_df4 <- read_csv(here::here("outputs", "16x16_0.csv")) %>%
   mutate(
     mpa_size = 16,
     mpa_spacing = 0,
@@ -131,14 +131,31 @@ rm(
 
 mpa <- output %>%
   filter(mpa != "Non-MPA") %>%
-  group_by(mpa, mpa_size, mpa_spacing, larval_movement, adult_movement, generation, age) %>%
+  group_by(mpa, mpa_size, mpa_spacing, larval, adult, generation, age) %>%
   summarize(mean_pop = mean(pop, na.rm = TRUE)) %>%
-  mutate(movement = c(paste0(adult_movement, " / ", larval_movement)))
+  mutate(movement = c(paste0(adult, " / ", larval))) %>%
+  mutate(movement = fct_relevel(movement, c(
+    "1 / 1", "2 / 1", "4 / 1", "8 / 1", "16 / 1", "32 / 1",
+    "1 / 2", "1 / 4", "1 / 8", "1 / 16", "1 / 32",
+    "2 / 2", "4 / 2", "8 / 2", "16 / 2", "32 / 2",
+    "2 / 4", "2 / 8", "2 / 16", "2 / 32",
+    "4 / 4", "8 / 4", "16 / 4", "32 / 4",
+    "4 / 8", "4 / 16", "4 / 32",
+    "8 / 8", "16 / 8", "32 / 8",
+    "8 / 16", "8 / 32",
+    "16 / 16", "32 / 16",
+    "16 / 32", "32 / 32"
+  )))
+
+
+
+
+
 
 ggplot(mpa %>% filter(age == "adult")) +
-  geom_line(aes(generation, mean_pop, color = as.factor(mpa_spacing))) +
+  geom_line(aes(generation, mean_pop, color = as.factor(movement))) +
   theme_bw() +
-  facet_grid(movement ~ mpa_size) +
+  facet_wrap(~mpa_size) +
   labs(
     x = "Time",
     y = "Average Population Size in MPA"
