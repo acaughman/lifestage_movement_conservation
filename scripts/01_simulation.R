@@ -58,6 +58,9 @@ for (i in 1:nrow(move_combos)) {
   load(here::here("outputs", paste0("adult_movement_matrix_", move_combos$adult[i], ".rda")))
   load(here::here("outputs", paste0("recruit_movement_matrix_", move_combos$larval[i], ".rda")))
 
+  # reset fishing
+  f_mort <- 1 - array(0.5, c(resolution, sexes)) # fishing mortality (same dimension as simulation)
+
   for (t in 1:years) {
     print(t)
     output[, , , , t] <- pop
@@ -106,7 +109,7 @@ for (i in 1:nrow(move_combos)) {
     output[, , 1, , t] <- pop[, , 1, ]
     pop[, , 1, ] <- 0
   }
-  
+
   # creates dataframe from array data
   for (a in 1:years) {
     for (b in 1:sexes) {
@@ -123,7 +126,7 @@ for (i in 1:nrow(move_combos)) {
       }
     }
   }
-  
+
   rm(adult_movement_matrix, recruit_movement_matrix) # remove movement matrices
   gc() # clear memory
 }
