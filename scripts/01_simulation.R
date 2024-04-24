@@ -9,16 +9,8 @@ options(warn = -1)
 options(dplyr.summarise.inform = FALSE)
 
 # simulation variables
-reps <- 1
 resolution <- c(50, 50)
 years <- 100 # eventually set up for pre fishing, pre MPA
-seasons <- 1
-
-time_step <- 1 / seasons
-
-steps <- years * seasons
-
-patch_area <- 1
 
 age_classes <- 2 # babies, adult
 sexes <- 2 # female, male
