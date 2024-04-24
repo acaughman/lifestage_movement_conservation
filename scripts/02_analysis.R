@@ -141,9 +141,7 @@ output = read_csv(here::here("data", "processed_data", "model_results.csv"))
 mpa <- output %>%
   filter(mpa != "Non-MPA") %>%
   group_by(mpa, mpa_size, mpa_spacing, larval, adult, generation, age) %>%
-  summarize(mean_pop = mean(pop, na.rm = TRUE)) 
-
-mpa <- mpa %>%
+  summarize(mean_pop = mean(pop, na.rm = TRUE)) %>%
   filter(mpa == "MPA 1") %>% 
   mutate(movement = c(paste0(adult, " / ", larval))) %>%
   mutate(movement = fct_relevel(movement, c(
@@ -171,4 +169,17 @@ p1 = ggplot(mpa %>% filter(age == "adult") %>% filter(generation == 90)) +
   ) +
   scale_color_viridis_d()
 
-ggsave(p1, path = here::here("figs"), file = paste0("mpa.pdf"), height = 8, width = 12, limitsize = FALSE)
+ggsave(p1, path = here::here("figs"), file = paste0("mpa_spacing.pdf"), height = 8, width = 12, limitsize = FALSE)
+
+p2 = ggplot(mpa %>% filter(age == "adult") %>% filter(generation == 90)) +
+  geom_point(aes(mpa_size, mean_pop, color = movement), size = 3) +
+  geom_line(aes(mpa_size, mean_pop, color = movement), linewidth = 2) +
+  theme_bw() +
+  facet_wrap(~ mpa_spacing, nrow = 1, scales = "free_x") +
+  labs(
+    x = "MPA Size",
+    y = "Average Population Size in MPA"
+  ) +
+  scale_color_viridis_d()
+
+ggsave(p2, path = here::here("figs"), file = paste0("mpa_size.pdf"), height = 8, width = 12, limitsize = FALSE)
