@@ -11,7 +11,22 @@ mpa <- output %>%
   group_by(mpa, mpa_size, mpa_spacing, larval, adult, generation, age) %>%
   summarize(mean_pop = mean(pop, na.rm = TRUE)) %>%
   filter(mpa == "MPA 1") %>% 
-  mutate(movement = c(paste0(adult, " / ", larval))) %>%
+  mutate(adult_cat = case_when(
+    adult %in% c(1, 2) ~ "low",
+    adult %in% c(4, 8) ~ "medium",
+    adult %in% c(16, 32) ~ "high"
+  )) %>% 
+  mutate(larval_cat = case_when(
+    larval %in% c(1, 2) ~ "low",
+    larval %in% c(4, 8) ~ "medium",
+    larval %in% c(16, 32) ~ "high"
+  )) %>% 
+  mutate(movement = c(paste0(adult, " / ", larval)),
+         move_cat = c(paste0(adult_cat, " / ", larval_cat)))
+
+rm(output)
+
+mpa = mpa %>%
   mutate(movement = fct_relevel(movement, c(
     "1 / 1", "2 / 1", "4 / 1", "8 / 1", "16 / 1", "32 / 1",
     "1 / 2", "1 / 4", "1 / 8", "1 / 16", "1 / 32",
@@ -24,33 +39,6 @@ mpa <- output %>%
     "16 / 16", "32 / 16",
     "16 / 32", "32 / 32"
   )))
-
-
-p1 = ggplot(mpa %>% filter(age == "adult") %>% filter(generation == 90)) +
-  geom_point(aes(mpa_spacing, mean_pop, color = movement), size = 3) +
-  geom_line(aes(mpa_spacing, mean_pop, color = movement), linewidth = 2) +
-  theme_bw() +
-  facet_wrap(~ mpa_size, nrow = 1, scales = "free_x") +
-  labs(
-    x = "MPA Spacing",
-    y = "Average Population Size in MPA"
-  ) +
-  scale_color_viridis_d()
-
-ggsave(p1, path = here::here("figs"), file = paste0("mpa_spacing.pdf"), height = 8, width = 12, limitsize = FALSE)
-
-p2 = ggplot(mpa %>% filter(age == "adult") %>% filter(generation == 90)) +
-  geom_point(aes(mpa_size, mean_pop, color = movement), size = 3) +
-  geom_line(aes(mpa_size, mean_pop, color = movement), linewidth = 2) +
-  theme_bw() +
-  facet_wrap(~ mpa_spacing, nrow = 1, scales = "free_x") +
-  labs(
-    x = "MPA Size",
-    y = "Average Population Size in MPA"
-  ) +
-  scale_color_viridis_d()
-
-ggsave(p2, path = here::here("figs"), file = paste0("mpa_size.pdf"), height = 8, width = 12, limitsize = FALSE)
 
 connect = connect %>% 
   mutate(adult_fished_c_1 = adult_RS_fished + adult_IS_fished,
@@ -64,19 +52,61 @@ connect = connect %>%
          c2 = adult_c_2 + larvae_c_2,
          relative_mpa_c1 = adult_mpa_c_1 / larvae_mpa_c_1,
          relative_c2 = adult_c_2 / larvae_c_2) %>% 
-  mutate(movement = c(paste0(adult, " / ", larval))) %>%
-  mutate(movement = fct_relevel(movement, c(
-    "1 / 1", "2 / 1", "4 / 1", "8 / 1", "16 / 1", "32 / 1",
-    "1 / 2", "1 / 4", "1 / 8", "1 / 16", "1 / 32",
-    "2 / 2", "4 / 2", "8 / 2", "16 / 2", "32 / 2",
-    "2 / 4", "2 / 8", "2 / 16", "2 / 32",
-    "4 / 4", "8 / 4", "16 / 4", "32 / 4",
-    "4 / 8", "4 / 16", "4 / 32",
-    "8 / 8", "16 / 8", "32 / 8",
-    "8 / 16", "8 / 32",
-    "16 / 16", "32 / 16",
-    "16 / 32", "32 / 32"
-  )))
+  mutate(adult_cat = case_when(
+    adult %in% c(1, 2) ~ "low",
+    adult %in% c(4, 8) ~ "medium",
+    adult %in% c(16, 32) ~ "high"
+  )) %>% 
+  mutate(larval_cat = case_when(
+    larval %in% c(1, 2) ~ "low",
+    larval %in% c(4, 8) ~ "medium",
+    larval %in% c(16, 32) ~ "high"
+  )) %>% 
+  mutate(movement = c(paste0(adult, " / ", larval)),
+         move_cat = c(paste0(adult_cat, " / ", larval_cat))) %>% 
+mutate(movement = fct_relevel(movement, c(
+  "1 / 1", "2 / 1", "4 / 1", "8 / 1", "16 / 1", "32 / 1",
+  "1 / 2", "1 / 4", "1 / 8", "1 / 16", "1 / 32",
+  "2 / 2", "4 / 2", "8 / 2", "16 / 2", "32 / 2",
+  "2 / 4", "2 / 8", "2 / 16", "2 / 32",
+  "4 / 4", "8 / 4", "16 / 4", "32 / 4",
+  "4 / 8", "4 / 16", "4 / 32",
+  "8 / 8", "16 / 8", "32 / 8",
+  "8 / 16", "8 / 32",
+  "16 / 16", "32 / 16",
+  "16 / 32", "32 / 32"
+)))
+
+
+# Figures -----------------------------------------------------------------
+
+p1 = ggplot(mpa %>% filter(age == "adult") %>% filter(generation > 90)) +
+  geom_point(aes(mpa_spacing, mean_pop, color = move_cat), size = 3) +
+  geom_line(aes(mpa_spacing, mean_pop, color = move_cat, group = movement), linewidth = 2) +
+  theme_bw() +
+  facet_wrap(~ mpa_size, nrow = 1, scales = "free_x") +
+  labs(
+    x = "MPA Spacing",
+    y = "Average Population Size in MPA",
+    color = "Movement (adult / larval)"
+  ) +
+  scale_color_viridis_d()
+
+ggsave(p1, path = here::here("figs"), file = paste0("mpa_spacing.pdf"), height = 8, width = 12, limitsize = FALSE)
+
+p2 = ggplot(mpa %>% filter(age == "adult") %>% filter(generation == 90)) +
+  geom_point(aes(mpa_size, mean_pop, color = move_cat), size = 3) +
+  geom_line(aes(mpa_size, mean_pop, color = move_cat, group = movement), linewidth = 2) +
+  theme_bw() +
+  facet_wrap(~ mpa_spacing, nrow = 1, scales = "free_x") +
+  labs(
+    x = "MPA Size",
+    y = "Average Population Size in MPA",
+    color = "Movement (adult / larval)"
+  ) +
+  scale_color_viridis_d()
+
+ggsave(p2, path = here::here("figs"), file = paste0("mpa_size.pdf"), height = 8, width = 12, limitsize = FALSE)
 
 p1 = ggplot(connect) +
   geom_point(aes(adult, adult_RS_mpa, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
@@ -228,37 +258,37 @@ ggsave(plot, path = here::here("figs"), file = paste0("import_diversity.pdf"), h
 # plot = (p1 + p2) / (p3 + p4) + plot_annotation(tag_level = "A") + plot_layout(guides = "collect")
 
 p1 = ggplot(connect) +
-  geom_point(aes(mpa_size, mpa_c1, color = movement)) +
+  geom_point(aes(mpa_size, mpa_c1, color = move_cat)) +
   theme_bw() +
   scale_color_viridis_d() +
-  geom_smooth(aes(mpa_size, mpa_c1, linetype = as.factor(adult)), se=FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
+  geom_smooth(aes(mpa_size, adult_mpa_c_1, linetype = as.factor(adult)), se=FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
   labs(x = "MPA Size",
        y = "Absolute Settlers", 
        color = "Movement",
        linetype = "Adult Movement")
 p2 = ggplot(connect) +
-  geom_point(aes(mpa_spacing, mpa_c1, color = movement)) +
+  geom_point(aes(mpa_spacing, mpa_c1, color = move_cat)) +
   theme_bw() +
   scale_color_viridis_d() +
-  geom_smooth(aes(mpa_spacing, mpa_c1, linetype = as.factor(adult)), se=FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
+  geom_smooth(aes(mpa_spacing, adult_mpa_c_1, linetype = as.factor(adult)), se=FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
   labs(x = "MPA Spacing",
        y = "Absolute Settlers", 
        color = "Movement",
        linetype = "Adult Movement")
 p3 = ggplot(connect) +
-  geom_point(aes(mpa_size, mpa_c1, color = movement)) +
+  geom_point(aes(mpa_size, mpa_c1, color = move_cat)) +
   theme_bw() +
   scale_color_viridis_d() +
-  geom_smooth(aes(mpa_size, mpa_c1, linetype = as.factor(larval)), se=FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
+  geom_smooth(aes(mpa_size, larvae_mpa_c_1, linetype = as.factor(larval)), se=FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
   labs(x = "MPA Size",
        y = "Absolute Settlers", 
        color = "Movement",
        linetype = "Larval Movement")
 p4 = ggplot(connect) +
-  geom_point(aes(mpa_spacing, mpa_c1, color = movement)) +
+  geom_point(aes(mpa_spacing, mpa_c1, color = move_cat)) +
   theme_bw() +
   scale_color_viridis_d() +
-  geom_smooth(aes(mpa_spacing, mpa_c1, linetype = as.factor(larval)), se=FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
+  geom_smooth(aes(mpa_spacing, larvae_mpa_c_1, linetype = as.factor(larval)), se=FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
   labs(x = "MPA Spacing",
        y = "Absolute Settlers", 
        color = "Movement",
@@ -270,26 +300,24 @@ ggsave(plot, path = here::here("figs"), file = paste0("adultvslarval_connectivit
 
 p3 = ggplot(connect) +
   geom_hline(aes(yintercept = 1), color = "red", linetype = "dashed", linewidth = 0.4) +
-  geom_point(aes(larval, relative_mpa_c1, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
+  geom_point(aes(larval, relative_mpa_c1, color = as.factor(adult))) +
   theme_bw() +
   scale_color_viridis_d() +
   labs(x = "Larval Movement",
        y = "Relative Adult / Larval Settlers", 
-       color = "MPA Spacing",
-       shape = "MPA Size", 
+       color = "Adult Movement",
        linetype = "Adult Movement",
        title = "Realized Connectivity") +
   geom_smooth(aes(larval, relative_mpa_c1, linetype = as.factor(adult)), se=FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
   scale_y_log10() 
 p4 = ggplot(connect) +
   geom_hline(aes(yintercept = 1), color = "red", linetype = "dashed", linewidth = 0.4) +
-  geom_point(aes(adult, relative_mpa_c1, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
+  geom_point(aes(adult, relative_mpa_c1, color = as.factor(larval))) +
   theme_bw() +
   scale_color_viridis_d() +
   labs(x = "Adult Movement",
        y = "Relative Adult / Larval Settlers", 
-       color = "MPA Spacing",
-       shape = "MPA Size", 
+       color = "Larval Movement",
        linetype = "Larval Movement") +
   geom_smooth(aes(adult, relative_mpa_c1, linetype = as.factor(larval)), se=FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
   scale_y_log10() 
@@ -303,7 +331,8 @@ p1 = ggplot(connect) +
        y = "Relative Adult / Larval Settlers", 
        color = "Adult Movement",
        title = "Theorectical Connectivity") +
-  scale_y_log10() 
+  scale_y_log10() +
+  theme(legend.position = "none")
 p2 = ggplot(connect) +
   geom_hline(aes(yintercept = 1), color = "red", linetype = "dashed", linewidth = 0.4) +
   geom_point(aes(adult, relative_c2, color = as.factor(larval))) +
@@ -312,9 +341,10 @@ p2 = ggplot(connect) +
   labs(x = "Adult Movement",
        y = "Relative Adult / Larval Settlers", 
        color = "Larval Movement") +
-  scale_y_log10() 
+  scale_y_log10() +
+  theme(legend.position = "none")
 
-(p1 + p2) / (p3 + p4) + plot_annotation(tag_level = "A") + plot_layout(guides = "collect")
+plot = (p1 + p2) / (p3 + p4) + plot_annotation(tag_level = "A") + plot_layout(guides = "collect")
 
 ggsave(plot, path = here::here("figs"), file = paste0("relative_connectivity.pdf"), height = 8, width = 12, limitsize = FALSE)
 
