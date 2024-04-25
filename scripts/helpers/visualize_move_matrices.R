@@ -7,7 +7,7 @@ resolution <- c(50, 50)
 
 world = array(1:2500, c(resolution))
 
-load(here::here("outputs", "adult_diffusion_32.rda")) 
+load(here::here("outputs", "adult_diffusion_2.rda")) 
 ad = adult_mm
 rm(adult_mm)
 
@@ -19,7 +19,7 @@ for (i in 1:nrow(ad)) {
   ad_df[, , i] <- t(Reshape(ad[, i], resolution[1], resolution[2]))
 }
 
-load(here::here("outputs", "recruit_diffusion_32.rda")) 
+load(here::here("outputs", "recruit_diffusion_16.rda")) 
 ld = recruit_mm
 rm(recruit_mm)
 

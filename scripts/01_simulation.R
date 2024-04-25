@@ -17,7 +17,6 @@ sexes <- 2 # female, male
 
 # fish variables
 num_eggs <- 5 # number of eggs per female fish
-dd <- 0.005 # density dependence for larval mortality
 n_mort <- 1 - 0.3 # natural mortality
 f_mort <- 1 - array(0.5, c(resolution, sexes)) # fishing mortality (same dimension as simulation)
 opt.temp <- 25 # optimal temperature of species
@@ -29,6 +28,10 @@ move_combos <- expand.grid(adult_move, larval_move)
 names(move_combos) <- c("adult", "larval")
 
 initial <- 100
+recruit_0 <- initial * num_eggs
+
+dd <- (5 * 0.7 - 1) / (4 * .7 * recruit_0) # density dependence for larval mortality
+a <- (initial / recruit_0) - initial * dd # slope of beverton holt function
 
 pop <- array(0, c(resolution, age_classes, sexes)) # initialize grid
 pop[, , 2, ] <- initial / 2 # add initial adults
@@ -62,13 +65,20 @@ for (i in 1:nrow(move_combos)) {
     pop[, , 1, 1] <- rowSums(recruit_movement_matrix * array(rep(pop[, , 1, 1], each = resolution[1] * resolution[2]), c(resolution, resolution[1] * resolution[2])), dims = 2)
     pop[, , 1, 2] <- rowSums(recruit_movement_matrix * array(rep(pop[, , 1, 2], each = resolution[1] * resolution[2]), c(resolution, resolution[1] * resolution[2])), dims = 2)
     # juvenile mortality with density dependence
-    pop[, , 1, ] <- pop[, , 1, ] * array((n_mort / (1 + dd * rowSums(pop[, , 1, ], dim = 2))), c(resolution, 2))
+    pop[, , 1, ] <- pop[, , 1, ] * array((n_mort / (a + (dd * rowSums(pop[, , 1, ], dim = 2)))), c(resolution, 2))
     # adult natural mortality
     pop[, , 2, ] <- pop[, , 2, ] * n_mort
     # add MPA
     if (t > 40) {
-      # f_mort[25:26, 25:26, ] <- 1 # size 2x2
-      f_mort[24:27, 24:27, ] <- 1 # size 4x4
+      # resdistribution fishing effort
+      f_mort[, , ] <- f_mort / (1 - ((2 * 2) / (resolution[1] * resolution[2]))) # size 2x2
+      # f_mort[, ,] = f_mort / (1 - ((4 * 4) / (resolution[1] * resolution[2])))
+      # f_mort[, ,] = f_mort / (1 - ((8 * 8) / (resolution[1] * resolution[2])))
+      # f_mort[, ,] = f_mort / (1 - ((16 * 16) / (resolution[1] * resolution[2])))
+
+      # create MPA
+      f_mort[25:26, 25:26, ] <- 1 # size 2x2
+      # f_mort[24:27, 24:27, ] <- 1 # size 4x4
       # f_mort[22:29, 22:29, ] <- 1 # size 8x8
       # f_mort[17:32, 17:32, ] <- 1 # size 16x16
       # f_mort[21:24, 24:27, ] <- 1 # size 4x4, spacing 2

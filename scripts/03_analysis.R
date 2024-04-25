@@ -81,28 +81,32 @@ mutate(movement = fct_relevel(movement, c(
 # Figures -----------------------------------------------------------------
 
 p1 = ggplot(mpa %>% filter(age == "adult") %>% filter(generation > 90)) +
-  geom_point(aes(mpa_spacing, mean_pop, color = move_cat), size = 3) +
-  geom_line(aes(mpa_spacing, mean_pop, color = move_cat, group = movement), linewidth = 2) +
+  geom_point(aes(mpa_spacing, mean_pop, color = as.factor(larval), shape = as.factor(adult))) +
+  geom_line(aes(mpa_spacing, mean_pop, color = as.factor(larval), linetype = as.factor(adult), group = movement), linewidth = 0.8) +
   theme_bw() +
   facet_wrap(~ mpa_size, nrow = 1, scales = "free_x") +
   labs(
     x = "MPA Spacing",
     y = "Average Population Size in MPA",
-    color = "Movement (adult / larval)"
+    color = "Larval Movement",
+    shape = "Adult Movement",
+    linetype = "Adult Movement"
   ) +
   scale_color_viridis_d()
 
 ggsave(p1, path = here::here("figs"), file = paste0("mpa_spacing.pdf"), height = 8, width = 12, limitsize = FALSE)
 
 p2 = ggplot(mpa %>% filter(age == "adult") %>% filter(generation == 90)) +
-  geom_point(aes(mpa_size, mean_pop, color = move_cat), size = 3) +
-  geom_line(aes(mpa_size, mean_pop, color = move_cat, group = movement), linewidth = 2) +
+  geom_point(aes(mpa_size, mean_pop, color = as.factor(larval), shape = as.factor(adult))) +
+  geom_line(aes(mpa_size, mean_pop, color = as.factor(larval), linetype = as.factor(adult), group = movement), linewidth = 0.8) +
   theme_bw() +
   facet_wrap(~ mpa_spacing, nrow = 1, scales = "free_x") +
   labs(
     x = "MPA Size",
     y = "Average Population Size in MPA",
-    color = "Movement (adult / larval)"
+    color = "Larval Movement",
+    shape = "Adult Movement",
+    linetype = "Adult Movement"
   ) +
   scale_color_viridis_d()
 
