@@ -36,7 +36,9 @@ pop[, , 2, ] <- initial / 2 # add initial adults
 
 output <- array(0, c(resolution, age_classes, sexes, years)) # create array to hold outputs
 output_df <- data.frame() # create dataframe to hold results
+
 fished_array <- array(0, c(resolution, sexes, years))
+fished_df <- data.frame()
 
 # # Simulation --------------------------------------------------------------
 
@@ -134,11 +136,24 @@ for (i in 1:nrow(move_combos)) {
         world_sub$lat <- c(1:resolution[2])
         world_sub$adult <- adult_diffusion
         world_sub$larval <- recruit_diffusion
-        world_sub$fished = fished_array[, , b, a]
         output_df <- bind_rows(output_df, world_sub)
       }
     }
   }
+  
+  # creates dataframe from fishing array data
+  for (a in 1:years) {
+    for (b in 1:sexes) {
+      fishing <- output[, , c, b, a] %>%
+        as.data.frame()
+      fishing$generation <- paste0(a)
+      fishing$sex <- paste0(b)
+      fishing$lat <- c(1:resolution[2])
+      fishing$adult <- adult_diffusion
+      fishing$larval <- recruit_diffusion
+      fished_df <- bind_rows(fished_df, fishing)
+    }
+    }
 
   rm(adult_movement_matrix, recruit_movement_matrix) # remove movement matrices
   gc() # clear memory
@@ -148,7 +163,26 @@ gc()
 end_time <- Sys.time()
 end_time - start_time
 
-names(output_df) <- c(1:resolution[1], "generation", "sex", "age", "lat", "adult", "larval", "fished")
+names(output_df) <- c(1:resolution[1], "generation", "sex", "age", "lat", "adult", "larval")
+names(fished_df) <- c(1:resolution[1], "generation", "sex", "lat", "adult", "larval")
+
+fished_df <- fished_df %>%
+  pivot_longer(1:resolution[1],
+               names_to = "lon",
+               values_to = "fished"
+  ) %>%
+  mutate(sex = case_when( # assign real values to sex
+    sex == 1 ~ "female",
+    sex == 2 ~ "male"
+  )) %>%
+  mutate(sex = as.factor(sex)) %>% # turn sex into factor
+  mutate(adult = as.factor(adult)) %>%
+  mutate(larval = as.factor(larval)) %>%
+  mutate(lat = as.numeric(lat)) %>%
+  mutate(lon = as.numeric(lon)) %>%
+  mutate(generation = as.numeric(generation)) %>%
+  group_by(lat, lon, age, generation, adult, larval) %>%
+  summarize(fished = sum(fished))
 
 output_df <- output_df %>%
   pivot_longer(1:resolution[1],
@@ -164,18 +198,14 @@ output_df <- output_df %>%
     age == 1 ~ "larvae",
     age == 2 ~ "adult"
   )) %>%
-  mutate(sex = as.factor(sex)) %>%
   mutate(age = as.factor(age)) %>% # age as factor
   mutate(sex = as.factor(adult)) %>%
   mutate(sex = as.factor(larval)) %>%
   mutate(lat = as.numeric(lat)) %>%
   mutate(lon = as.numeric(lon)) %>%
-  mutate(generation = as.numeric(generation))
-
-
-%>%
+  mutate(generation = as.numeric(generation)) %>%
   group_by(lat, lon, age, generation, adult, larval) %>%
-  summarize(pop = sum(pop),
-            fished = fished)
+  summarize(pop = sum(pop)) %>% 
+  full_join(fished_df)
 
 write_csv(output_df, here::here("outputs", "16x16_0.csv"))
