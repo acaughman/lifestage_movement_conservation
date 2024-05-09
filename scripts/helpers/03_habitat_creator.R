@@ -11,9 +11,8 @@ steps <- years * seasons
 
 patch_area <- 1
 
-
 adult_diffusion <- 32
-recruit_diffusion <- 32
+recruit_diffusion <- 190
 max_hab_mult <- 2
 
 # habitats
@@ -35,7 +34,7 @@ recruit_habitat <- expand_grid(x = 1:resolution[1], y = 1:resolution[2]) %>%
   select(-x) %>%
   as.matrix()
 
-adult_mm <- movement_matrix(time_step, resolution, adult_habitat)
+adult_mm <- movement_matrix(time_step, resolution, adult_habitat, adult_diffusion)
 
 save(adult_mm, file = here::here("outputs", "adult_diffusion_32.rda"))
 
@@ -47,9 +46,9 @@ for (i in 1:nrow(adult_mm)) {
 
 save(adult_movement_matrix, file = here::here("outputs", "adult_movement_matrix_32.rda"))
 
-recruit_mm <- movement_matrix(time_step, resolution, recruit_habitat)
+recruit_mm <- movement_matrix(time_step, resolution, recruit_habitat, recruit_diffusion)
 
-save(recruit_mm, file = here::here("outputs", "recruit_diffusion_32.rda"))
+save(recruit_mm, file = here::here("outputs", "recruit_diffusion_190.rda"))
 
 recruit_movement_matrix <- array(0, dim = c(resolution[1], resolution[2], nrow(recruit_mm)))
 
@@ -57,4 +56,4 @@ for (i in 1:nrow(recruit_mm)) {
   recruit_movement_matrix[, , i] <- Reshape(recruit_mm[, i], resolution[1], resolution[2])
 }
 
-save(recruit_movement_matrix, file = here::here("outputs", "recruit_movement_matrix_32.rda"))
+save(recruit_movement_matrix, file = here::here("outputs", "recruit_movement_matrix_190.rda"))

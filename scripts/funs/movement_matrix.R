@@ -20,7 +20,7 @@ diffusion_prep <- function(x, y, time_step, patch_area) {
 #' @export
 #'
 
-movement_matrix <- function(time_step, resolution, habitat) {
+movement_matrix <- function(time_step, resolution, habitat, diffusion) {
   taxis_matrix <- list(habitat)
 
   # reshape to vector, for some reason doesn't work inside function
@@ -32,7 +32,7 @@ movement_matrix <- function(time_step, resolution, habitat) {
     taxis_matrix[[i]] <- pmin(exp((time_step * outer(taxis_matrix[[i]], taxis_matrix[[i]], "-")) / sqrt(patch_area)), max_hab_mult) # convert habitat gradient into diffusion multiplier
   }
 
-  diffusion_foundation <- purrr::map2(taxis_matrix, adult_diffusion, diffusion_prep, time_step = time_step, patch_area = patch_area) # prepare adult diffusion matrix account for potential land
+  diffusion_foundation <- purrr::map2(taxis_matrix, diffusion, diffusion_prep, time_step = time_step, patch_area = patch_area) # prepare adult diffusion matrix account for potential land
 
   diffusion_and_taxis <- purrr::map2(diffusion_foundation, taxis_matrix, ~ .x * .y)
 

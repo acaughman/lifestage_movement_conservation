@@ -2,7 +2,7 @@ library(tidyverse)
 library(pheatmap)
 
 adult_move <- c(1, 2, 4, 8, 16, 32)
-larval_move <- c(1, 2, 4, 8, 16, 32)
+larval_move <- c(2, 4, 8, 16, 190)
 move_combos <- expand.grid(adult_move, larval_move)
 names(move_combos) <- c("adult", "larval")
 
