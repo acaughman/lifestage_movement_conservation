@@ -78,17 +78,17 @@ for (i in 1:nrow(move_combos)) {
       
       # resdistribution fishing effort
       if(t == 41) {
-        # f_mort[, , ] <- f_mort / (1 - ((2 * 2) / (resolution[1] * resolution[2]))) # size 2x2
+        f_mort[, , ] <- f_mort / (1 - ((2 * 2) / (resolution[1] * resolution[2]))) # size 2x2
         # f_mort[, ,] = f_mort / (1 - ((4 * 4) / (resolution[1] * resolution[2])))
         # f_mort[, ,] = f_mort / (1 - ((8 * 8) / (resolution[1] * resolution[2])))
-        f_mort[, ,] = f_mort / (1 - ((16 * 16) / (resolution[1] * resolution[2])))
+        # f_mort[, ,] = f_mort / (1 - ((16 * 16) / (resolution[1] * resolution[2])))
       }
 
       # create MPA
-      # f_mort[25:26, 25:26, ] <- 1 # size 2x2
+      f_mort[25:26, 25:26, ] <- 1 # size 2x2
       # f_mort[24:27, 24:27, ] <- 1 # size 4x4
       # f_mort[22:29, 22:29, ] <- 1 # size 8x8
-      f_mort[17:32, 17:32, ] <- 1 # size 16x16
+      # f_mort[17:32, 17:32, ] <- 1 # size 16x16
       # f_mort[21:24, 24:27, ] <- 1 # size 4x4, spacing 2
       # f_mort[27:30, 24:27, ] <- 1 # size 4x4, spacing 2
       # f_mort[20:23, 24:27, ] <- 1 # size 4x4, spacing 4
@@ -181,7 +181,7 @@ fished_df <- fished_df %>%
   mutate(lat = as.numeric(lat)) %>%
   mutate(lon = as.numeric(lon)) %>%
   mutate(generation = as.numeric(generation)) %>%
-  group_by(lat, lon, age, generation, adult, larval) %>%
+  group_by(lat, lon, generation, adult, larval) %>%
   summarize(fished = sum(fished))
 
 output_df <- output_df %>%
@@ -199,13 +199,17 @@ output_df <- output_df %>%
     age == 2 ~ "adult"
   )) %>%
   mutate(age = as.factor(age)) %>% # age as factor
-  mutate(sex = as.factor(adult)) %>%
-  mutate(sex = as.factor(larval)) %>%
+  mutate(adult = as.factor(adult)) %>%
+  mutate(larval = as.factor(larval)) %>%
   mutate(lat = as.numeric(lat)) %>%
   mutate(lon = as.numeric(lon)) %>%
   mutate(generation = as.numeric(generation)) %>%
   group_by(lat, lon, age, generation, adult, larval) %>%
-  summarize(pop = sum(pop)) %>% 
+  summarize(pop = sum(pop)) 
+
+output_df = output_df %>% 
   full_join(fished_df)
 
-write_csv(output_df, here::here("outputs", "16x16_0.csv"))
+write_csv(output_df, here::here("outputs", "2x2_0.csv"))
+
+rm(list = ls())
