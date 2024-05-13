@@ -20,8 +20,8 @@ num_eggs <- 5 # number of eggs per female fish
 n_mort <- 1 - 0.3 # natural mortality
 f_mort <- 1 - array(0.5, c(resolution, sexes)) # fishing mortality (same dimension as simulation)
 
-adult_move <- c(1, 2, 4, 8, 16, 32)
-larval_move <- c(2, 4, 8, 16, 32, 190)
+adult_move <- c(1, 4, 16) # c(1, 2, 4, 8, 16, 32)
+larval_move <- c(2, 8, 32) # c(2, 4, 8, 16, 32, 190)
 move_combos <- expand.grid(adult_move, larval_move)
 names(move_combos) <- c("adult", "larval")
 move_combos = move_combos
@@ -78,16 +78,16 @@ for (i in 1:nrow(move_combos)) {
       
       # resdistribution fishing effort
       if(t == 41) {
-        f_mort[, , ] <- f_mort / (1 - ((2 * 2) / (resolution[1] * resolution[2]))) # size 2x2
+        # f_mort[, , ] <- f_mort / (1 - ((2 * 2) / (resolution[1] * resolution[2]))) # size 2x2
         # f_mort[, ,] = f_mort / (1 - ((4 * 4) / (resolution[1] * resolution[2])))
-        # f_mort[, ,] = f_mort / (1 - ((8 * 8) / (resolution[1] * resolution[2])))
+        f_mort[, ,] = f_mort / (1 - ((8 * 8) / (resolution[1] * resolution[2])))
         # f_mort[, ,] = f_mort / (1 - ((16 * 16) / (resolution[1] * resolution[2])))
       }
 
       # create MPA
-      f_mort[25:26, 25:26, ] <- 1 # size 2x2
+      # f_mort[25:26, 25:26, ] <- 1 # size 2x2
       # f_mort[24:27, 24:27, ] <- 1 # size 4x4
-      # f_mort[22:29, 22:29, ] <- 1 # size 8x8
+      f_mort[22:29, 22:29, ] <- 1 # size 8x8
       # f_mort[17:32, 17:32, ] <- 1 # size 16x16
       # f_mort[21:24, 24:27, ] <- 1 # size 4x4, spacing 2
       # f_mort[27:30, 24:27, ] <- 1 # size 4x4, spacing 2
@@ -210,6 +210,6 @@ output_df <- output_df %>%
 output_df = output_df %>% 
   full_join(fished_df)
 
-write_csv(output_df, here::here("outputs", "2x2_0.csv"))
+write_csv(output_df, here::here("outputs", "8x8_0.csv"))
 
 rm(list = ls())

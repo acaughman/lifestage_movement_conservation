@@ -9,7 +9,7 @@ names(move_combos) <- c("adult", "larval")
 resolution <- c(50, 50)
 world <- array(1:2500, resolution)
 
-output_df <- read_csv(here::here("outputs", "8x8_16.csv")) %>%
+output_df <- read_csv(here::here("outputs", "4x4_16.csv")) %>%
   mutate(
     mpa_size = 4,
     mpa_spacing = 0,
@@ -163,4 +163,4 @@ names(connect_df) = c("adult_RS_fished", "larvae_RS_fished", "adult_RS_mpa", "la
                       "adult_IS_fished", "larvae_IS_fished", "adult_IS_mpa", "larvae_IS_mpa", "adult_II", "larvae_II",
                       "adult_ID_fished", "larvae_ID_fished", "adult_ID_mpa", "larvae_ID_mpa", "adult", "larval")
 
-write_csv(connect_df, here::here("outputs", "connectivity_8x8_16.csv"))
+write_csv(connect_df, here::here("outputs", "connectivity_4x4_16.csv"))
