@@ -473,6 +473,7 @@ p3 <- ggplot(connect) +
   ) +
   geom_smooth(aes(larval, relative_mpa_c1, linetype = as.factor(adult)), se = FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
   scale_y_log10()
+
 p4 <- ggplot(connect) +
   geom_hline(aes(yintercept = 1), color = "red", linetype = "dashed", linewidth = 0.4) +
   geom_point(aes(adult, relative_mpa_c1, color = as.factor(larval))) +
@@ -517,8 +518,6 @@ plot <- (p1 + p2) / (p3 + p4) + plot_annotation(tag_level = "A") + plot_layout(g
 
 ggsave(plot, path = here::here("figs"), file = paste0("relative_connectivity.pdf"), height = 8, width = 12, limitsize = FALSE)
 
-
-
 # Fishing Pressure Sensitivity --------------------------------------------
 
 p1 <- ggplot(fish_mpa %>% filter(age == "adult") %>% filter(generation == 90)) +
@@ -537,6 +536,195 @@ p1 <- ggplot(fish_mpa %>% filter(age == "adult") %>% filter(generation == 90)) +
 
 ggsave(p1, path = here::here("figs"), file = paste0("mpa_fish.pdf"), height = 8, width = 12, limitsize = FALSE)
 
+p1 <- ggplot(fish_connect) +
+  geom_point(aes(adult, adult_RS_mpa, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
+  geom_point(aes(adult, adult_RS_fished), color = "black") +
+  scale_color_viridis_d() +
+  theme_bw() +
+  labs(
+    x = "Adult Movement",
+    y = "Retention Strength",
+    color = "MPA Spacing",
+    shape = "MPA Size"
+  )
+
+p2 <- ggplot(fish_connect) +
+  geom_point(aes(larval, larvae_RS_mpa, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
+  geom_point(aes(larval, larvae_RS_fished), color = "black") +
+  scale_color_viridis_d() +
+  theme_bw() +
+  labs(
+    x = "Larval Movement",
+    y = "Retention Strength",
+    color = "MPA Spacing",
+    shape = "MPA Size"
+  )
+
+p3 <- ggplot(fish_connect) +
+  geom_point(aes(adult, adult_IS_mpa, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
+  geom_point(aes(adult, adult_IS_fished), color = "black") +
+  scale_color_viridis_d() +
+  theme_bw() +
+  labs(
+    x = "Adult Movement",
+    y = "Import Strength",
+    color = "MPA Spacing",
+    shape = "MPA Size"
+  )
+
+p4 <- ggplot(fish_connect) +
+  geom_point(aes(larval, larvae_IS_mpa, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
+  geom_point(aes(larval, larvae_IS_fished), color = "black") +
+  scale_color_viridis_d() +
+  theme_bw() +
+  labs(
+    x = "Larval Movement",
+    y = "Import Strength",
+    color = "MPA Spacing",
+    shape = "MPA Size"
+  )
+
+plot <- (p1 + p2) / (p3 + p4) + plot_annotation(tag_level = "A") + plot_layout(guides = "collect")
+
+ggsave(plot, path = here::here("figs"), file = paste0("absolute_connectivity_fish.pdf"), height = 8, width = 12, limitsize = FALSE)
+
+p1 <- ggplot(fish_connect) +
+  geom_point(aes(adult, adult_ID_mpa, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
+  geom_point(aes(adult, adult_ID_fished), color = "black") +
+  scale_color_viridis_d() +
+  theme_bw() +
+  labs(
+    x = "Adult Movement",
+    y = "Import Diversity",
+    color = "MPA Spacing",
+    shape = "MPA Size"
+  )
+
+p2 <- ggplot(fish_connect) +
+  geom_point(aes(larval, larvae_ID_mpa, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
+  geom_point(aes(larval, larvae_ID_fished), color = "black") +
+  scale_color_viridis_d() +
+  theme_bw() +
+  labs(
+    x = "Larval Movement",
+    y = "Import Diversity",
+    color = "MPA Spacing",
+    shape = "MPA Size"
+  )
+
+plot <- (p1 + p2) + plot_annotation(tag_level = "A") + plot_layout(guides = "collect")
+
+ggsave(plot, path = here::here("figs"), file = paste0("import_diversity_fish.pdf"), height = 8, width = 12, limitsize = FALSE)
+
+p1 <- ggplot(fish_connect) +
+  geom_point(aes(mpa_size, mpa_c1, color = move_cat)) +
+  theme_bw() +
+  scale_color_viridis_d() +
+  geom_smooth(aes(mpa_size, adult_mpa_c_1, linetype = as.factor(adult)), se = FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
+  labs(
+    x = "MPA Size",
+    y = "Absolute Settlers",
+    color = "Movement",
+    linetype = "Adult Movement"
+  )
+p2 <- ggplot(fish_connect) +
+  geom_point(aes(mpa_spacing, mpa_c1, color = move_cat)) +
+  theme_bw() +
+  scale_color_viridis_d() +
+  geom_smooth(aes(mpa_spacing, adult_mpa_c_1, linetype = as.factor(adult)), se = FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
+  labs(
+    x = "MPA Spacing",
+    y = "Absolute Settlers",
+    color = "Movement",
+    linetype = "Adult Movement"
+  )
+p3 <- ggplot(fish_connect) +
+  geom_point(aes(mpa_size, mpa_c1, color = move_cat)) +
+  theme_bw() +
+  scale_color_viridis_d() +
+  geom_smooth(aes(mpa_size, larvae_mpa_c_1, linetype = as.factor(larval)), se = FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
+  labs(
+    x = "MPA Size",
+    y = "Absolute Settlers",
+    color = "Movement",
+    linetype = "Larval Movement"
+  )
+p4 <- ggplot(fish_connect) +
+  geom_point(aes(mpa_spacing, mpa_c1, color = move_cat)) +
+  theme_bw() +
+  scale_color_viridis_d() +
+  geom_smooth(aes(mpa_spacing, larvae_mpa_c_1, linetype = as.factor(larval)), se = FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
+  labs(
+    x = "MPA Spacing",
+    y = "Absolute Settlers",
+    color = "Movement",
+    linetype = "Larval Movement"
+  )
+
+plot <- (p1 + p2) / (p3 + p4) + plot_annotation(tag_level = "A") + plot_layout(guides = "collect")
+
+ggsave(plot, path = here::here("figs"), file = paste0("adultvslarval_connectivity_fish.pdf"), height = 8, width = 12, limitsize = FALSE)
+
+p3 <- ggplot(fish_connect) +
+  geom_hline(aes(yintercept = 1), color = "red", linetype = "dashed", linewidth = 0.4) +
+  geom_point(aes(larval, relative_mpa_c1, color = as.factor(adult))) +
+  theme_bw() +
+  scale_color_viridis_d() +
+  labs(
+    x = "Larval Movement",
+    y = "Relative Adult / Larval Settlers",
+    color = "Adult Movement",
+    linetype = "Adult Movement",
+    title = "Realized Connectivity"
+  ) +
+  geom_smooth(aes(larval, relative_mpa_c1, linetype = as.factor(adult)), se = FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
+  scale_y_log10()
+
+p4 <- ggplot(fish_connect) +
+  geom_hline(aes(yintercept = 1), color = "red", linetype = "dashed", linewidth = 0.4) +
+  geom_point(aes(adult, relative_mpa_c1, color = as.factor(larval))) +
+  theme_bw() +
+  scale_color_viridis_d() +
+  labs(
+    x = "Adult Movement",
+    y = "Relative Adult / Larval Settlers",
+    color = "Larval Movement",
+    linetype = "Larval Movement"
+  ) +
+  geom_smooth(aes(adult, relative_mpa_c1, linetype = as.factor(larval)), se = FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
+  scale_y_log10()
+
+p1 <- ggplot(fish_connect) +
+  geom_hline(aes(yintercept = 1), color = "red", linetype = "dashed", linewidth = 0.4) +
+  geom_point(aes(larval, relative_c2, color = as.factor(adult))) +
+  theme_bw() +
+  scale_color_viridis_d() +
+  labs(
+    x = "Larval Movement",
+    y = "Relative Adult / Larval Settlers",
+    color = "Adult Movement",
+    title = "Theorectical Connectivity"
+  ) +
+  scale_y_log10() +
+  theme(legend.position = "none")
+
+p2 <- ggplot(fish_connect) +
+  geom_hline(aes(yintercept = 1), color = "red", linetype = "dashed", linewidth = 0.4) +
+  geom_point(aes(adult, relative_c2, color = as.factor(larval))) +
+  theme_bw() +
+  scale_color_viridis_d() +
+  labs(
+    x = "Adult Movement",
+    y = "Relative Adult / Larval Settlers",
+    color = "Larval Movement"
+  ) +
+  scale_y_log10() +
+  theme(legend.position = "none")
+
+plot <- (p1 + p2) / (p3 + p4) + plot_annotation(tag_level = "A") + plot_layout(guides = "collect")
+
+ggsave(plot, path = here::here("figs"), file = paste0("relative_connectivity_fish.pdf"), height = 8, width = 12, limitsize = FALSE)
+
 # Fecundity Sensitivity ---------------------------------------------------
 
 p1 <- ggplot(fecund_mpa %>% filter(age == "adult") %>% filter(generation == 90)) +
@@ -554,6 +742,196 @@ p1 <- ggplot(fecund_mpa %>% filter(age == "adult") %>% filter(generation == 90))
   scale_color_viridis_d()
 
 ggsave(p1, path = here::here("figs"), file = paste0("mpa_fecund.pdf"), height = 8, width = 12, limitsize = FALSE)
+
+p1 <- ggplot(fecund_connect) +
+  geom_point(aes(adult, adult_RS_mpa, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
+  geom_point(aes(adult, adult_RS_fished), color = "black") +
+  scale_color_viridis_d() +
+  theme_bw() +
+  labs(
+    x = "Adult Movement",
+    y = "Retention Strength",
+    color = "MPA Spacing",
+    shape = "MPA Size"
+  )
+
+p2 <- ggplot(fecund_connect) +
+  geom_point(aes(larval, larvae_RS_mpa, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
+  geom_point(aes(larval, larvae_RS_fished), color = "black") +
+  scale_color_viridis_d() +
+  theme_bw() +
+  labs(
+    x = "Larval Movement",
+    y = "Retention Strength",
+    color = "MPA Spacing",
+    shape = "MPA Size"
+  )
+
+p3 <- ggplot(fecund_connect) +
+  geom_point(aes(adult, adult_IS_mpa, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
+  geom_point(aes(adult, adult_IS_fished), color = "black") +
+  scale_color_viridis_d() +
+  theme_bw() +
+  labs(
+    x = "Adult Movement",
+    y = "Import Strength",
+    color = "MPA Spacing",
+    shape = "MPA Size"
+  )
+
+p4 <- ggplot(fecund_connect) +
+  geom_point(aes(larval, larvae_IS_mpa, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
+  geom_point(aes(larval, larvae_IS_fished), color = "black") +
+  scale_color_viridis_d() +
+  theme_bw() +
+  labs(
+    x = "Larval Movement",
+    y = "Import Strength",
+    color = "MPA Spacing",
+    shape = "MPA Size"
+  )
+
+plot <- (p1 + p2) / (p3 + p4) + plot_annotation(tag_level = "A") + plot_layout(guides = "collect")
+
+ggsave(plot, path = here::here("figs"), file = paste0("absolute_connectivity_fecund.pdf"), height = 8, width = 12, limitsize = FALSE)
+
+p1 <- ggplot(fecund_connect) +
+  geom_point(aes(adult, adult_ID_mpa, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
+  geom_point(aes(adult, adult_ID_fished), color = "black") +
+  scale_color_viridis_d() +
+  theme_bw() +
+  labs(
+    x = "Adult Movement",
+    y = "Import Diversity",
+    color = "MPA Spacing",
+    shape = "MPA Size"
+  )
+
+p2 <- ggplot(fecund_connect) +
+  geom_point(aes(larval, larvae_ID_mpa, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
+  geom_point(aes(larval, larvae_ID_fished), color = "black") +
+  scale_color_viridis_d() +
+  theme_bw() +
+  labs(
+    x = "Larval Movement",
+    y = "Import Diversity",
+    color = "MPA Spacing",
+    shape = "MPA Size"
+  )
+
+plot <- (p1 + p2) + plot_annotation(tag_level = "A") + plot_layout(guides = "collect")
+
+ggsave(plot, path = here::here("figs"), file = paste0("import_diversity_fecund.pdf"), height = 8, width = 12, limitsize = FALSE)
+
+p1 <- ggplot(fecund_connect) +
+  geom_point(aes(mpa_size, mpa_c1, color = move_cat)) +
+  theme_bw() +
+  scale_color_viridis_d() +
+  geom_smooth(aes(mpa_size, adult_mpa_c_1, linetype = as.factor(adult)), se = FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
+  labs(
+    x = "MPA Size",
+    y = "Absolute Settlers",
+    color = "Movement",
+    linetype = "Adult Movement"
+  )
+p2 <- ggplot(fecund_connect) +
+  geom_point(aes(mpa_spacing, mpa_c1, color = move_cat)) +
+  theme_bw() +
+  scale_color_viridis_d() +
+  geom_smooth(aes(mpa_spacing, adult_mpa_c_1, linetype = as.factor(adult)), se = FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
+  labs(
+    x = "MPA Spacing",
+    y = "Absolute Settlers",
+    color = "Movement",
+    linetype = "Adult Movement"
+  )
+p3 <- ggplot(fecund_connect) +
+  geom_point(aes(mpa_size, mpa_c1, color = move_cat)) +
+  theme_bw() +
+  scale_color_viridis_d() +
+  geom_smooth(aes(mpa_size, larvae_mpa_c_1, linetype = as.factor(larval)), se = FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
+  labs(
+    x = "MPA Size",
+    y = "Absolute Settlers",
+    color = "Movement",
+    linetype = "Larval Movement"
+  )
+
+p4 <- ggplot(fecund_connect) +
+  geom_point(aes(mpa_spacing, mpa_c1, color = move_cat)) +
+  theme_bw() +
+  scale_color_viridis_d() +
+  geom_smooth(aes(mpa_spacing, larvae_mpa_c_1, linetype = as.factor(larval)), se = FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
+  labs(
+    x = "MPA Spacing",
+    y = "Absolute Settlers",
+    color = "Movement",
+    linetype = "Larval Movement"
+  )
+
+plot <- (p1 + p2) / (p3 + p4) + plot_annotation(tag_level = "A") + plot_layout(guides = "collect")
+
+ggsave(plot, path = here::here("figs"), file = paste0("adultvslarval_connectivity_fecund.pdf"), height = 8, width = 12, limitsize = FALSE)
+
+p3 <- ggplot(fecund_connect) +
+  geom_hline(aes(yintercept = 1), color = "red", linetype = "dashed", linewidth = 0.4) +
+  geom_point(aes(larval, relative_mpa_c1, color = as.factor(adult))) +
+  theme_bw() +
+  scale_color_viridis_d() +
+  labs(
+    x = "Larval Movement",
+    y = "Relative Adult / Larval Settlers",
+    color = "Adult Movement",
+    linetype = "Adult Movement",
+    title = "Realized Connectivity"
+  ) +
+  geom_smooth(aes(larval, relative_mpa_c1, linetype = as.factor(adult)), se = FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
+  scale_y_log10()
+
+p4 <- ggplot(fecund_connect) +
+  geom_hline(aes(yintercept = 1), color = "red", linetype = "dashed", linewidth = 0.4) +
+  geom_point(aes(adult, relative_mpa_c1, color = as.factor(larval))) +
+  theme_bw() +
+  scale_color_viridis_d() +
+  labs(
+    x = "Adult Movement",
+    y = "Relative Adult / Larval Settlers",
+    color = "Larval Movement",
+    linetype = "Larval Movement"
+  ) +
+  geom_smooth(aes(adult, relative_mpa_c1, linetype = as.factor(larval)), se = FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
+  scale_y_log10()
+
+p1 <- ggplot(fecund_connect) +
+  geom_hline(aes(yintercept = 1), color = "red", linetype = "dashed", linewidth = 0.4) +
+  geom_point(aes(larval, relative_c2, color = as.factor(adult))) +
+  theme_bw() +
+  scale_color_viridis_d() +
+  labs(
+    x = "Larval Movement",
+    y = "Relative Adult / Larval Settlers",
+    color = "Adult Movement",
+    title = "Theorectical Connectivity"
+  ) +
+  scale_y_log10() +
+  theme(legend.position = "none")
+
+p2 <- ggplot(fecund_connect) +
+  geom_hline(aes(yintercept = 1), color = "red", linetype = "dashed", linewidth = 0.4) +
+  geom_point(aes(adult, relative_c2, color = as.factor(larval))) +
+  theme_bw() +
+  scale_color_viridis_d() +
+  labs(
+    x = "Adult Movement",
+    y = "Relative Adult / Larval Settlers",
+    color = "Larval Movement"
+  ) +
+  scale_y_log10() +
+  theme(legend.position = "none")
+
+plot <- (p1 + p2) / (p3 + p4) + plot_annotation(tag_level = "A") + plot_layout(guides = "collect")
+
+ggsave(plot, path = here::here("figs"), file = paste0("relative_connectivity_fecund.pdf"), height = 8, width = 12, limitsize = FALSE)
 
 # Combine Biomass Data ------------------------------------------------------------
 
