@@ -192,3 +192,113 @@ rm(
 )
 
 write_csv(output, here::here("data", "processed_data", "model_results_fecund.csv"))
+
+# Combine Connectivity Data -----------------------------------------------
+
+output_df1 <- read_csv(here::here("outputs", "connectivity_8x8_0_1E.csv")) %>%
+  mutate(
+    mpa_size = 8,
+    mpa_spacing = 0,
+    eggs = 1
+  )
+output_df2 <- read_csv(here::here("outputs", "connectivity_8x8_0.csv")) %>%
+  mutate(
+    mpa_size = 8,
+    mpa_spacing = 0,
+    eggs = 5
+  )
+output_df3 <- read_csv(here::here("outputs", "connectivity_8x8_0_1E.csv")) %>%
+  mutate(
+    mpa_size = 8,
+    mpa_spacing = 0,
+    eggs = 20
+  )
+output_df4 <- read_csv(here::here("outputs", "connectivity_8x8_0_100E.csv")) %>%
+  mutate(
+    mpa_size = 8,
+    mpa_spacing = 0,
+    eggs = 100
+  )
+output_df5 <- read_csv(here::here("outputs", "connectivity_8x8_0_10000E.csv")) %>%
+  mutate(
+    mpa_size = 8,
+    mpa_spacing = 0,
+    eggs = 10000
+  )
+
+output_df6 <- read_csv(here::here("outputs", "connectivity_8x8_2_1E.csv")) %>%
+  mutate(
+    mpa_size = 8,
+    mpa_spacing = 2,
+    eggs = 1
+  )
+output_df7 <- read_csv(here::here("outputs", "connectivity_8x8_2.csv")) %>%
+  mutate(
+    mpa_size = 8,
+    mpa_spacing = 2,
+    eggs = 5
+  )
+output_df8 <- read_csv(here::here("outputs", "connectivity_8x8_2_1E.csv")) %>%
+  mutate(
+    mpa_size = 8,
+    mpa_spacing = 2,
+    eggs = 20
+  )
+output_df9 <- read_csv(here::here("outputs", "connectivity_8x8_2_100E.csv")) %>%
+  mutate(
+    mpa_size = 8,
+    mpa_spacing = 2,
+    eggs = 100
+  )
+output_df10 <- read_csv(here::here("outputs", "connectivity_8x8_2_10000E.csv")) %>%
+  mutate(
+    mpa_size = 8,
+    mpa_spacing = 2,
+    eggs = 10000
+  )
+
+output_df11 <- read_csv(here::here("outputs", "connectivity_8x8_8_1E.csv")) %>%
+  mutate(
+    mpa_size = 8,
+    mpa_spacing = 8,
+    eggs = 1
+  )
+output_df12 <- read_csv(here::here("outputs", "connectivity_8x8_8.csv")) %>%
+  mutate(
+    mpa_size = 8,
+    mpa_spacing = 8,
+    eggs = 5
+  )
+output_df13 <- read_csv(here::here("outputs", "connectivity_8x8_8_1E.csv")) %>%
+  mutate(
+    mpa_size = 8,
+    mpa_spacing = 8,
+    eggs = 20
+  )
+output_df14 <- read_csv(here::here("outputs", "connectivity_8x8_8_100E.csv")) %>%
+  mutate(
+    mpa_size = 8,
+    mpa_spacing = 8,
+    eggs = 100
+  )
+output_df15 <- read_csv(here::here("outputs", "connectivity_8x8_8_10000E.csv")) %>%
+  mutate(
+    mpa_size = 8,
+    mpa_spacing = 8,
+    eggs = 10000
+  )
+
+output <- list(
+  output_df1, output_df2, output_df3, output_df4, output_df5, output_df6,
+  output_df7, output_df8, output_df9, output_df10, output_df11, output_df12,
+  output_df13, output_df14, output_df15
+) %>%
+  reduce(full_join)
+
+rm(
+  output_df1, output_df2, output_df3, output_df4, output_df5, output_df6,
+  output_df7, output_df8, output_df9, output_df10, output_df11, output_df12,
+  output_df13, output_df14, output_df15
+)
+
+write_csv(output, here::here("data", "processed_data", "connectivity_results_fecund.csv"))

@@ -6,7 +6,9 @@ library(patchwork)
 output <- read_csv(here::here("data", "processed_data", "model_results.csv"))
 connect <- read_csv(here::here("data", "processed_data", "connectivity_results.csv"))
 fish <- read_csv(here::here("data", "processed_data", "model_results_fishing.csv"))
+fish_connect <- read_csv(here::here("data", "processed_data", "connectivity_results_fishing.csv"))
 fecund <- read_csv(here::here("data", "processed_data", "model_results_fecund.csv"))
+fecund_connect <- read_csv(here::here("data", "processed_data", "connectivity_results_fecund.csv"))
 
 mpa <- output %>%
   filter(mpa != "Non-MPA") %>%
@@ -114,6 +116,42 @@ fish_mpa <- fish %>%
     "16 / 8", "1 / 32", "4 / 32", "16 / 32"
   )))
 
+fish_connect <- fish_connect %>%
+  mutate(
+    adult_fished_c_1 = adult_RS_fished + adult_IS_fished,
+    adult_mpa_c_1 = adult_RS_mpa + adult_IS_mpa,
+    larvae_fished_c_1 = larvae_RS_fished + larvae_IS_fished,
+    larvae_mpa_c_1 = larvae_RS_mpa + larvae_IS_mpa,
+    adult_c_2 = adult_SR + adult_II,
+    larvae_c_2 = larvae_SR + larvae_II
+  ) %>%
+  mutate(
+    fished_c1 = adult_fished_c_1 + larvae_fished_c_1,
+    mpa_c1 = adult_mpa_c_1 + larvae_mpa_c_1,
+    c2 = adult_c_2 + larvae_c_2,
+    relative_mpa_c1 = adult_mpa_c_1 / larvae_mpa_c_1,
+    relative_c2 = adult_c_2 / larvae_c_2
+  ) %>%
+  mutate(adult_cat = case_when(
+    adult %in% c(1, 2) ~ "low",
+    adult %in% c(4, 8) ~ "medium",
+    adult %in% c(16, 32) ~ "high"
+  )) %>%
+  mutate(larval_cat = case_when(
+    larval %in% c(1, 2) ~ "low",
+    larval %in% c(4, 8) ~ "medium",
+    larval %in% c(16, 32) ~ "high"
+  )) %>%
+  mutate(
+    movement = c(paste0(adult, " / ", larval)),
+    move_cat = c(paste0(adult_cat, " / ", larval_cat))
+  ) %>%
+  mutate(movement = fct_relevel(movement, c(
+    "1 / 2", "4 / 2", "16 / 2", "1 / 8", "4 / 8",
+    "16 / 8", "1 / 32", "4 / 32", "16 / 32"
+  )))
+
+
 fecund_mpa <- fecund %>%
   filter(mpa != "Non-MPA") %>%
   filter(egg != 1) %>%
@@ -142,6 +180,40 @@ fecund_mpa <- fecund %>%
     "16 / 8", "1 / 32", "4 / 32", "16 / 32"
   )))
 
+fecund_connect <- fecund_connect %>%
+  mutate(
+    adult_fished_c_1 = adult_RS_fished + adult_IS_fished,
+    adult_mpa_c_1 = adult_RS_mpa + adult_IS_mpa,
+    larvae_fished_c_1 = larvae_RS_fished + larvae_IS_fished,
+    larvae_mpa_c_1 = larvae_RS_mpa + larvae_IS_mpa,
+    adult_c_2 = adult_SR + adult_II,
+    larvae_c_2 = larvae_SR + larvae_II
+  ) %>%
+  mutate(
+    fished_c1 = adult_fished_c_1 + larvae_fished_c_1,
+    mpa_c1 = adult_mpa_c_1 + larvae_mpa_c_1,
+    c2 = adult_c_2 + larvae_c_2,
+    relative_mpa_c1 = adult_mpa_c_1 / larvae_mpa_c_1,
+    relative_c2 = adult_c_2 / larvae_c_2
+  ) %>%
+  mutate(adult_cat = case_when(
+    adult %in% c(1, 2) ~ "low",
+    adult %in% c(4, 8) ~ "medium",
+    adult %in% c(16, 32) ~ "high"
+  )) %>%
+  mutate(larval_cat = case_when(
+    larval %in% c(1, 2) ~ "low",
+    larval %in% c(4, 8) ~ "medium",
+    larval %in% c(16, 32) ~ "high"
+  )) %>%
+  mutate(
+    movement = c(paste0(adult, " / ", larval)),
+    move_cat = c(paste0(adult_cat, " / ", larval_cat))
+  ) %>%
+  mutate(movement = fct_relevel(movement, c(
+    "1 / 2", "4 / 2", "16 / 2", "1 / 8", "4 / 8",
+    "16 / 8", "1 / 32", "4 / 32", "16 / 32"
+  )))
 
 # Figures -----------------------------------------------------------------
 
