@@ -5,6 +5,8 @@ library(patchwork)
 
 output = read_csv(here::here("data", "processed_data", "model_results.csv"))
 connect = read_csv(here::here("data", "processed_data", "connectivity_results.csv"))
+fish = read_csv(here::here("data", "processed_data", "model_results_fishing.csv"))
+fecund = read_csv(here::here("data", "processed_data", "model_results_fecund.csv"))
 
 mpa <- output %>%
   filter(mpa != "Non-MPA") %>%
@@ -63,19 +65,64 @@ connect = connect %>%
     larval %in% c(16, 32) ~ "high"
   )) %>% 
   mutate(movement = c(paste0(adult, " / ", larval)),
-         move_cat = c(paste0(adult_cat, " / ", larval_cat))) %>% 
-mutate(movement = fct_relevel(movement, c(
-  "1 / 1", "2 / 1", "4 / 1", "8 / 1", "16 / 1", "32 / 1",
-  "1 / 2", "1 / 4", "1 / 8", "1 / 16", "1 / 32",
-  "2 / 2", "4 / 2", "8 / 2", "16 / 2", "32 / 2",
-  "2 / 4", "2 / 8", "2 / 16", "2 / 32",
-  "4 / 4", "8 / 4", "16 / 4", "32 / 4",
-  "4 / 8", "4 / 16", "4 / 32",
-  "8 / 8", "16 / 8", "32 / 8",
-  "8 / 16", "8 / 32",
-  "16 / 16", "32 / 16",
-  "16 / 32", "32 / 32"
-)))
+         move_cat = c(paste0(adult_cat, " / ", larval_cat))) 
+
+# %>% 
+#   mutate(movement = fct_relevel(movement, c(
+#     "1 / 1", "2 / 1", "4 / 1", "8 / 1", "16 / 1", "32 / 1",
+#     "1 / 2", "1 / 4", "1 / 8", "1 / 16", "1 / 32",
+#     "2 / 2", "4 / 2", "8 / 2", "16 / 2", "32 / 2",
+#     "2 / 4", "2 / 8", "2 / 16", "2 / 32",
+#     "4 / 4", "8 / 4", "16 / 4", "32 / 4",
+#     "4 / 8", "4 / 16", "4 / 32",
+#     "8 / 8", "16 / 8", "32 / 8",
+#     "8 / 16", "8 / 32",
+#     "16 / 16", "32 / 16",
+#     "16 / 32", "32 / 32"
+#   )))
+
+fish_mpa =  fish %>% 
+  filter(mpa != "Non-MPA") %>%
+  group_by(mpa, mpa_size, mpa_spacing, larval, adult, generation, age, fp) %>%
+  summarize(mean_pop = mean(pop, na.rm = TRUE)) %>%
+  filter(mpa == "MPA 1") %>% 
+  filter(adult %in% c(1, 4, 16)) %>% 
+  filter(larval %in% c(2, 8, 32)) %>% 
+  mutate(adult_cat = case_when(
+    adult %in% c(1, 2) ~ "low",
+    adult %in% c(4, 8) ~ "medium",
+    adult %in% c(16, 32) ~ "high"
+  )) %>% 
+  mutate(larval_cat = case_when(
+    larval %in% c(1, 2) ~ "low",
+    larval %in% c(4, 8) ~ "medium",
+    larval %in% c(16, 32) ~ "high"
+  )) %>% 
+  mutate(fp = as.factor(fp)) %>% 
+  mutate(movement = c(paste0(adult, " / ", larval)),
+         move_cat = c(paste0(adult_cat, " / ", larval_cat))) 
+
+fecund_mpa =  fecund %>% 
+  filter(mpa != "Non-MPA") %>%
+  filter(egg != 1) %>% 
+  filter(adult %in% c(1, 4, 16)) %>% 
+  filter(larval %in% c(2, 8, 32)) %>% 
+  group_by(mpa, mpa_size, mpa_spacing, larval, adult, generation, age, egg) %>%
+  summarize(mean_pop = mean(pop, na.rm = TRUE)) %>%
+  filter(mpa == "MPA 1") %>% 
+  mutate(adult_cat = case_when(
+    adult %in% c(1, 2) ~ "low",
+    adult %in% c(4, 8) ~ "medium",
+    adult %in% c(16, 32) ~ "high"
+  )) %>% 
+  mutate(larval_cat = case_when(
+    larval %in% c(1, 2) ~ "low",
+    larval %in% c(4, 8) ~ "medium",
+    larval %in% c(16, 32) ~ "high"
+  )) %>% 
+  mutate(egg = as.factor(egg)) %>% 
+  mutate(movement = c(paste0(adult, " / ", larval)),
+         move_cat = c(paste0(adult_cat, " / ", larval_cat)))
 
 
 # Figures -----------------------------------------------------------------
@@ -179,6 +226,38 @@ p2 = ggplot(connect) +
 plot = (p1 + p2) + plot_annotation(tag_level = "A") + plot_layout(guides = "collect")
 
 ggsave(plot, path = here::here("figs"), file = paste0("import_diversity.pdf"), height = 8, width = 12, limitsize = FALSE)
+
+p1 = ggplot(fecund_mpa %>% filter(age == "adult") %>% filter(generation == 90)) +
+  geom_point(aes(mpa_spacing, mean_pop, color = as.factor(larval), shape = as.factor(adult))) +
+  geom_line(aes(mpa_spacing, mean_pop, color = as.factor(larval), linetype = as.factor(adult), group = movement), linewidth = 0.8) +
+  theme_bw() +
+  facet_wrap(~ egg, nrow = 1, scales = "free_x") +
+  labs(
+    x = "MPA Spacing",
+    y = "Average Population Size in MPA",
+    color = "Larval Movement",
+    shape = "Adult Movement",
+    linetype = "Adult Movement"
+  ) +
+  scale_color_viridis_d()
+
+ggsave(p1, path = here::here("figs"), file = paste0("mpa_fecund.pdf"), height = 8, width = 12, limitsize = FALSE)
+
+p1 = ggplot(fish_mpa %>% filter(age == "adult") %>% filter(generation == 90)) +
+  geom_point(aes(mpa_spacing, mean_pop, color = as.factor(larval), shape = as.factor(adult))) +
+  geom_line(aes(mpa_spacing, mean_pop, color = as.factor(larval), linetype = as.factor(adult), group = movement), linewidth = 0.8) +
+  theme_bw() +
+  facet_wrap(~ fp, nrow = 1, scales = "free_x") +
+  labs(
+    x = "MPA Spacing",
+    y = "Average Population Size in MPA",
+    color = "Larval Movement",
+    shape = "Adult Movement",
+    linetype = "Adult Movement"
+  ) +
+  scale_color_viridis_d()
+
+ggsave(p1, path = here::here("figs"), file = paste0("mpa_fish.pdf"), height = 8, width = 12, limitsize = FALSE)
 
 # p1 = ggplot(connect) +
 #   geom_point(aes(adult, adult_SR, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
@@ -351,6 +430,16 @@ p2 = ggplot(connect) +
 plot = (p1 + p2) / (p3 + p4) + plot_annotation(tag_level = "A") + plot_layout(guides = "collect")
 
 ggsave(plot, path = here::here("figs"), file = paste0("relative_connectivity.pdf"), height = 8, width = 12, limitsize = FALSE)
+
+
+
+# Fishing Pressure Sensitivity --------------------------------------------
+
+
+
+# Fecundity Sensitivity ---------------------------------------------------
+
+
 
 # Combine Biomass Data ------------------------------------------------------------
 

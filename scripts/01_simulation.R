@@ -27,7 +27,7 @@ names(move_combos) <- c("adult", "larval")
 move_combos = move_combos
 
 initial <- 300
-recruit_0 <- initial * num_eggs
+recruit_0 <- 1500
 
 dd <- (5 * 0.7 - 1) / (4 * 0.7 * recruit_0) # density dependence for larval mortality
 
