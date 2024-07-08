@@ -207,7 +207,7 @@ output_df2 <- read_csv(here::here("outputs", "connectivity_8x8_0.csv")) %>%
     mpa_spacing = 0,
     eggs = 5
   )
-output_df3 <- read_csv(here::here("outputs", "connectivity_8x8_0_1E.csv")) %>%
+output_df3 <- read_csv(here::here("outputs", "connectivity_8x8_0_20E.csv")) %>%
   mutate(
     mpa_size = 8,
     mpa_spacing = 0,
@@ -238,7 +238,7 @@ output_df7 <- read_csv(here::here("outputs", "connectivity_8x8_2.csv")) %>%
     mpa_spacing = 2,
     eggs = 5
   )
-output_df8 <- read_csv(here::here("outputs", "connectivity_8x8_2_1E.csv")) %>%
+output_df8 <- read_csv(here::here("outputs", "connectivity_8x8_2_20E.csv")) %>%
   mutate(
     mpa_size = 8,
     mpa_spacing = 2,
@@ -269,7 +269,7 @@ output_df12 <- read_csv(here::here("outputs", "connectivity_8x8_8.csv")) %>%
     mpa_spacing = 8,
     eggs = 5
   )
-output_df13 <- read_csv(here::here("outputs", "connectivity_8x8_8_1E.csv")) %>%
+output_df13 <- read_csv(here::here("outputs", "connectivity_8x8_8_20E.csv")) %>%
   mutate(
     mpa_size = 8,
     mpa_spacing = 8,
