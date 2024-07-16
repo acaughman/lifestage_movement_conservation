@@ -60,6 +60,7 @@ connect <- connect %>%
     mpa_c1 = adult_mpa_c_1 + larvae_mpa_c_1,
     c2 = adult_c_2 + larvae_c_2,
     relative_mpa_c1 = adult_mpa_c_1 / larvae_mpa_c_1,
+    relative_fished_c1 = adult_fished_c_1 / larvae_fished_c_1,
     relative_c2 = adult_c_2 / larvae_c_2
   ) %>%
   mutate(adult_cat = case_when(
@@ -249,8 +250,8 @@ p2 <- ggplot(mpa %>% filter(age == "adult") %>% filter(generation == 90)) +
 ggsave(p2, path = here::here("figs"), file = paste0("mpa_size.pdf"), height = 8, width = 12, limitsize = FALSE)
 
 p1 <- ggplot(connect) +
+  geom_point(aes(adult, adult_RS_fished), color = "black", size = 4, alpha = 0.1) +
   geom_point(aes(adult, adult_RS_mpa, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
-  geom_point(aes(adult, adult_RS_fished), color = "black") +
   scale_color_viridis_d() +
   theme_bw() +
   labs(
@@ -261,8 +262,8 @@ p1 <- ggplot(connect) +
   )
 
 p2 <- ggplot(connect) +
+  geom_point(aes(larval, larvae_RS_fished), color = "black", size = 4, alpha = 0.1) +
   geom_point(aes(larval, larvae_RS_mpa, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
-  geom_point(aes(larval, larvae_RS_fished), color = "black") +
   scale_color_viridis_d() +
   theme_bw() +
   labs(
@@ -273,8 +274,8 @@ p2 <- ggplot(connect) +
   )
 
 p3 <- ggplot(connect) +
+  geom_point(aes(adult, adult_IS_fished), color = "black", size = 4, alpha = 0.1) +
   geom_point(aes(adult, adult_IS_mpa, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
-  geom_point(aes(adult, adult_IS_fished), color = "black") +
   scale_color_viridis_d() +
   theme_bw() +
   labs(
@@ -285,8 +286,8 @@ p3 <- ggplot(connect) +
   )
 
 p4 <- ggplot(connect) +
+  geom_point(aes(larval, larvae_IS_fished), color = "black", size = 4, alpha = 0.1) +
   geom_point(aes(larval, larvae_IS_mpa, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
-  geom_point(aes(larval, larvae_IS_fished), color = "black") +
   scale_color_viridis_d() +
   theme_bw() +
   labs(
@@ -471,7 +472,7 @@ p3 <- ggplot(connect) +
     y = "Relative Adult / Larval Settlers",
     color = "Adult Movement",
     linetype = "Adult Movement",
-    title = "Realized Connectivity"
+    title = "Realized MPA Connectivity"
   ) +
   geom_smooth(aes(larval, relative_mpa_c1, linetype = as.factor(adult)), se = FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
   scale_y_log10()
@@ -488,6 +489,35 @@ p4 <- ggplot(connect) +
     linetype = "Larval Movement"
   ) +
   geom_smooth(aes(adult, relative_mpa_c1, linetype = as.factor(larval)), se = FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
+  scale_y_log10()
+
+p5 <- ggplot(connect) +
+  geom_hline(aes(yintercept = 1), color = "red", linetype = "dashed", linewidth = 0.4) +
+  geom_point(aes(larval, relative_fished_c1, color = as.factor(adult))) +
+  theme_bw() +
+  scale_color_viridis_d() +
+  labs(
+    x = "Larval Movement",
+    y = "Relative Adult / Larval Settlers",
+    color = "Adult Movement",
+    linetype = "Adult Movement",
+    title = "Realized Fished Connectivity"
+  ) +
+  geom_smooth(aes(larval, relative_fished_c1, linetype = as.factor(adult)), se = FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
+  scale_y_log10()
+
+p6 <- ggplot(connect) +
+  geom_hline(aes(yintercept = 1), color = "red", linetype = "dashed", linewidth = 0.4) +
+  geom_point(aes(adult, relative_fished_c1, color = as.factor(larval))) +
+  theme_bw() +
+  scale_color_viridis_d() +
+  labs(
+    x = "Adult Movement",
+    y = "Relative Adult / Larval Settlers",
+    color = "Larval Movement",
+    linetype = "Larval Movement"
+  ) +
+  geom_smooth(aes(adult, relative_fished_c1, linetype = as.factor(larval)), se = FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
   scale_y_log10()
 
 p1 <- ggplot(connect) +
@@ -517,9 +547,9 @@ p2 <- ggplot(connect) +
   scale_y_log10() +
   theme(legend.position = "none")
 
-plot <- (p1 + p2) / (p3 + p4) + plot_annotation(tag_level = "A") + plot_layout(guides = "collect")
+plot <- (p1 + p2) / (p5 + p6) / (p3 + p4) + plot_annotation(tag_level = "A") + plot_layout(guides = "collect")
 
-ggsave(plot, path = here::here("figs"), file = paste0("relative_connectivity.pdf"), height = 8, width = 12, limitsize = FALSE)
+ggsave(plot, path = here::here("figs"), file = paste0("relative_connectivity.pdf"), height = 12, width = 12, limitsize = FALSE)
 
 # Fishing Pressure Sensitivity --------------------------------------------
 
