@@ -20,11 +20,11 @@ num_eggs <- 5 # number of eggs per female fish
 n_mort <- 1 - 0.3 # natural mortality
 f_mort <- 1 - array(0.5, c(resolution, sexes)) # fishing mortality (same dimension as simulation)
 
-adult_move <- c(1, 4, 16) # c(1, 2, 4, 8, 16, 32)
-larval_move <- c(2, 8, 32) # c(2, 4, 8, 16, 32, 190)
+adult_move <- c(1, 2, 4, 8, 16, 32) # c(1, 4, 16)
+larval_move <- c(2, 4, 8, 16, 32, 190) # c(2, 8, 32)
 move_combos <- expand.grid(adult_move, larval_move)
 names(move_combos) <- c("adult", "larval")
-move_combos = move_combos
+move_combos <- move_combos
 
 initial <- 300
 recruit_0 <- 1500
@@ -60,27 +60,26 @@ for (i in 1:nrow(move_combos)) {
   for (t in 1:years) {
     print(t)
     output[, , , , t] <- pop
-    
+
     # births
     pop[, , 1, ] <- pop[, , 2, 1] * num_eggs / 2
-    
+
     # larvae move
     pop[, , 1, 1] <- rowSums(recruit_movement_matrix * array(rep(pop[, , 1, 1], each = resolution[1] * resolution[2]), c(resolution, resolution[1] * resolution[2])), dims = 2)
     pop[, , 1, 2] <- rowSums(recruit_movement_matrix * array(rep(pop[, , 1, 2], each = resolution[1] * resolution[2]), c(resolution, resolution[1] * resolution[2])), dims = 2)
-    
+
     # juvenile mortality with density dependence
     pop[, , 1, ] <- pop[, , 1, ] * array((n_mort / (1 + (dd * rowSums(pop[, , 1, ], dim = 2)))), c(resolution, 2))
-    
+
     # adult natural mortality
     pop[, , 2, ] <- pop[, , 2, ] * n_mort
     # add MPA
     if (t > 40) {
-      
       # resdistribution fishing effort
-      if(t == 41) {
+      if (t == 41) {
         # f_mort[, , ] <- f_mort / (1 - ((2 * 2) / (resolution[1] * resolution[2]))) # size 2x2
         # f_mort[, ,] = f_mort / (1 - ((4 * 4) / (resolution[1] * resolution[2])))
-        f_mort[, ,] = f_mort / (1 - ((8 * 8) / (resolution[1] * resolution[2])))
+        f_mort[, , ] <- f_mort / (1 - ((8 * 8) / (resolution[1] * resolution[2])))
         # f_mort[, ,] = f_mort / (1 - ((16 * 16) / (resolution[1] * resolution[2])))
       }
 
@@ -106,17 +105,17 @@ for (i in 1:nrow(move_combos)) {
       # f_mort[10:17, 22:29, ] <- 1 # size 8x8, spacing 16
       # f_mort[34:41, 22:29, ] <- 1 # size 8x8, spacing 16
     }
-    
+
     # fishing mortality
     if (t > 20) {
       pop[, , 2, ] <- pop[, , 2, ] * f_mort
       fished_array[, , , t] <- pop[, , 2, ] - pop[, , 2, ] * f_mort
     }
-    
+
     # adult move
     pop[, , 2, 1] <- rowSums(adult_movement_matrix * array(rep(pop[, , 2, 1], each = resolution[1] * resolution[2]), c(resolution, resolution[1] * resolution[2])), dims = 2)
     pop[, , 2, 2] <- rowSums(adult_movement_matrix * array(rep(pop[, , 2, 1], each = resolution[1] * resolution[2]), c(resolution, resolution[1] * resolution[2])), dims = 2)
-   
+
     # larvae become adults
     pop[, , 2, ] <- pop[, , 1, ] + pop[, , 2, ]
 
@@ -140,7 +139,7 @@ for (i in 1:nrow(move_combos)) {
       }
     }
   }
-  
+
   # creates dataframe from fishing array data
   for (a in 1:years) {
     for (b in 1:sexes) {
@@ -153,7 +152,7 @@ for (i in 1:nrow(move_combos)) {
       fishing$larval <- recruit_diffusion
       fished_df <- bind_rows(fished_df, fishing)
     }
-    }
+  }
 
   rm(adult_movement_matrix, recruit_movement_matrix) # remove movement matrices
   gc() # clear memory
@@ -168,8 +167,8 @@ names(fished_df) <- c(1:resolution[1], "generation", "sex", "lat", "adult", "lar
 
 fished_df <- fished_df %>%
   pivot_longer(1:resolution[1],
-               names_to = "lon",
-               values_to = "fished"
+    names_to = "lon",
+    values_to = "fished"
   ) %>%
   mutate(sex = case_when( # assign real values to sex
     sex == 1 ~ "female",
@@ -205,9 +204,9 @@ output_df <- output_df %>%
   mutate(lon = as.numeric(lon)) %>%
   mutate(generation = as.numeric(generation)) %>%
   group_by(lat, lon, age, generation, adult, larval) %>%
-  summarize(pop = sum(pop)) 
+  summarize(pop = sum(pop))
 
-output_df = output_df %>% 
+output_df <- output_df %>%
   full_join(fished_df)
 
 write_csv(output_df, here::here("outputs", "8x8_0.csv"))
