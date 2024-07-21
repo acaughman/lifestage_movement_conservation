@@ -27,8 +27,14 @@ mpa <- output %>%
   )) %>%
   mutate(
     movement = c(paste0(adult, " / ", larval)),
-    move_cat = c(paste0(adult_cat, " / ", larval_cat))
-  )
+    move_cat = c(paste0(adult_cat, " / ", larval_cat)),
+    move_ratio = adult / larval
+  ) %>%
+  mutate(ratio_cat = case_when(
+    move_ratio < 1 ~ "Larval Greater",
+    move_ratio == 1 ~ "Equal",
+    move_ratio > 1 ~ "Adult Greater"
+  ))
 
 rm(output)
 
@@ -75,7 +81,8 @@ connect <- connect %>%
   )) %>%
   mutate(
     movement = c(paste0(adult, " / ", larval)),
-    move_cat = c(paste0(adult_cat, " / ", larval_cat))
+    move_cat = c(paste0(adult_cat, " / ", larval_cat)),
+    move_ratio = adult / larval
   ) %>%
   mutate(movement = fct_relevel(movement, c(
     "1 / 2", "2 / 2", "4 / 2", "8 / 2", "16 / 2", "32 / 2",
@@ -88,7 +95,12 @@ connect <- connect %>%
     "8 / 32", "8 / 190",
     "16 / 32", "32 / 32",
     "16 / 190", "32 / 190"
-  )))
+  ))) %>%
+  mutate(ratio_cat = case_when(
+    move_ratio < 1 ~ "Larval Greater",
+    move_ratio == 1 ~ "Equal",
+    move_ratio > 1 ~ "Adult Greater"
+  ))
 
 fish_mpa <- fish %>%
   filter(mpa != "Non-MPA") %>%
@@ -110,12 +122,18 @@ fish_mpa <- fish %>%
   mutate(fp = as.factor(fp)) %>%
   mutate(
     movement = c(paste0(adult, " / ", larval)),
-    move_cat = c(paste0(adult_cat, " / ", larval_cat))
+    move_cat = c(paste0(adult_cat, " / ", larval_cat)),
+    move_ratio = adult / larval
   ) %>%
   mutate(movement = fct_relevel(movement, c(
     "1 / 2", "4 / 2", "16 / 2", "1 / 8", "4 / 8",
     "16 / 8", "1 / 32", "4 / 32", "16 / 32"
-  )))
+  ))) %>%
+  mutate(ratio_cat = case_when(
+    move_ratio < 1 ~ "Larval Greater",
+    move_ratio == 1 ~ "Equal",
+    move_ratio > 1 ~ "Adult Greater"
+  ))
 
 fish_connect <- fish_connect %>%
   mutate(
@@ -145,12 +163,18 @@ fish_connect <- fish_connect %>%
   )) %>%
   mutate(
     movement = c(paste0(adult, " / ", larval)),
-    move_cat = c(paste0(adult_cat, " / ", larval_cat))
+    move_cat = c(paste0(adult_cat, " / ", larval_cat)),
+    move_ratio = adult / larval
   ) %>%
   mutate(movement = fct_relevel(movement, c(
     "1 / 2", "4 / 2", "16 / 2", "1 / 8", "4 / 8",
     "16 / 8", "1 / 32", "4 / 32", "16 / 32"
-  )))
+  ))) %>%
+  mutate(ratio_cat = case_when(
+    move_ratio < 1 ~ "Larval Greater",
+    move_ratio == 1 ~ "Equal",
+    move_ratio > 1 ~ "Adult Greater"
+  ))
 
 fecund_mpa <- fecund %>%
   filter(mpa != "Non-MPA") %>%
@@ -173,12 +197,18 @@ fecund_mpa <- fecund %>%
   mutate(egg = as.factor(egg)) %>%
   mutate(
     movement = c(paste0(adult, " / ", larval)),
-    move_cat = c(paste0(adult_cat, " / ", larval_cat))
+    move_cat = c(paste0(adult_cat, " / ", larval_cat)),
+    move_ratio = adult / larval
   ) %>%
   mutate(movement = fct_relevel(movement, c(
     "1 / 2", "4 / 2", "16 / 2", "1 / 8", "4 / 8",
     "16 / 8", "1 / 32", "4 / 32", "16 / 32"
-  )))
+  ))) %>%
+  mutate(ratio_cat = case_when(
+    move_ratio < 1 ~ "Larval Greater",
+    move_ratio == 1 ~ "Equal",
+    move_ratio > 1 ~ "Adult Greater"
+  ))
 
 fecund_connect <- fecund_connect %>%
   mutate(
@@ -208,12 +238,18 @@ fecund_connect <- fecund_connect %>%
   )) %>%
   mutate(
     movement = c(paste0(adult, " / ", larval)),
-    move_cat = c(paste0(adult_cat, " / ", larval_cat))
+    move_cat = c(paste0(adult_cat, " / ", larval_cat)),
+    move_ratio = adult / larval
   ) %>%
   mutate(movement = fct_relevel(movement, c(
     "1 / 2", "4 / 2", "16 / 2", "1 / 8", "4 / 8",
     "16 / 8", "1 / 32", "4 / 32", "16 / 32"
-  )))
+  ))) %>%
+  mutate(ratio_cat = case_when(
+    move_ratio < 1 ~ "Larval Greater",
+    move_ratio == 1 ~ "Equal",
+    move_ratio > 1 ~ "Adult Greater"
+  ))
 
 # Figures -----------------------------------------------------------------
 
@@ -300,6 +336,40 @@ p4 <- ggplot(connect) +
 plot <- (p1 + p2) / (p3 + p4) + plot_annotation(tag_level = "A") + plot_layout(guides = "collect")
 
 ggsave(plot, path = here::here("figs"), file = paste0("absolute_connectivity.pdf"), height = 8, width = 12, limitsize = FALSE)
+
+p1 <- ggplot(connect %>% filter(mpa_spacing !=0)) +
+  geom_point(aes(larvae_IS_fished, adult_IS_fished, color = ratio_cat)) +
+  geom_abline() +
+  scale_color_viridis_d() +
+  facet_wrap(mpa_size~mpa_spacing, scales = "free", ncol = 4)+
+  theme_bw() +
+  labs(
+    x = "Larval Import Stregnth",
+    y = "Adult Import Stregnth",
+    color = "Adult / Larval Movement",
+    title = "Fished"
+  ) +
+  theme(strip.background = element_rect(fill = "white"),
+        strip.text = element_text(face = "bold"))
+
+p2 <- ggplot(connect %>% filter(mpa_spacing !=0)) +
+  geom_point(aes(larvae_IS_mpa, adult_IS_mpa, color = ratio_cat)) +
+  geom_abline() +
+  scale_color_viridis_d() +
+  facet_wrap(mpa_size~mpa_spacing, scales = "free", ncol = 4)+
+  theme_bw() +
+  labs(
+    x = "Larval Import Stregnth",
+    y = "Adult Import Stregnth",
+    color = "Adult / Larval Movement",
+    title = "MPA"
+  )+
+  theme(strip.background = element_rect(fill = "white"),
+        strip.text = element_text(face = "bold"))
+
+plot <- (p1 + p2) + plot_annotation(tag_level = "A") + plot_layout(guides = "collect")
+
+ggsave(plot, path = here::here("figs"), file = paste0("import_strength.pdf"), height = 8, width = 20, limitsize = FALSE)
 
 p1 <- ggplot(connect) +
   geom_point(aes(adult, adult_ID_fished), color = "black", size = 2, alpha = 0.1) +
