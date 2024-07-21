@@ -250,7 +250,7 @@ p2 <- ggplot(mpa %>% filter(age == "adult") %>% filter(generation == 90)) +
 ggsave(p2, path = here::here("figs"), file = paste0("mpa_size.pdf"), height = 8, width = 12, limitsize = FALSE)
 
 p1 <- ggplot(connect) +
-  geom_point(aes(adult, adult_RS_fished), color = "black", size = 4, alpha = 0.1) +
+  geom_point(aes(adult, adult_RS_fished), color = "black", size = 2, alpha = 0.1) +
   geom_point(aes(adult, adult_RS_mpa, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
   scale_color_viridis_d() +
   theme_bw() +
@@ -262,7 +262,7 @@ p1 <- ggplot(connect) +
   )
 
 p2 <- ggplot(connect) +
-  geom_point(aes(larval, larvae_RS_fished), color = "black", size = 4, alpha = 0.1) +
+  geom_point(aes(larval, larvae_RS_fished), color = "black", size = 2, alpha = 0.1) +
   geom_point(aes(larval, larvae_RS_mpa, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
   scale_color_viridis_d() +
   theme_bw() +
@@ -274,7 +274,7 @@ p2 <- ggplot(connect) +
   )
 
 p3 <- ggplot(connect) +
-  geom_point(aes(adult, adult_IS_fished), color = "black", size = 4, alpha = 0.1) +
+  geom_point(aes(adult, adult_IS_fished), color = "black", size = 2, alpha = 0.1) +
   geom_point(aes(adult, adult_IS_mpa, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
   scale_color_viridis_d() +
   theme_bw() +
@@ -286,7 +286,7 @@ p3 <- ggplot(connect) +
   )
 
 p4 <- ggplot(connect) +
-  geom_point(aes(larval, larvae_IS_fished), color = "black", size = 4, alpha = 0.1) +
+  geom_point(aes(larval, larvae_IS_fished), color = "black", size = 2, alpha = 0.1) +
   geom_point(aes(larval, larvae_IS_mpa, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
   scale_color_viridis_d() +
   theme_bw() +
@@ -302,8 +302,8 @@ plot <- (p1 + p2) / (p3 + p4) + plot_annotation(tag_level = "A") + plot_layout(g
 ggsave(plot, path = here::here("figs"), file = paste0("absolute_connectivity.pdf"), height = 8, width = 12, limitsize = FALSE)
 
 p1 <- ggplot(connect) +
+  geom_point(aes(adult, adult_ID_fished), color = "black", size = 2, alpha = 0.1) +
   geom_point(aes(adult, adult_ID_mpa, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
-  geom_point(aes(adult, adult_ID_fished), color = "black") +
   scale_color_viridis_d() +
   theme_bw() +
   labs(
@@ -314,8 +314,8 @@ p1 <- ggplot(connect) +
   )
 
 p2 <- ggplot(connect) +
+  geom_point(aes(larval, larvae_ID_fished), color = "black", size = 2, alpha = 0.1) +
   geom_point(aes(larval, larvae_ID_mpa, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
-  geom_point(aes(larval, larvae_ID_fished), color = "black") +
   scale_color_viridis_d() +
   theme_bw() +
   labs(
@@ -329,86 +329,6 @@ plot <- (p1 + p2) + plot_annotation(tag_level = "A") + plot_layout(guides = "col
 
 ggsave(plot, path = here::here("figs"), file = paste0("import_diversity.pdf"), height = 8, width = 12, limitsize = FALSE)
 
-# p1 = ggplot(connect) +
-#   geom_point(aes(adult, adult_SR, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
-#   geom_point(aes(adult, adult_SR), color = "black") +
-#   scale_color_viridis_d() +
-#   theme_bw() +
-#   labs(x = "Adult Movement",
-#        y = "Self-Recruitment",
-#        color = "MPA Spacing",
-#        shape = "MPA Size")
-#
-# p2 = ggplot(connect) +
-#   geom_point(aes(larval, larvae_SR, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
-#   geom_point(aes(larval, larvae_SR), color = "black") +
-#   scale_color_viridis_d() +
-#   theme_bw() +
-#   labs(x = "Larval Movement",
-#        y = "Self-Recruitment",
-#        color = "MPA Spacing",
-#        shape = "MPA Size")
-#
-# p3 = ggplot(connect) +
-#   geom_point(aes(adult, adult_II, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
-#   geom_point(aes(adult, adult_II), color = "black") +
-#   scale_color_viridis_d() +
-#   theme_bw() +
-#   labs(x = "Adult Movement",
-#        y = "Import Influence",
-#        color = "MPA Spacing",
-#        shape = "MPA Size")
-#
-# p4 = ggplot(connect) +
-#   geom_point(aes(larval, larvae_II, color = as.factor(mpa_spacing), shape = as.factor(mpa_size))) +
-#   geom_point(aes(larval, larvae_II), color = "black") +
-#   scale_color_viridis_d() +
-#   theme_bw() +
-#   labs(x = "Larval Movement",
-#        y = "Import Influence",
-#        color = "MPA Spacing",
-#        shape = "MPA Size")
-#
-# (p1 + p2) / (p3 + p4) + plot_annotation(tag_level = "A") + plot_layout(guides = "collect")
-
-# p1 = ggplot(connect) +
-#   geom_point(aes(mpa_size, adult_mpa_c_1, color = movement)) +
-#   theme_bw() +
-#   scale_color_viridis_d() +
-#   geom_smooth(aes(mpa_size, adult_mpa_c_1, linetype = as.factor(adult)), se=FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
-#   labs(x = "MPA Size",
-#        y = "Absolute Adult Settlers",
-#        color = "Movement",
-#        linetype = "Adult Movement")
-# p2 = ggplot(connect) +
-#   geom_point(aes(mpa_spacing, adult_mpa_c_1, color = movement)) +
-#   theme_bw() +
-#   scale_color_viridis_d() +
-#   geom_smooth(aes(mpa_spacing, adult_mpa_c_1, linetype = as.factor(adult)), se=FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
-#   labs(x = "MPA Spacing",
-#        y = "Absolute Adult Settlers",
-#        color = "Movement",
-#        linetype = "Adult Movement")
-# p3 = ggplot(connect) +
-#   geom_point(aes(mpa_size, larvae_mpa_c_1, color = movement)) +
-#   theme_bw() +
-#   scale_color_viridis_d() +
-#   geom_smooth(aes(mpa_size, larvae_mpa_c_1, linetype = as.factor(larval)), se=FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
-#   labs(x = "MPA Size",
-#        y = "Absolute Larval Settlers",
-#        color = "Movement",
-#        linetype = "Larval Movement")
-# p4 = ggplot(connect) +
-#   geom_point(aes(mpa_spacing, larvae_mpa_c_1, color = movement)) +
-#   theme_bw() +
-#   scale_color_viridis_d() +
-#   geom_smooth(aes(mpa_spacing, larvae_mpa_c_1, linetype = as.factor(larval)), se=FALSE, alpha = 0.3, color = "black", linewidth = 0.4) +
-#   labs(x = "MPA Spacing",
-#        y = "Absolute Larval Settlers",
-#        color = "Movement",
-#        linetype = "Larval Movement")
-#
-# plot = (p1 + p2) / (p3 + p4) + plot_annotation(tag_level = "A") + plot_layout(guides = "collect")
 
 p1 <- ggplot(connect) +
   geom_point(aes(mpa_size, mpa_c1, color = move_cat)) +
@@ -419,7 +339,8 @@ p1 <- ggplot(connect) +
     x = "MPA Size",
     y = "Absolute Settlers",
     color = "Movement",
-    linetype = "Adult Movement"
+    linetype = "Adult Movement",
+    title = "Adults"
   )
 
 p2 <- ggplot(connect) +
@@ -443,7 +364,8 @@ p3 <- ggplot(connect) +
     x = "MPA Size",
     y = "Absolute Settlers",
     color = "Movement",
-    linetype = "Larval Movement"
+    linetype = "Larval Movement",
+    title = "Larvae"
   )
 
 p4 <- ggplot(connect) +
@@ -570,8 +492,8 @@ p1 <- ggplot(fish_mpa %>% filter(age == "adult") %>% filter(generation == 90)) +
 ggsave(p1, path = here::here("figs"), file = paste0("mpa_fish.pdf"), height = 20, width = 25, limitsize = FALSE)
 
 p1 <- ggplot(fish_connect) +
+  geom_point(aes(adult, adult_RS_fished), color = "black", size = 2, alpha = 0.1) +
   geom_point(aes(adult, adult_RS_mpa, color = as.factor(mpa_spacing))) +
-  geom_point(aes(adult, adult_RS_fished), color = "black") +
   scale_color_viridis_d() +
   theme_bw() +
   facet_wrap(~fp, nrow = 1, scales = "free_x") +
@@ -583,8 +505,8 @@ p1 <- ggplot(fish_connect) +
   )
 
 p2 <- ggplot(fish_connect) +
+  geom_point(aes(larval, larvae_RS_fished), color = "black", size = 2, alpha = 0.1) +
   geom_point(aes(larval, larvae_RS_mpa, color = as.factor(mpa_spacing))) +
-  geom_point(aes(larval, larvae_RS_fished), color = "black") +
   scale_color_viridis_d() +
   facet_wrap(~fp, nrow = 1, scales = "free_x") +
   theme_bw() +
@@ -596,8 +518,8 @@ p2 <- ggplot(fish_connect) +
   )
 
 p3 <- ggplot(fish_connect) +
+  geom_point(aes(adult, adult_IS_fished), color = "black", size = 2, alpha = 0.1) +
   geom_point(aes(adult, adult_IS_mpa, color = as.factor(mpa_spacing))) +
-  geom_point(aes(adult, adult_IS_fished), color = "black") +
   scale_color_viridis_d() +
   facet_wrap(~fp, nrow = 1, scales = "free_x") +
   theme_bw() +
@@ -609,8 +531,8 @@ p3 <- ggplot(fish_connect) +
   )
 
 p4 <- ggplot(fish_connect) +
+  geom_point(aes(larval, larvae_IS_fished), color = "black", size = 2, alpha = 0.1) +
   geom_point(aes(larval, larvae_IS_mpa, color = as.factor(mpa_spacing))) +
-  geom_point(aes(larval, larvae_IS_fished), color = "black") +
   scale_color_viridis_d() +  
   facet_wrap(~fp, nrow = 1, scales = "free_x") +
   theme_bw() +
@@ -626,8 +548,8 @@ plot <- (p1 + p2) / (p3 + p4) + plot_annotation(tag_level = "A") + plot_layout(g
 ggsave(plot, path = here::here("figs"), file = paste0("absolute_connectivity_fish.pdf"), height = 20, width = 25, limitsize = FALSE)
 
 p1 <- ggplot(fish_connect) +
+  geom_point(aes(adult, adult_ID_fished), color = "black", size = 2, alpha = 0.1) +
   geom_point(aes(adult, adult_ID_mpa, color = as.factor(mpa_spacing))) +
-  geom_point(aes(adult, adult_ID_fished), color = "black") +
   scale_color_viridis_d() +
   facet_wrap(~fp, nrow = 1, scales = "free_x") +
   theme_bw() +
@@ -638,9 +560,9 @@ p1 <- ggplot(fish_connect) +
     shape = "MPA Size"
   )
 
-p2 <- ggplot(fish_connect) +
+p2 <- ggplot(fish_connect) +  
+  geom_point(aes(larval, larvae_ID_fished), color = "black", size = 2, alpha = 0.1) +
   geom_point(aes(larval, larvae_ID_mpa, color = as.factor(mpa_spacing))) +
-  geom_point(aes(larval, larvae_ID_fished), color = "black") +
   scale_color_viridis_d() +
   facet_wrap(~fp, nrow = 1, scales = "free_x") +
   theme_bw() +
@@ -792,8 +714,8 @@ p1 <- ggplot(fecund_mpa %>% filter(age == "adult") %>% filter(generation == 90))
 ggsave(p1, path = here::here("figs"), file = paste0("mpa_fecund.pdf"), height = 20, width = 25, limitsize = FALSE)
 
 p1 <- ggplot(fecund_connect) +
+  geom_point(aes(adult, adult_RS_fished), color = "black", size = 2, alpha = 0.1) +
   geom_point(aes(adult, adult_RS_mpa, color = as.factor(mpa_spacing))) +
-  geom_point(aes(adult, adult_RS_fished), color = "black") +
   scale_color_viridis_d() +
   facet_wrap(~eggs, nrow = 1, scales = "free_x") +
   theme_bw() +
@@ -805,8 +727,8 @@ p1 <- ggplot(fecund_connect) +
   )
 
 p2 <- ggplot(fecund_connect) +
+  geom_point(aes(larval, larvae_RS_fished), color = "black", size = 2, alpha = 0.1) +
   geom_point(aes(larval, larvae_RS_mpa, color = as.factor(mpa_spacing))) +
-  geom_point(aes(larval, larvae_RS_fished), color = "black") +
   scale_color_viridis_d() +
   facet_wrap(~eggs, nrow = 1, scales = "free_x") +
   theme_bw() +
@@ -818,8 +740,8 @@ p2 <- ggplot(fecund_connect) +
   )
 
 p3 <- ggplot(fecund_connect) +
+  geom_point(aes(adult, adult_IS_fished), color = "black", size = 2, alpha = 0.1) +
   geom_point(aes(adult, adult_IS_mpa, color = as.factor(mpa_spacing))) +
-  geom_point(aes(adult, adult_IS_fished), color = "black") +
   scale_color_viridis_d() +
   facet_wrap(~eggs, nrow = 1, scales = "free_x") +
   theme_bw() +
@@ -831,8 +753,8 @@ p3 <- ggplot(fecund_connect) +
   )
 
 p4 <- ggplot(fecund_connect) +
+  geom_point(aes(larval, larvae_IS_fished), color = "black", size = 2, alpha = 0.1) +
   geom_point(aes(larval, larvae_IS_mpa, color = as.factor(mpa_spacing))) +
-  geom_point(aes(larval, larvae_IS_fished), color = "black") +
   scale_color_viridis_d() +
   facet_wrap(~eggs, nrow = 1, scales = "free_x") +
   theme_bw() +
@@ -848,8 +770,8 @@ plot <- (p1 + p2) / (p3 + p4) + plot_annotation(tag_level = "A") + plot_layout(g
 ggsave(plot, path = here::here("figs"), file = paste0("absolute_connectivity_fecund.pdf"), height = 20, width = 25, limitsize = FALSE)
 
 p1 <- ggplot(fecund_connect) +
+  geom_point(aes(adult, adult_ID_fished), color = "black", size = 2, alpha = 0.1) +
   geom_point(aes(adult, adult_ID_mpa, color = as.factor(mpa_spacing))) +
-  geom_point(aes(adult, adult_ID_fished), color = "black") +
   scale_color_viridis_d() +
   facet_wrap(~eggs, nrow = 1, scales = "free") +
   theme_bw() +
@@ -861,8 +783,8 @@ p1 <- ggplot(fecund_connect) +
   )
 
 p2 <- ggplot(fecund_connect) +
+  geom_point(aes(larval, larvae_ID_fished), color = "black", size = 2, alpha = 0.1) +
   geom_point(aes(larval, larvae_ID_mpa, color = as.factor(mpa_spacing))) +
-  geom_point(aes(larval, larvae_ID_fished), color = "black") +
   scale_color_viridis_d() +
   facet_wrap(~eggs, nrow = 1, scales = "free") +
   theme_bw() +
