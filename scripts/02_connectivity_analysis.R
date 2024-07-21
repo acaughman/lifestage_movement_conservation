@@ -2,17 +2,17 @@ library(tidyverse)
 library(pheatmap)
 
 resolution <- c(50, 50)
-adult_move <- c(1, 4, 16) # c(1, 2, 4, 8, 16, 32) 
-larval_move <- c(2, 8, 32) #c(2, 4, 8, 16, 32, 190) 
+adult_move <- c(1, 2, 4, 8, 16, 32) # c(1, 4, 16)
+larval_move <- c(2, 4, 8, 16, 32, 190) # c(2, 8, 32)
 move_combos <- expand.grid(adult_move, larval_move)
 names(move_combos) <- c("adult", "larval")
 
 resolution <- c(50, 50)
 world <- array(1:2500, resolution)
 
-fp <- 0.1
+fp <- 0.5
 
-output_df <- read_csv(here::here("outputs", "4x4_0_01F.csv")) %>%
+output_df <- read_csv(here::here("outputs", "4x4_0.csv")) %>%
   mutate(
     mpa_size = 4,
     mpa_spacing = 0,
@@ -207,4 +207,4 @@ names(connect_df) <- c(
   "adult", "larval"
 )
 
-write_csv(connect_df, here::here("outputs", "connectivity_4x4_0_01F.csv"))
+write_csv(connect_df, here::here("outputs", "connectivity_4x4_0.csv"))
