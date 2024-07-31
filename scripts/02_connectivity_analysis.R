@@ -12,12 +12,13 @@ world <- array(1:2500, resolution)
 
 fp <- 0.5
 
-output_df <- read_csv(here::here("outputs", "8x8_0.csv")) %>%
+output_df <- read_csv(here::here("outputs", "8x8_2.csv")) %>%
   mutate(
     mpa_size = 8,
-    mpa_spacing = 0,
+    mpa_spacing = 2,
     mpa = case_when(
-      (lat %in% c(22:29) & lon %in% c(22:29)) ~ "MPA 1",
+      (lat %in% c(17:24) & lon %in% c(22:29)) ~ "MPA 1",
+      (lat %in% c(27:34) & lon %in% c(22:29)) ~ "MPA 2",
       TRUE ~ "Non-MPA"
     )
   )
@@ -201,4 +202,4 @@ names(connect_df) <- c(
   "adult", "larval"
 )
 
-write_csv(connect_df, here::here("outputs", "connectivity_8x8_0.csv"))
+write_csv(connect_df, here::here("outputs", "connectivity_8x8_2.csv"))
