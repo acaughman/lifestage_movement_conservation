@@ -99,10 +99,14 @@ for (i in 1:nrow(move_combos)) {
   f_l_mpa <- p_l * mpa_l_pop
 
   # equilibrium prior to MPA and fishing of adults considered
-  f_a_fish_f <- p_a * fish_a_pop * fp
+  f_a_fish_f <- p_a * fish_a_pop 
+  f_a_fish_f[mpa1, mpa1] = f_a_fish_f[mpa1, mpa1] * fp
+  f_a_fish_f[mpa2, mpa2] = f_a_fish_f[mpa2, mpa2] * fp
 
   # equilibrium with MPA and fishing of adults considered
   f_a_mpa_f <- p_a * mpa_a_pop * fp
+  f_a_mpa_f[mpa1, mpa1] = f_a_mpa_f[mpa1, mpa1] * fp
+  f_a_mpa_f[mpa2, mpa2] = f_a_mpa_f[mpa2, mpa2] * fp
 
   ### M matrix
   m_a <- sweep(f_a_fish, 2, colSums(f_a_fish), FUN = "/")
@@ -110,16 +114,6 @@ for (i in 1:nrow(move_combos)) {
 
   ### M matrix with fishing of adults
   m_a_f <- sweep(f_a_fish_f, 2, colSums(f_a_fish), FUN = "/")
-
-  ### Select MPA cells
-  # p_a <- p_a[mpa, mpa]
-  # p_l <- p_l[mpa, mpa]
-  # m_a = m_a[mpa, mpa]
-  # m_l = m_l[mpa, mpa]
-  # f_a_fish = f_a_fish[mpa, mpa]
-  # f_l_fish = f_l_fish[mpa, mpa]
-  # f_a_mpa =f_a_mpa[mpa, mpa]
-  # f_l_mpa= f_l_mpa[mpa, mpa]
 
   ### Connectivity Metrics
   ### Retention = sum x_i L_i,i(M_r) = sum of local retention at MPA sites
@@ -137,53 +131,53 @@ for (i in 1:nrow(move_combos)) {
   # RETENTION
 
   ### Retention Strength - absolute number of native settlers
-
-  RS_a_fish <- mean(f_a_fish[mpa1, mpa1])
-  RS_l_fish <- mean(f_l_fish[mpa1, mpa1])
-  RS_a_mpa <- mean(f_a_mpa[mpa1, mpa1])
-  RS_l_mpa <- mean(f_l_mpa[mpa1, mpa1])
+  
+  RS_a_fish <- sum(f_a_fish[mpa1, mpa1])
+  RS_l_fish <- sum(f_l_fish[mpa1, mpa1])
+  RS_a_mpa <- sum(f_a_mpa[mpa1, mpa1])
+  RS_l_mpa <- sum(f_l_mpa[mpa1, mpa1])
 
   ### Self-recruitment - native settlers relative to total settlement
-  SR_a <- mean(m_a[mpa1, mpa1])
-  SR_l <- mean(m_l[mpa1, mpa1])
+  SR_a <- sum(m_a[mpa1, mpa1])
+  SR_l <- sum(m_l[mpa1, mpa1])
 
   ### Local Retention - Native settlers relative to output
-  LR_a <- mean(p_a[mpa1, mpa1])
-  LR_l <- mean(p_l[mpa1, mpa1])
+  LR_a <- sum(p_a[mpa1, mpa1])
+  LR_l <- sum(p_l[mpa1, mpa1])
 
   ### Import Strength - non-native settlers from other MPA
-  IS_a_fish <- mean(f_a_fish_f[mpa2, mpa1])
-  IS_l_fish <- mean(f_l_fish[mpa2, mpa1])
-  IS_a_mpa <- mean(f_a_mpa_f[mpa2, mpa1])
-  IS_l_mpa <- mean(f_l_mpa[mpa2, mpa1])
+  IS_a_fish <- sum(f_a_fish_f[mpa2, mpa1])
+  IS_l_fish <- sum(f_l_fish[mpa2, mpa1])
+  IS_a_mpa <- sum(f_a_mpa_f[mpa2, mpa1])
+  IS_l_mpa <- sum(f_l_mpa[mpa2, mpa1])
 
   ### Import Influence - non-native settlers relative to total settlement from other MPA
-  II_a <- mean(m_a_f[mpa2, mpa1])
-  II_l <- mean(m_l[mpa2, mpa1])
+  II_a <- sum(m_a_f[mpa2, mpa1])
+  II_l <- sum(m_l[mpa2, mpa1])
 
   ### Import Diversity - non-native settlers relative to total settlement from other MPA (weighted)
-  ID_a_fish <- mean((f_a_fish_f[mpa2, mpa1] * fp)^(10^-10))
-  ID_l_fish <- mean((f_l_fish[mpa2, mpa1])^(10^-10))
-  ID_a_mpa <- mean((f_a_mpa_f[mpa2, mpa1] * fp)^(10^-10))
-  ID_l_mpa <- mean((f_l_mpa[mpa2, mpa1])^(10^-10))
+  ID_a_fish <- sum((f_a_fish_f[mpa2, mpa1] * fp)^(10^-10))
+  ID_l_fish <- sum((f_l_fish[mpa2, mpa1])^(10^-10))
+  ID_a_mpa <- sum((f_a_mpa_f[mpa2, mpa1] * fp)^(10^-10))
+  ID_l_mpa <- sum((f_l_mpa[mpa2, mpa1])^(10^-10))
 
   #### EXPORT
 
   ### Export Strength - external settlers
-  ES_a_fish <- mean(f_a_fish[mpa1, non_mpa])
-  ES_l_fish <- mean(f_l_fish[mpa1, non_mpa])
-  ES_a_mpa <- mean(f_a_mpa[mpa1, non_mpa])
-  ES_l_mpa <- mean(f_l_mpa[mpa1, non_mpa])
+  ES_a_fish <- sum(f_a_fish[mpa1, non_mpa])
+  ES_l_fish <- sum(f_l_fish[mpa1, non_mpa])
+  ES_a_mpa <- sum(f_a_mpa[mpa1, non_mpa])
+  ES_l_mpa <- sum(f_l_mpa[mpa1, non_mpa])
 
   ### Export Influence - exports relative to total exports
-  EI_a <- mean(m_a_f[mpa1, non_mpa])
-  EI_l <- mean(m_l[mpa1, non_mpa])
+  EI_a <- sum(m_a_f[mpa1, non_mpa])
+  EI_l <- sum(m_l[mpa1, non_mpa])
 
   ### Export Diversity -  exports relative to total exports (weighted)
-  ED_a_fish <- mean((f_a_fish[mpa1, non_mpa] * fp)^(10^-10))
-  ED_l_fish <- mean((f_l_fish[mpa1, non_mpa])^(10^-10))
-  ED_a_mpa <- mean((f_a_mpa[mpa1, non_mpa] * fp)^(10^-10))
-  ED_l_mpa <- mean((f_l_mpa[mpa1, non_mpa])^(10^-10))
+  ED_a_fish <- sum((f_a_fish[mpa1, non_mpa] * fp)^(10^-10))
+  ED_l_fish <- sum((f_l_fish[mpa1, non_mpa])^(10^-10))
+  ED_a_mpa <- sum((f_a_mpa[mpa1, non_mpa] * fp)^(10^-10))
+  ED_l_mpa <- sum((f_l_mpa[mpa1, non_mpa])^(10^-10))
 
 
   c_metrics <- c(
