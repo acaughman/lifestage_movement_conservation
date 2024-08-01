@@ -253,7 +253,7 @@ fecund_connect <- fecund_connect %>%
 
 # Figures -----------------------------------------------------------------
 
-p1 <- ggplot(mpa %>% filter(age == "adult") %>% filter(generation > 90)) +
+p1 <- ggplot(mpa %>% filter(age == "adult") %>% filter(generation == 90)) +
   geom_point(aes(mpa_spacing, mean_pop, color = as.factor(larval), shape = as.factor(adult))) +
   geom_line(aes(mpa_spacing, mean_pop, color = as.factor(larval), linetype = as.factor(adult), group = movement), linewidth = 0.8) +
   theme_bw() +

@@ -62,7 +62,7 @@ for (i in 1:nrow(move_combos)) {
     output[, , , , t] <- pop
 
     # births
-    pop[, , 1, ] <- pop[, , 2, 1] * num_eggs / 2
+    pop[, , 1, ] <- pop[, , 2, 1] * num_eggs / 2 #assumes 50% females
 
     # larvae move
     pop[, , 1, 1] <- rowSums(recruit_movement_matrix * array(rep(pop[, , 1, 1], each = resolution[1] * resolution[2]), c(resolution, resolution[1] * resolution[2])), dims = 2)
