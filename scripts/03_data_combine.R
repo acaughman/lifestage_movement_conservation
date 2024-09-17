@@ -476,7 +476,7 @@ output_df2 <- read_csv(here::here("outputs", "connectivity_8x8_8.csv")) %>%
     fp = "med"
   )
 
-output_df3 <- read_csv(here::here("outputs", "8x8_0_lowF.csv")) %>%
+output_df3 <- read_csv(here::here("outputs", "connectivity_8x8_0_lowF.csv")) %>%
   mutate(
     mpa_size = 8,
     mpa_spacing = 0,
@@ -484,7 +484,7 @@ output_df3 <- read_csv(here::here("outputs", "8x8_0_lowF.csv")) %>%
     fp = "low"
   )
 
-output_df4 <- read_csv(here::here("outputs", "8x8_8_lowF.csv")) %>%
+output_df4 <- read_csv(here::here("outputs", "connectivity_8x8_8_lowF.csv")) %>%
   mutate(
     mpa_size = 8,
     mpa_spacing = 8,
@@ -492,7 +492,7 @@ output_df4 <- read_csv(here::here("outputs", "8x8_8_lowF.csv")) %>%
     fp = "low"
   )
 
-output_df5 <- read_csv(here::here("outputs", "8x8_0_highF.csv")) %>%
+output_df5 <- read_csv(here::here("outputs", "connectivity_8x8_0_highF.csv")) %>%
   mutate(
     mpa_size = 8,
     mpa_spacing = 0,
@@ -500,7 +500,7 @@ output_df5 <- read_csv(here::here("outputs", "8x8_0_highF.csv")) %>%
     fp = "high"
   )
 
-output_df6 <- read_csv(here::here("outputs", "8x8_8_highF.csv")) %>%
+output_df6 <- read_csv(here::here("outputs", "connectivity_8x8_8_highF.csv")) %>%
   mutate(
     mpa_size = 8,
     mpa_spacing = 8,
@@ -508,7 +508,7 @@ output_df6 <- read_csv(here::here("outputs", "8x8_8_highF.csv")) %>%
     fp = "high"
   )
 
-output_df7 <- read_csv(here::here("outputs", "8x8_0_medE.csv")) %>%
+output_df7 <- read_csv(here::here("outputs", "connectivity_8x8_0_medE.csv")) %>%
   mutate(
     mpa_size = 8,
     mpa_spacing = 0,
@@ -516,7 +516,7 @@ output_df7 <- read_csv(here::here("outputs", "8x8_0_medE.csv")) %>%
     fp = "med"
   )
 
-output_df8 <- read_csv(here::here("outputs", "8x8_8_medE.csv")) %>%
+output_df8 <- read_csv(here::here("outputs", "connectivity_8x8_8_medE.csv")) %>%
   mutate(
     mpa_size = 8,
     mpa_spacing = 8,
@@ -524,7 +524,7 @@ output_df8 <- read_csv(here::here("outputs", "8x8_8_medE.csv")) %>%
     fp = "med"
   )
 
-output_df9 <- read_csv(here::here("outputs", "8x8_0_highE.csv")) %>%
+output_df9 <- read_csv(here::here("outputs", "connectivity_8x8_0_highE.csv")) %>%
   mutate(
     mpa_size = 8,
     mpa_spacing = 0,
@@ -532,7 +532,7 @@ output_df9 <- read_csv(here::here("outputs", "8x8_0_highE.csv")) %>%
     fp = "med"
   )
 
-output_df10 <- read_csv(here::here("outputs", "8x8_8_highE.csv")) %>%
+output_df10 <- read_csv(here::here("outputs", "connectivity_8x8_8_highE.csv")) %>%
   mutate(
     mpa_size = 8,
     mpa_spacing = 8,
@@ -540,7 +540,7 @@ output_df10 <- read_csv(here::here("outputs", "8x8_8_highE.csv")) %>%
     fp = "med"
   )
 
-output_df11 <- read_csv(here::here("outputs", "8x8_0_medEhighF.csv")) %>%
+output_df11 <- read_csv(here::here("outputs", "connectivity_8x8_0_medEhighF.csv")) %>%
   mutate(
     mpa_size = 8,
     mpa_spacing = 0,
@@ -548,7 +548,7 @@ output_df11 <- read_csv(here::here("outputs", "8x8_0_medEhighF.csv")) %>%
     fp = "high"
   )
 
-output_df12 <- read_csv(here::here("outputs", "8x8_8_medEhighF.csv")) %>%
+output_df12 <- read_csv(here::here("outputs", "connectivity_8x8_8_medEhighF.csv")) %>%
   mutate(
     mpa_size = 8,
     mpa_spacing = 8,
@@ -556,7 +556,7 @@ output_df12 <- read_csv(here::here("outputs", "8x8_8_medEhighF.csv")) %>%
     fp = "high"
   )
 
-output_df13 <- read_csv(here::here("outputs", "8x8_0_highEhighF.csv")) %>%
+output_df13 <- read_csv(here::here("outputs", "connectivity_8x8_0_highEhighF.csv")) %>%
   mutate(
     mpa_size = 8,
     mpa_spacing = 0,
@@ -564,7 +564,7 @@ output_df13 <- read_csv(here::here("outputs", "8x8_0_highEhighF.csv")) %>%
     fp = "high"
   )
 
-output_df14 <- read_csv(here::here("outputs", "8x8_8_highEhighF.csv")) %>%
+output_df14 <- read_csv(here::here("outputs", "connectivity_8x8_8_highEhighF.csv")) %>%
   mutate(
     mpa_size = 8,
     mpa_spacing = 8,
@@ -572,7 +572,7 @@ output_df14 <- read_csv(here::here("outputs", "8x8_8_highEhighF.csv")) %>%
     fp = "high"
   )
 
-output_df15 <- read_csv(here::here("outputs", "8x8_0_medElowF.csv")) %>%
+output_df15 <- read_csv(here::here("outputs", "connectivity_8x8_0_medElowF.csv")) %>%
   mutate(
     mpa_size = 8,
     mpa_spacing = 0,
@@ -580,7 +580,7 @@ output_df15 <- read_csv(here::here("outputs", "8x8_0_medElowF.csv")) %>%
     fp = "low"
   )
 
-output_df16 <- read_csv(here::here("outputs", "8x8_8_medElowF.csv")) %>%
+output_df16 <- read_csv(here::here("outputs", "connectivity_8x8_8_medElowF.csv")) %>%
   mutate(
     mpa_size = 8,
     mpa_spacing = 8,
@@ -588,7 +588,7 @@ output_df16 <- read_csv(here::here("outputs", "8x8_8_medElowF.csv")) %>%
     fp = "low"
   )
 
-output_df17 <- read_csv(here::here("outputs", "8x8_0_highElowF.csv")) %>%
+output_df17 <- read_csv(here::here("outputs", "connectivity_8x8_0_highElowF.csv")) %>%
   mutate(
     mpa_size = 8,
     mpa_spacing = 0,
@@ -596,7 +596,7 @@ output_df17 <- read_csv(here::here("outputs", "8x8_0_highElowF.csv")) %>%
     fp = "low"
   )
 
-output_df18 <- read_csv(here::here("outputs", "8x8_8_highElowF.csv")) %>%
+output_df18 <- read_csv(here::here("outputs", "connectivity_8x8_8_highElowF.csv")) %>%
   mutate(
     mpa_size = 8,
     mpa_spacing = 8,

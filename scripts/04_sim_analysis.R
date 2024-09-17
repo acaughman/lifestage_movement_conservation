@@ -393,9 +393,6 @@ ggsave(plot, path = here::here("figs"), file = paste0("relative_connectivity.pdf
 
 # ESA ---------------------------------------------------------------------
 
-library(tidyverse)
-library(patchwork)
-
 # Process Data ------------------------------------------------------------
 
 output <- read_csv(here::here("data", "processed_data", "model_results.csv"))
