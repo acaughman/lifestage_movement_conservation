@@ -55,24 +55,33 @@ connect <- connect %>%
     larvae_fished_c_1 = larvae_RS_fished + larvae_IS_fished,
     larvae_mpa_c_1 = larvae_RS_mpa + larvae_IS_mpa,
     adult_c_2 = adult_SR + adult_II,
-    larvae_c_2 = larvae_SR + larvae_II
+    larvae_c_2 = larvae_SR + larvae_II,
+    movement = c(paste0(adult, " / ", larval))
   ) %>%
   mutate(
     fished_c1 = adult_fished_c_1 + larvae_fished_c_1,
     mpa_c1 = adult_mpa_c_1 + larvae_mpa_c_1,
     c2 = adult_c_2 + larvae_c_2,
+    fished_c3 = adult_ES_fished + larvae_ES_fished,
+    mpa_c3 = adult_ES_mpa + larvae_ES_mpa,
     relative_mpa_c1 = adult_mpa_c_1 / larvae_mpa_c_1,
     relative_fished_c1 = adult_fished_c_1 / larvae_fished_c_1,
-    relative_c2 = adult_c_2 / larvae_c_2
+    relative_c2 = adult_c_2 / larvae_c_2,
+    relative_mpa_R = adult_RS_mpa / larvae_RS_mpa,
+    relative_fished_R = adult_RS_fished / larvae_RS_fished,
+    relative_mpa_I = adult_IS_mpa / larvae_IS_mpa,
+    relative_fished_I = adult_IS_fished / larvae_IS_fished,
+    relative_mpa_E =  adult_ES_mpa / larvae_ES_mpa,
+    relative_fished_E = adult_ES_fished / larvae_ES_fished
   ) %>%
   mutate(adult_cat = case_when(
     adult %in% c(1, 2) ~ "low",
-    adult %in% c(4, 8) ~ "medium",
+    adult %in% c(4, 8) ~ "high",
     adult %in% c(16, 32) ~ "high"
   )) %>%
   mutate(larval_cat = case_when(
     larval %in% c(4, 2) ~ "low",
-    larval %in% c(16, 8) ~ "medium",
+    larval %in% c(16, 8) ~ "high",
     larval %in% c(190, 32) ~ "high"
   )) %>%
   mutate(
@@ -96,7 +105,8 @@ connect <- connect %>%
     move_ratio < 1 ~ "Larval Greater",
     move_ratio == 1 ~ "Equal",
     move_ratio > 1 ~ "Adult Greater"
-  ))
+  )) %>% 
+  mutate(mpa_spacing = as.factor(mpa_spacing))
 
 # Figures -----------------------------------------------------------------
 
