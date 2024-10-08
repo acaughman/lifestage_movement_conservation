@@ -12,11 +12,12 @@ world <- array(1:2500, resolution)
 
 fp <- 0.5
 
-output_df <- read_csv(here::here("outputs", "8x8_8.csv")) %>%
+output_df <- read_csv(here::here("outputs", "8x8_8zz.csv")) %>%
   mutate(
     mpa_size = 8,
     mpa_spacing = 8,
     mpa = case_when(
+      # (lat %in% c(22:29) & lon %in% c(22:29)) ~ "MPA 1",
       (lat %in% c(14:21) & lon %in% c(22:29)) ~ "MPA 1",
       (lat %in% c(30:37) & lon %in% c(22:29)) ~ "MPA 2",
       TRUE ~ "Non-MPA"
