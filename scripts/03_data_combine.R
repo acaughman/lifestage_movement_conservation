@@ -3103,4 +3103,4 @@ output_df9 <- read_csv(here::here("outputs", "connectivity_8x8_16_highEhighF.csv
 rm(output_df8)
 gc()
 
-write_csv(output, here::here("data", "processed_data", "connectivity_results.csv"))
+write_csv(output_df9, here::here("data", "processed_data", "connectivity_results.csv"))

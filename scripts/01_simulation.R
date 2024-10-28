@@ -108,8 +108,8 @@ for (i in 1:nrow(move_combos)) {
 
     # fishing mortality
     if (t > 20) {
+      fished_array[, , , t] <- pop[, , 2, ] - (pop[, , 2, ] * f_mort)
       pop[, , 2, ] <- pop[, , 2, ] * f_mort
-      fished_array[, , , t] <- pop[, , 2, ] - pop[, , 2, ] * f_mort
     }
 
     # adult move

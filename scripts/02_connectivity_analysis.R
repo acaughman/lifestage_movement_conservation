@@ -2,24 +2,22 @@ library(tidyverse)
 library(pheatmap)
 
 resolution <- c(50, 50)
-adult_move <- c(1, 2, 4, 8, 16, 32) 
-larval_move <-  c(2, 4, 8, 16, 32, 190)
+adult_move <- c(2, 8, 16) 
+larval_move <- c(4, 8, 32) 
 move_combos <- expand.grid(adult_move, larval_move)
 names(move_combos) <- c("adult", "larval")
 
 resolution <- c(50, 50)
 world <- array(1:2500, resolution)
 
-fp <- 0.5
+fp <- 0.9
 
-output_df <- read_csv(here::here("outputs", "8x8_8zz.csv")) %>%
+output_df <- read_csv(here::here("outputs", "8x8_16_highEhighF.csv")) %>%
   mutate(
-    mpa_size = 8,
-    mpa_spacing = 8,
     mpa = case_when(
       # (lat %in% c(22:29) & lon %in% c(22:29)) ~ "MPA 1",
-      (lat %in% c(14:21) & lon %in% c(22:29)) ~ "MPA 1",
-      (lat %in% c(30:37) & lon %in% c(22:29)) ~ "MPA 2",
+      (lat %in% c(10:17) & lon %in% c(22:29)) ~ "MPA 1",
+      (lat %in% c(34:41) & lon %in% c(22:29)) ~ "MPA 2",
       TRUE ~ "Non-MPA"
     )
   )
@@ -203,4 +201,4 @@ names(connect_df) <- c(
   "adult", "larval"
 )
 
-write_csv(connect_df, here::here("outputs", "connectivity_8x8_8.csv"))
+write_csv(connect_df, here::here("outputs", "connectivity_8x8_16_highEhighF.csv"))
