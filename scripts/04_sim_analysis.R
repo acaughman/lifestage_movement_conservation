@@ -1,5 +1,7 @@
 library(tidyverse)
 library(patchwork)
+library(sensitivity)
+library(sensobol)
 
 # Data Input --------------------------------------------------------------
 
@@ -9,7 +11,11 @@ connect_full <- read_csv(here::here("data", "processed_data", "connectivity_resu
 mpa <- output %>%
   group_by(mpa, mpa_size, mpa_spacing, larval, adult, generation, age, fp, eggs) %>%
   summarize(mean_pop = mean(pop, na.rm = TRUE)) %>%
-  filter(mpa != "MPA 2") %>% 
+  filter(mpa != "MPA 2") 
+
+rm(output)
+
+mpa <- mpa %>% 
   mutate(adult_cat = case_when(
     adult %in% c(2) ~ "low",
     adult %in% c(8) ~ "medium",
@@ -34,11 +40,7 @@ mpa <- output %>%
   mutate(eggs = as.factor(eggs),
          fp = as.factor(fp)) %>% 
   mutate(eggs = fct_relevel(eggs, c("low", "med", "high")),
-         fp = fct_relevel(fp, c("low", "med", "high")))
-
-rm(output)
-
-mpa <- mpa %>%
+         fp = fct_relevel(fp, c("low", "med", "high"))) %>%
   mutate(movement = fct_relevel(movement, c(
     "2 / 4",  "2 / 8", "2 / 32", 
     "8 / 4", "8 / 8", "8 / 32",
@@ -116,6 +118,33 @@ eq_pop_size = mpa %>%
   filter(generation == 90)
 
 
+# Sobol Sensitivity --------------------------------------------------------
+
+sobol_data = mpa %>% 
+  ungroup() %>% 
+  filter(generation == 90) %>% 
+  filter(mpa == "MPA 1") %>% 
+  mutate(movement = c(paste0(adult, " / ", larval))) %>% 
+  select(eggs, fp, adult, larval, movement, mpa_size, mpa_spacing, mean_pop)
+
+input_data = sobol_data %>% 
+  select(-mean_pop)
+output_data = sobol_data %>% 
+  select(mean_pop) %>% 
+  pull()
+
+x = as.matrix(sobol_data)
+
+
+sobol_indices <- sobol(model = NULL,
+                       X1 = ?,
+                       X2 = ?,
+                       order = 1, nboot = 100)
+
+sobol_summary <- data.frame(Parameter = rownames(sobol_indices$S),
+                            First_Order = sobol_indices$S[,1],
+                            Total_Order = sobol_indices$ST)
+
 # Theoretical vs Realized Connectivity ------------------------------------
 
 sub_connect = connect %>% 
@@ -181,9 +210,9 @@ p1 = ggplot(sub_connect %>% filter(mpa_spacing == 0)) +
   geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
   geom_rect(aes(xmin = 0.5, xmax = 3.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +  
   geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  geom_point(aes(fct_reorder(move_cat, relative_mpa_R, .desc = TRUE), relative_mpa_R, color = "Retention"), size = 3) +
-  geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
-  geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 3) +
+  geom_point(aes(fct_reorder(movement, relative_mpa_R, .desc = TRUE), relative_mpa_R, color = "Retention"), size = 3) +
+  geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
+  geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
   theme_bw() +
   facet_wrap(~fp) +
   theme(strip.text = element_text(face = "bold"),
@@ -197,12 +226,12 @@ p1 = ggplot(sub_connect %>% filter(mpa_spacing == 0)) +
 
 p2 = ggplot(sub_connect %>% filter(mpa_spacing == 8)) +
   geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
-  geom_rect(aes(xmin = 0.5, xmax = 3.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +  
-  geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) + 
+  geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +  
+  # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) + 
   geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  geom_point(aes(fct_reorder(move_cat, relative_mpa_R, .desc = TRUE), relative_mpa_R, color = "Retention"), size = 3) +
-  geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
-  geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 3) +
+  geom_point(aes(fct_reorder(movement, relative_mpa_R, .desc = TRUE), relative_mpa_R, color = "Retention"), size = 3) +
+  geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
+  geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
   theme_bw() +
   facet_wrap(~fp) +
   theme(strip.text = element_text(face = "bold"),
@@ -231,11 +260,11 @@ sub_connect = connect %>%
     measure == "relative_mpa_R" ~ "Retention",
     measure == "relative_mpa_abs" ~ "Retention + Import"
   )) %>% 
-  mutate(move_cat = fct_relevel(move_cat, c("medium / low", "high / medium", "high / low")))
+  mutate(movement = fct_relevel(movement, c("8 / 4", "16 / 8", "16 / 4")))
 
 p1 = ggplot(sub_connect %>% filter(connectivity < 50)) +
   geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
-  geom_point(aes(move_cat, connectivity, color = as.factor(mpa_spacing), shape = as.factor(mpa_size)), size = 2) +
+  geom_point(aes(movement, connectivity, color = as.factor(mpa_spacing), shape = as.factor(mpa_size)), size = 2) +
   theme_bw() +
   labs(x = "Movement (Adult / Larval)", 
        y = "Relative Connectivity (Adult / Larval)",
@@ -259,19 +288,19 @@ eq_pop_size_sub = eq_pop_size %>%
 p1 = ggplot(eq_pop_size_sub) +
   geom_hline(aes(yintercept = 0), color = "red", alpha = 0.5, linetype = "dashed") +
   # geom_hline(aes(yintercept = 0.7), color = "red", alpha = 0.5, linetype = "dashed") +
-  geom_point(aes(mpa_spacing, in_out, color = move_cat, shape = move_cat), size = 2) +
+  geom_point(aes(mpa_spacing, in_out, color = movement, shape = movement), size = 2) +
   facet_wrap(~mpa_size) +
   theme_bw() +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white")) +
   labs(x = "MPA Spacing",
-       y = "Population",
+       y = "Log(Inside MPA Population / Outside MPA Population)",
        color = "Movement (Adult / Larval)",
        shape = "Movement (Adult / Larval)") +
   scale_color_viridis_d(end = 0.9) +
-  scale_shape_manual(values = c(1, 19, 1, 19, 19, 19, 19, 1, 19))
+  scale_shape_manual(values = c(19, 1, 1, 19, 19, 1, 19, 19, 19))
 
-ggsave(p1, path = here::here("figs"), file = paste0("fig4.pdf"), height = 8, width = 8)
+ggsave(p1, path = here::here("figs"), file = paste0("fig4.pdf"), height = 6, width = 8)
 
 # OLD ---------------------------------------------------------------------
 
