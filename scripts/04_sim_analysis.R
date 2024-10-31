@@ -245,9 +245,9 @@ p2 = ggplot(sub_connect %>% filter(mpa_spacing == 8)) +
   theme(legend.position = "none")
 
 # may drop to just spacing == 8 if patterns are the same
-p = p1 / p2 + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
+p = p1 + p2 + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
 
-ggsave(p, path = here::here("figs"), file = paste0("fig2.pdf"), height = 15, width = 8)
+ggsave(p, path = here::here("figs"), file = paste0("fig2.pdf"), height = 8, width = 15)
 
 # Shifts in Connectivity Driver -------------------------------------------
 
