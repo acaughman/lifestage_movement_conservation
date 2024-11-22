@@ -166,7 +166,7 @@ p1 = ggplot(sub_connect) +
   theme_bw() +
   scale_color_viridis_d(end = 0.9) +
   labs(x = "Adult Movement",
-       y = "",
+       y = "Contribution to Overall Connectivity (Adult / Larval)",
        color = "Larval Movement",
        shape = "MPA Size",
        linetype = "MPA Size") 
@@ -178,7 +178,7 @@ p2 = ggplot(sub_connect) +
   theme_bw() +
   scale_color_viridis_d(end = 0.9) +
   labs(x = "Adult Movement",
-       y = "",
+       y = "Contribution to Overall Connectivity (Retention / Import)",
        color = "Larval Movement",
        shape = "MPA Size",
        linetype = "MPA Size") 
@@ -322,7 +322,7 @@ p4 = ggplot(sub_connect) +
 
 p = p1 / (p2 + p3 + p4) + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
 
-ggsave(p, path = here::here("figs"), file = paste0("fig2.pdf"), height = 12, width = 10)
+ggsave(p, path = here::here("figs"), file = paste0("fig2.pdf"), height = 10, width = 15)
 
 # Fishing Pressure and Connectivity ---------------------------------------
 
@@ -335,7 +335,8 @@ sub_connect = connect %>%
   mutate(fp = case_when(
     fp == "med" ~ "medium",
     TRUE ~ fp
-  ))
+  )) %>% 
+  mutate(fp = fct_relevel(fp, c("low", "medium", "high")))
 
 p1 = ggplot(sub_connect) +
   geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
@@ -472,7 +473,7 @@ p1 = ggplot(eq_pop_size_sub) +
   scale_color_viridis_d(end = 0.9) +
   scale_shape_manual(values = c(19, 1, 1, 19, 19, 1, 19, 19, 19))
 
-ggsave(p1, path = here::here("figs"), file = paste0("figS14.pdf"), height = 8, width = 8)
+ggsave(p1, path = here::here("figs"), file = paste0("figS14.pdf"), height = 6, width = 8)
 
 # Connectivity Across MPA sizes -------------------------------------------
 
@@ -483,7 +484,8 @@ sub_connect = connect %>%
   mutate(fp = case_when(
     fp == "med" ~ "medium",
     TRUE ~ fp
-  ))
+  )) %>% 
+  mutate(fp = fct_relevel(fp, c("low", "medium", "high")))
 
 p1 = ggplot(sub_connect) +
   geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
@@ -495,7 +497,7 @@ p1 = ggplot(sub_connect) +
   geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
   theme_bw() +
-  facet_grid(~fp, ncol = 1) +
+  facet_grid(~fp) +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
@@ -514,7 +516,8 @@ sub_connect = connect %>%
   mutate(fp = case_when(
     fp == "med" ~ "medium",
     TRUE ~ fp
-  ))
+  )) %>% 
+  mutate(fp = fct_relevel(fp, c("low", "medium", "high")))
 
 p1 = ggplot(sub_connect) +
   geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
@@ -526,7 +529,7 @@ p1 = ggplot(sub_connect) +
   geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
   theme_bw() +
-  facet_grid(~fp, ncol = 1) +
+  facet_grid(~fp) +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
@@ -545,7 +548,8 @@ sub_connect = connect %>%
   mutate(fp = case_when(
     fp == "med" ~ "medium",
     TRUE ~ fp
-  ))
+  )) %>% 
+  mutate(fp = fct_relevel(fp, c("low", "medium", "high")))
 
 p1 = ggplot(sub_connect) +
   geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
@@ -557,7 +561,7 @@ p1 = ggplot(sub_connect) +
   geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
   theme_bw() +
-  facet_grid(~fp, ncol = 1) +
+  facet_grid(~fp) +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
@@ -576,7 +580,8 @@ sub_connect = connect %>%
   mutate(fp = case_when(
     fp == "med" ~ "medium",
     TRUE ~ fp
-  ))
+  )) %>% 
+  mutate(fp = fct_relevel(fp, c("low", "medium", "high")))
 
 p1 = ggplot(sub_connect) +
   geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
@@ -588,7 +593,7 @@ p1 = ggplot(sub_connect) +
   geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
   theme_bw() +
-  facet_grid(~fp, ncol = 1) +
+  facet_grid(~fp) +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
@@ -607,7 +612,8 @@ sub_connect = connect %>%
   mutate(fp = case_when(
     fp == "med" ~ "medium",
     TRUE ~ fp
-  ))
+  )) %>% 
+  mutate(fp = fct_relevel(fp, c("low", "medium", "high")))
 
 p1 = ggplot(sub_connect) +
   geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
@@ -619,7 +625,7 @@ p1 = ggplot(sub_connect) +
   geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
   theme_bw() +
-  facet_grid(~fp, ncol = 1) +
+  facet_grid(~fp) +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
@@ -638,7 +644,8 @@ sub_connect = connect %>%
   mutate(fp = case_when(
     fp == "med" ~ "medium",
     TRUE ~ fp
-  ))
+  )) %>% 
+  mutate(fp = fct_relevel(fp, c("low", "medium", "high")))
 
 p1 = ggplot(sub_connect) +
   geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
@@ -650,7 +657,7 @@ p1 = ggplot(sub_connect) +
   geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
   theme_bw() +
-  facet_grid(~fp, ncol = 1) +
+  facet_grid(~fp) +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
@@ -669,7 +676,8 @@ sub_connect = connect %>%
   mutate(fp = case_when(
     fp == "med" ~ "medium",
     TRUE ~ fp
-  ))
+  )) %>% 
+  mutate(fp = fct_relevel(fp, c("low", "medium", "high")))
 
 p1 = ggplot(sub_connect) +
   geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
@@ -681,7 +689,7 @@ p1 = ggplot(sub_connect) +
   geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
   theme_bw() +
-  facet_grid(~fp, ncol = 1) +
+  facet_grid(~fp) +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
@@ -700,7 +708,8 @@ sub_connect = connect %>%
   mutate(fp = case_when(
     fp == "med" ~ "medium",
     TRUE ~ fp
-  ))
+  )) %>% 
+  mutate(fp = fct_relevel(fp, c("low", "medium", "high")))
 
 p1 = ggplot(sub_connect) +
   geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
@@ -712,7 +721,7 @@ p1 = ggplot(sub_connect) +
   geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
   theme_bw() +
-  facet_grid(~fp, ncol = 1) +
+  facet_grid(~fp) +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
@@ -731,7 +740,8 @@ sub_connect = connect %>%
   mutate(fp = case_when(
     fp == "med" ~ "medium",
     TRUE ~ fp
-  ))
+  )) %>% 
+  mutate(fp = fct_relevel(fp, c("low", "medium", "high")))
 
 p1 = ggplot(sub_connect) +
   geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
@@ -743,7 +753,7 @@ p1 = ggplot(sub_connect) +
   geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
   theme_bw() +
-  facet_grid(~fp, ncol = 1) +
+  facet_grid(~fp) +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
@@ -762,7 +772,8 @@ sub_connect = connect %>%
   mutate(fp = case_when(
     fp == "med" ~ "medium",
     TRUE ~ fp
-  ))
+  )) %>% 
+  mutate(fp = fct_relevel(fp, c("low", "medium", "high")))
 
 p1 = ggplot(sub_connect) +
   geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
@@ -774,7 +785,7 @@ p1 = ggplot(sub_connect) +
   geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
   theme_bw() +
-  facet_grid(~fp, ncol = 1) +
+  facet_grid(~fp) +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
@@ -793,7 +804,8 @@ sub_connect = connect %>%
   mutate(fp = case_when(
     fp == "med" ~ "medium",
     TRUE ~ fp
-  ))
+  )) %>% 
+  mutate(fp = fct_relevel(fp, c("low", "medium", "high")))
 
 p1 = ggplot(sub_connect) +
   geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
@@ -805,7 +817,7 @@ p1 = ggplot(sub_connect) +
   geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
   theme_bw() +
-  facet_grid(~fp, ncol = 1) +
+  facet_grid(~fp) +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
@@ -824,7 +836,8 @@ sub_connect = connect %>%
   mutate(fp = case_when(
     fp == "med" ~ "medium",
     TRUE ~ fp
-  ))
+  )) %>% 
+  mutate(fp = fct_relevel(fp, c("low", "medium", "high")))
 
 p1 = ggplot(sub_connect) +
   geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
@@ -836,7 +849,7 @@ p1 = ggplot(sub_connect) +
   geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
   theme_bw() +
-  facet_grid(~fp, ncol = 1) +
+  facet_grid(~fp) +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
