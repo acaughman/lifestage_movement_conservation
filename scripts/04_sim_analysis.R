@@ -60,14 +60,18 @@ connect <- connect_full %>%
     larvae_mpa_abs = larvae_RS_mpa + larvae_IS_mpa,
     adult_rel = adult_SR + adult_II,
     larvae_rel = larvae_SR + larvae_II,
-    movement = c(paste0(adult, " / ", larval))
-  ) %>%
-  mutate(
     fished_abs = adult_fished_abs + larvae_fished_abs,
     mpa_abs = adult_mpa_abs + larvae_mpa_abs,
     rel = adult_rel + larvae_rel,
     fished_export = adult_ES_fished + larvae_ES_fished,
     mpa_export = adult_ES_mpa + larvae_ES_mpa,
+    fished_import = adult_IS_fished + larvae_IS_fished,
+    mpa_import = adult_IS_mpa + larvae_IS_mpa,
+    fished_ret = adult_RS_fished + larvae_RS_fished,
+    mpa_ret = adult_RS_mpa + larvae_RS_mpa,
+    movement = c(paste0(adult, " / ", larval))
+  ) %>%
+  mutate(
     relative_mpa_abs = adult_mpa_abs / larvae_mpa_abs,
     relative_fished_abs = adult_fished_abs / larvae_fished_abs,
     relative_rel = adult_rel / larvae_rel,
@@ -81,6 +85,7 @@ connect <- connect_full %>%
     adult_relative_fished = adult_RS_fished / adult_IS_fished,
     larvae_relative_mpa = larvae_RS_mpa / larvae_IS_mpa,
     larvae_relative_fished = larvae_RS_fished / larvae_IS_fished,
+    relative_ret_imp = mpa_ret / mpa_import
   ) %>%
   mutate(adult_cat = case_when(
     adult %in% c(2) ~ "low",
@@ -117,7 +122,7 @@ eq_pop_size = mpa %>%
   filter(age == "adult") %>% 
   filter(generation == 90)
 
-colors = c("Retention" = "#35b779", "Import" = "#440154", "Export" = "#31688e", "Retention + Import" = "#21918c")
+colors = c("Retention" = "#5ec962", "Import" = "#3b528b", "Export" = "#440154", "Retention + Import" = "#21918c")
 
 # Sobol Sensitivity --------------------------------------------------------
 
@@ -165,8 +170,24 @@ p1 = ggplot(sub_connect) +
        color = "Larval Movement",
        shape = "MPA Size",
        linetype = "MPA Size") 
-  
+
 p2 = ggplot(sub_connect) +
+  geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
+  geom_point(aes(adult, relative_ret_imp, color = as.factor(larval), shape = as.factor(mpa_size)), size = 3) +
+  geom_line(aes(adult, relative_ret_imp, color = as.factor(larval), linetype = as.factor(mpa_size)), linewidth = 1) +
+  theme_bw() +
+  scale_color_viridis_d(end = 0.9) +
+  labs(x = "Adult Movement",
+       y = "",
+       color = "Larval Movement",
+       shape = "MPA Size",
+       linetype = "MPA Size") 
+
+p = p1 + p2 + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
+
+ggsave(p, path = here::here("figs"), file = paste0("fig1.pdf"), height = 8, width = 15)
+  
+p3 = ggplot(sub_connect) +
   geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
   geom_point(aes(adult, relative_rel, color = as.factor(larval), shape = as.factor(mpa_size)), size = 3) +
   geom_line(aes(adult, relative_rel, color = as.factor(larval), linetype = as.factor(mpa_size)), linewidth = 1) +
@@ -179,7 +200,7 @@ p2 = ggplot(sub_connect) +
        linetype = "MPA Size") +
   ylim(c(0.2, 8.5))
 
-p3 = ggplot(sub_connect) +
+p4 = ggplot(sub_connect) +
   geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
   geom_point(aes(adult, relative_fished_abs, color = as.factor(larval), shape = as.factor(mpa_size)), size = 3) +
   geom_line(aes(adult, relative_fished_abs, color = as.factor(larval), linetype = as.factor(mpa_size)), linewidth = 1) +
@@ -192,7 +213,7 @@ p3 = ggplot(sub_connect) +
        linetype = "MPA Size") +
   ylim(c(0.2, 8.5))
 
-p4 = ggplot(sub_connect) +
+p5 = ggplot(sub_connect) +
   geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
   geom_point(aes(adult, relative_mpa_abs, color = as.factor(larval), shape = as.factor(mpa_size)), size = 3) +
   geom_line(aes(adult, relative_mpa_abs, color = as.factor(larval), linetype = as.factor(mpa_size)), linewidth = 1) +
@@ -206,9 +227,7 @@ p4 = ggplot(sub_connect) +
   ylim(c(0.2, 8.5))
 
 # May Drop the Size bit 
-p = p2 + p3 + p4 + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
-
-ggsave(p1, path = here::here("figs"), file = paste0("fig1.pdf"), height = 8, width = 8)
+p = p3 + p4 + p5 + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
 
 ggsave(p, path = here::here("figs"), file = paste0("figS1.pdf"), height = 8, width = 20)
 
@@ -218,59 +237,92 @@ sub_connect = connect %>%
   filter(mpa_size == 8) %>% 
   filter(mpa_spacing == 8) %>% 
   filter(eggs == "med") %>% 
-  filter(fp == "med")
+  filter(fp == "med") %>% 
+  mutate(movement = fct_reorder(movement, relative_mpa_abs, .desc = TRUE))
 
 p1 = ggplot(sub_connect) +
   geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
-  geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +  
-  geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  geom_point(aes(fct_reorder(movement, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3) +
+  # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  geom_point(aes(movement, relative_mpa_abs, color = "Retention + Import"), size = 3) +
+  # geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
+  # geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
+  # geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
+  theme_bw() +
+  # facet_wrap(~fp) +
+  # theme(strip.text = element_text(face = "bold"),
+  #       strip.background = element_rect(fill = "white"),
+  #       axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(x = "Movement (Adult / Larval)", 
+       y = "Relative Contribution to Connectivity (Adult / Larval)",
+       color = "") +
+  # ylim(c(NA, 11)) +
+  scale_color_manual(values = colors)
+
+p2 = ggplot(sub_connect) +
+  geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
+  # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  # geom_point(aes(fct_reorder(movement, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
   geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
+  # geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
+  # geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
+  theme_bw() +
+  # facet_wrap(~fp) +
+  # theme(strip.text = element_text(face = "bold"),
+  #       strip.background = element_rect(fill = "white"),
+  #       axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(x = "Movement (Adult / Larval)", 
+       y = "Relative Contribution to Retention (Adult / Larval)",
+       color = "") +
+  # ylim(c(NA, 11)) +
+  scale_color_manual(values = colors)
+
+p3 = ggplot(sub_connect) +
+  geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
+  # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  # geom_point(aes(fct_reorder(movement, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
+  # geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
   geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
+  # geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
+  theme_bw() +
+  # facet_wrap(~fp) +
+  # theme(strip.text = element_text(face = "bold"),
+  #       strip.background = element_rect(fill = "white"),
+  #       axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(x = "Movement (Adult / Larval)", 
+       y = "Relative Contribution to Import (Adult / Larval)",
+       color = "") +
+  # ylim(c(NA, 11)) +
+  scale_color_manual(values = colors)
+
+p4 = ggplot(sub_connect) +
+  geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
+  # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  # geom_point(aes(fct_reorder(movement, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
+  # geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
+  # geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
   theme_bw() +
   # facet_wrap(~fp) +
-  theme(strip.text = element_text(face = "bold"),
-        strip.background = element_rect(fill = "white"),
-        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  # theme(strip.text = element_text(face = "bold"),
+  #       strip.background = element_rect(fill = "white"),
+  #       axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
   labs(x = "Movement (Adult / Larval)", 
-       y = "Relative Connectivity (Adult / Larval)",
+       y = "Relative Contribution to Export (Adult / Larval)",
        color = "") +
-  # ylim(c(NA, 16)) +
-  scale_color_manual(values = colors) +
-  theme(legend.position = "none")
+  # ylim(c(NA, 11)) +
+  scale_color_manual(values = colors)
 
-ggsave(p1, path = here::here("figs"), file = paste0("fig2.pdf"), height = 8, width = 8)
+p = p1 / (p2 + p3 + p4) + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
 
-# Connectivity Across MPA sizes -------------------------------------------
-
-sub_connect = connect %>% 
-  filter(eggs == "med") %>% 
-  filter(fp == "med")
-
-p1 = ggplot(sub_connect) +
-  geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
-  geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +  
-  geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  geom_point(aes(fct_reorder(movement, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3) +
-  geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
-  geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
-  geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
-  theme_bw() +
-  facet_grid(mpa_size~mpa_spacing) +
-  theme(strip.text = element_text(face = "bold"),
-        strip.background = element_rect(fill = "white"),
-        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-  labs(x = "Movement (Adult / Larval)", 
-       y = "Relative Connectivity (Adult / Larval)",
-       color = "") +
-  # ylim(c(NA, 16)) +
-  scale_color_manual(values = colors) +
-  theme(legend.position = "none")
-
-ggsave(p1, path = here::here("figs"), file = paste0("figS2.pdf"), height = 8, width = 8)
+ggsave(p, path = here::here("figs"), file = paste0("fig2.pdf"), height = 12, width = 10)
 
 # Fishing Pressure and Connectivity ---------------------------------------
 
@@ -279,83 +331,137 @@ sub_connect = connect %>%
   filter(mpa_spacing == 8) %>% 
   filter(eggs == "med") %>% 
   filter(move_cat %in% c("high / low",  "high / medium", "medium / low")) %>% 
-  pivot_longer(cols = c(relative_mpa_abs, relative_mpa_R), names_to = "measure", values_to = "connectivity") %>% 
-  mutate(measure = case_when(
-    measure == "relative_mpa_R" ~ "Retention",
-    measure == "relative_mpa_abs" ~ "Retention + Import"
-  )) %>% 
-  mutate(movement = fct_relevel(movement, c("8 / 4", "16 / 8", "16 / 4")))
+  mutate(movement = fct_relevel(movement, c("8 / 4", "16 / 8", "16 / 4"))) %>% 
+  mutate(fp = case_when(
+    fp == "med" ~ "medium",
+    TRUE ~ fp
+  ))
 
-p1 = ggplot(sub_connect %>% filter(connectivity < 50)) +
+p1 = ggplot(sub_connect) +
   geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
-  geom_point(aes(movement, connectivity, color = as.factor(measure)), size = 2) +
+  geom_point(aes(fct_reorder(movement, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
+  geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
+  geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
+  geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
   theme_bw() +
   labs(x = "Movement (Adult / Larval)", 
        y = "Relative Connectivity (Adult / Larval)",
-       color = "MPA Spacing",
-       shape = "MPA Size") +
-  facet_wrap(~fp, scales = "free", ncol = 2) +
-  scale_color_viridis_d(end = 0.9) +
+       color = "") +
+  facet_wrap(~fp,ncol = 3) +
+  scale_color_manual(values = colors) +
+  ylim(c(NA, 16)) +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
-ggsave(p1, path = here::here("figs"), file = paste0("fig3.pdf"), height = 8, width = 8)
-
-sub_connect = connect %>% 
-  filter(eggs == "med") %>% 
-  filter(move_cat %in% c("high / low",  "high / medium", "medium / low")) %>% 
-  pivot_longer(cols = c(relative_mpa_abs, relative_mpa_R), names_to = "measure", values_to = "connectivity") %>% 
-  mutate(measure = case_when(
-    measure == "relative_mpa_R" ~ "Retention",
-    measure == "relative_mpa_abs" ~ "Retention + Import"
-  )) %>% 
-  mutate(movement = fct_relevel(movement, c("8 / 4", "16 / 8", "16 / 4")))
-
-p1 = ggplot(sub_connect %>% filter(connectivity < 50)) +
-  geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
-  geom_point(aes(movement, connectivity, color = as.factor(measure)), shape = as.factor(mpa_spacing), size = 2) +
-  theme_bw() +
-  labs(x = "Movement (Adult / Larval)", 
-       y = "Relative Connectivity (Adult / Larval)",
-       color = "MPA Spacing",
-       shape = "MPA Size") +
-  facet_wrap(mpa_size~fp, scales = "free", ncol = 2) +
-  scale_color_viridis_d(end = 0.9) +
-  theme(strip.text = element_text(face = "bold"),
-        strip.background = element_rect(fill = "white"),
-        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-
-ggsave(p1, path = here::here("figs"), file = paste0("figS3.pdf"), height = 8, width = 8)
-
+ggsave(p1, path = here::here("figs"), file = paste0("fig3.pdf"), height = 6, width = 8)
 
 # MPA Design --------------------------------------------------------------
 
 sub_connect = connect %>% 
-  filter(eggs == "med") %>% 
-  filter(fp == "med")
-
-eq_pop_size_sub = eq_pop_size %>% 
-  filter(mpa_size == 8) %>% 
+  filter(mpa_size %in% c(4,8)) %>% 
+  filter(eggs == "low") %>% 
   filter(fp == "high") %>% 
-  filter(eggs == "med")
+  mutate(fp = case_when(
+    fp == "med" ~ "medium",
+    TRUE ~ fp
+  ))
 
-p1 = ggplot(sub_connect) +
+p1 = ggplot(sub_connect) + 
   geom_hline(aes(yintercept = 0), color = "red", alpha = 0.5, linetype = "dashed") +
-  geom_point(aes(mpa_spacing, relative_mpa_abs, color = movement), size = 2) +
+  geom_point(aes(mpa_spacing, relative_mpa_abs, color = movement, shape = mpa_size), size = 2) +
+  geom_line(aes(mpa_spacing, relative_mpa_abs, color = movement, group = movement, linetype = mpa_size)) +
   theme_bw() +
+  # facet_wrap(~mpa_size)
   labs(x = "MPA Spacing",
        y = "Overall Connectivity (Adult / Larval)",
        color = "Movement (Adult / Larval)",
-       shape = "Movement (Adult / Larval)") +
-  scale_color_viridis_d(end = 0.9) +
-  scale_shape_manual(values = c(19, 1, 1, 19, 19, 1, 19, 19, 19))
+       shape = "MPA Size",
+       linetype = "MPA Size") +
+  scale_color_viridis_d(end = 0.9) 
 
-p2 = ggplot(eq_pop_size_sub) +
+# sub_connect = connect %>% 
+#   filter(mpa_spacing == 0) %>% 
+#   filter(eggs == "low") %>% 
+#   filter(fp == "high")
+# 
+# p2 = ggplot(sub_connect) + #bring in sizing somewhere , maybe p2? 
+#   geom_hline(aes(yintercept = 0), color = "red", alpha = 0.5, linetype = "dashed") +
+#   geom_point(aes(as.factor(mpa_size), relative_mpa_abs, color = movement), size = 2) +
+#   geom_line(aes(as.factor(mpa_size), relative_mpa_abs, color = movement, group = movement)) +
+#   theme_bw() +
+#   labs(x = "MPA Size",
+#        y = "Overall Connectivity (Adult / Larval)",
+#        color = "Movement (Adult / Larval)",
+#        shape = "Movement (Adult / Larval)") +
+#   scale_color_viridis_d(end = 0.9) +
+#   scale_shape_manual(values = c(19, 1, 1, 19, 19, 1, 19, 19, 19))
+
+eq_pop_size_sub = eq_pop_size %>% 
+  filter(mpa_size %in% c(4,8)) %>% 
+  filter(fp == "high") %>% 
+  filter(eggs == "low")
+
+p3 = ggplot(eq_pop_size_sub) +
+  geom_hline(aes(yintercept = 0), color = "red", alpha = 0.5, linetype = "dashed") +
+  # geom_hline(aes(yintercept = 0.7), color = "red", alpha = 0.5, linetype = "dashed") +
+  geom_point(aes(mpa_spacing, in_out, color = movement, shape = mpa_size), size = 2) +
+  geom_line(aes(mpa_spacing, in_out, color = movement, linetype = mpa_size, group = movement)) +
+  # facet_wrap(~mpa_size) +
+  theme_bw() +
+  theme(strip.text = element_text(face = "bold"),
+        strip.background = element_rect(fill = "white")) +
+  labs(x = "MPA Spacing",
+       y = "Log(Inside MPA Population / Outside MPA Population)",
+       color = "Movement (Adult / Larval)",
+       shape = "MPA Size",
+       linetype = "MPA Size") +
+  scale_color_viridis_d(end = 0.9) +
+  theme(legend.position = "none")
+
+eq_pop_size_sub_a = eq_pop_size %>% 
+  filter(mpa_size == 8) %>% 
+  filter(mpa_spacing == 8) %>% 
+  filter(fp == "high") %>% 
+  filter(eggs == "low") %>% 
+  group_by(adult) %>% 
+  summarise(mean_adult = mean(in_out))
+
+eq_pop_size_sub_l= eq_pop_size %>% 
+  filter(mpa_size == 8) %>% 
+  filter(mpa_spacing == 8) %>% 
+  filter(fp == "high") %>% 
+  filter(eggs == "low") %>% 
+  group_by(larval) %>% 
+  summarise(mean_larval = mean(in_out))
+
+p4 = ggplot() +
+  geom_point(data = eq_pop_size_sub_a, aes(adult, mean_adult, color = "Adult"), size = 3) +
+  geom_point(data = eq_pop_size_sub_l, aes(larval, mean_larval, color = "Larval"), size = 3) +
+  geom_line(data = eq_pop_size_sub_a, aes(adult, mean_adult, color = "Adult")) +
+  geom_line(data = eq_pop_size_sub_l, aes(larval, mean_larval, color = "Larval")) +
+  theme_bw() +
+  labs(x = "Movement Extent",
+       y = "Log(Inside MPA Population / Outside MPA Population)",
+       color = "") +
+  scale_color_manual(values = c("Adult" = "#5ec962", "Larval" =  "#440154"))
+
+plot = p1 / (p3 + p4) + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
+
+ggsave(plot, path = here::here("figs"), file = paste0("fig4.pdf"), height = 15, width = 15)
+
+# In/0ut across eggs -------------------------------------------------------
+
+eq_pop_size_sub = eq_pop_size %>% 
+  filter(mpa_size == 8) %>% 
+  filter(fp == "high")
+
+p1 = ggplot(eq_pop_size_sub) +
   geom_hline(aes(yintercept = 0), color = "red", alpha = 0.5, linetype = "dashed") +
   # geom_hline(aes(yintercept = 0.7), color = "red", alpha = 0.5, linetype = "dashed") +
   geom_point(aes(mpa_spacing, in_out, color = movement), size = 2) +
-  # facet_wrap(~mpa_size) +
+  geom_line(aes(mpa_spacing, in_out, color = movement, group = movement)) +
+  facet_wrap(~eggs) +
   theme_bw() +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white")) +
@@ -366,9 +472,378 @@ p2 = ggplot(eq_pop_size_sub) +
   scale_color_viridis_d(end = 0.9) +
   scale_shape_manual(values = c(19, 1, 1, 19, 19, 1, 19, 19, 19))
 
-p3 = ggplot(eq_pop_size_sub) #something looking at relative change in movement rates change in population
+ggsave(p1, path = here::here("figs"), file = paste0("figS14.pdf"), height = 8, width = 8)
 
+# Connectivity Across MPA sizes -------------------------------------------
 
-plot = p1 / (p2 + p3)
+sub_connect = connect %>% 
+  filter(eggs == "med") %>% 
+  filter(mpa_size == 2) %>% 
+  filter(mpa_spacing == 0) %>% 
+  mutate(fp = case_when(
+    fp == "med" ~ "medium",
+    TRUE ~ fp
+  ))
 
-ggsave(p1, path = here::here("figs"), file = paste0("fig4.pdf"), height = 6, width = 8)
+p1 = ggplot(sub_connect) +
+  geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
+  # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +  
+  # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  geom_point(aes(fct_reorder(movement, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
+  geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
+  geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
+  geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
+  theme_bw() +
+  facet_grid(~fp, ncol = 1) +
+  theme(strip.text = element_text(face = "bold"),
+        strip.background = element_rect(fill = "white"),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(x = "Movement (Adult / Larval)", 
+       y = "Relative Contribution to Connectivity (Adult / Larval)",
+       color = "") +
+  ylim(c(NA, 16)) +
+  scale_color_manual(values = colors)
+
+ggsave(p1, path = here::here("figs"), file = paste0("figS2.pdf"), height = 6, width = 8)
+
+sub_connect = connect %>% 
+  filter(eggs == "med") %>% 
+  filter(mpa_size == 4) %>% 
+  filter(mpa_spacing == 0) %>% 
+  mutate(fp = case_when(
+    fp == "med" ~ "medium",
+    TRUE ~ fp
+  ))
+
+p1 = ggplot(sub_connect) +
+  geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
+  # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +  
+  # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  geom_point(aes(fct_reorder(movement, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
+  geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
+  geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
+  geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
+  theme_bw() +
+  facet_grid(~fp, ncol = 1) +
+  theme(strip.text = element_text(face = "bold"),
+        strip.background = element_rect(fill = "white"),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(x = "Movement (Adult / Larval)", 
+       y = "Relative Contribution to Connectivity (Adult / Larval)",
+       color = "") +
+  ylim(c(NA, 16)) +
+  scale_color_manual(values = colors)
+
+ggsave(p1, path = here::here("figs"), file = paste0("figS3.pdf"), height = 6, width = 8)
+
+sub_connect = connect %>% 
+  filter(eggs == "med") %>% 
+  filter(mpa_size == 4) %>% 
+  filter(mpa_spacing == 2) %>% 
+  mutate(fp = case_when(
+    fp == "med" ~ "medium",
+    TRUE ~ fp
+  ))
+
+p1 = ggplot(sub_connect) +
+  geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
+  # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +  
+  # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  geom_point(aes(fct_reorder(movement, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
+  geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
+  geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
+  geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
+  theme_bw() +
+  facet_grid(~fp, ncol = 1) +
+  theme(strip.text = element_text(face = "bold"),
+        strip.background = element_rect(fill = "white"),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(x = "Movement (Adult / Larval)", 
+       y = "Relative Contribution to Connectivity (Adult / Larval)",
+       color = "") +
+  ylim(c(NA, 16)) +
+  scale_color_manual(values = colors)
+
+ggsave(p1, path = here::here("figs"), file = paste0("figS4.pdf"), height = 6, width = 8)
+
+sub_connect = connect %>% 
+  filter(eggs == "med") %>% 
+  filter(mpa_size == 4) %>% 
+  filter(mpa_spacing == 4) %>% 
+  mutate(fp = case_when(
+    fp == "med" ~ "medium",
+    TRUE ~ fp
+  ))
+
+p1 = ggplot(sub_connect) +
+  geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
+  # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +  
+  # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  geom_point(aes(fct_reorder(movement, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
+  geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
+  geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
+  geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
+  theme_bw() +
+  facet_grid(~fp, ncol = 1) +
+  theme(strip.text = element_text(face = "bold"),
+        strip.background = element_rect(fill = "white"),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(x = "Movement (Adult / Larval)", 
+       y = "Relative Contribution to Connectivity (Adult / Larval)",
+       color = "") +
+  ylim(c(NA, 16)) +
+  scale_color_manual(values = colors)
+
+ggsave(p1, path = here::here("figs"), file = paste0("figS5.pdf"), height = 6, width = 8)
+
+sub_connect = connect %>% 
+  filter(eggs == "med") %>% 
+  filter(mpa_size == 4) %>% 
+  filter(mpa_spacing == 8) %>% 
+  mutate(fp = case_when(
+    fp == "med" ~ "medium",
+    TRUE ~ fp
+  ))
+
+p1 = ggplot(sub_connect) +
+  geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
+  # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +  
+  # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  geom_point(aes(fct_reorder(movement, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
+  geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
+  geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
+  geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
+  theme_bw() +
+  facet_grid(~fp, ncol = 1) +
+  theme(strip.text = element_text(face = "bold"),
+        strip.background = element_rect(fill = "white"),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(x = "Movement (Adult / Larval)", 
+       y = "Relative Contribution to Connectivity (Adult / Larval)",
+       color = "") +
+  ylim(c(NA, 16)) +
+  scale_color_manual(values = colors)
+
+ggsave(p1, path = here::here("figs"), file = paste0("figS6.pdf"), height = 6, width = 8)
+
+sub_connect = connect %>% 
+  filter(eggs == "med") %>% 
+  filter(mpa_size == 4) %>% 
+  filter(mpa_spacing == 16) %>% 
+  mutate(fp = case_when(
+    fp == "med" ~ "medium",
+    TRUE ~ fp
+  ))
+
+p1 = ggplot(sub_connect) +
+  geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
+  # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +  
+  # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  geom_point(aes(fct_reorder(movement, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
+  geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
+  geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
+  geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
+  theme_bw() +
+  facet_grid(~fp, ncol = 1) +
+  theme(strip.text = element_text(face = "bold"),
+        strip.background = element_rect(fill = "white"),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(x = "Movement (Adult / Larval)", 
+       y = "Relative Contribution to Connectivity (Adult / Larval)",
+       color = "") +
+  ylim(c(NA, 16)) +
+  scale_color_manual(values = colors)
+
+ggsave(p1, path = here::here("figs"), file = paste0("figS7.pdf"), height = 6, width = 8)
+
+sub_connect = connect %>% 
+  filter(eggs == "med") %>% 
+  filter(mpa_size == 8) %>% 
+  filter(mpa_spacing == 0) %>% 
+  mutate(fp = case_when(
+    fp == "med" ~ "medium",
+    TRUE ~ fp
+  ))
+
+p1 = ggplot(sub_connect) +
+  geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
+  # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +  
+  # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  geom_point(aes(fct_reorder(movement, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
+  geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
+  geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
+  geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
+  theme_bw() +
+  facet_grid(~fp, ncol = 1) +
+  theme(strip.text = element_text(face = "bold"),
+        strip.background = element_rect(fill = "white"),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(x = "Movement (Adult / Larval)", 
+       y = "Relative Contribution to Connectivity (Adult / Larval)",
+       color = "") +
+  ylim(c(NA, 16)) +
+  scale_color_manual(values = colors)
+
+ggsave(p1, path = here::here("figs"), file = paste0("figS8.pdf"), height = 6, width = 8)
+
+sub_connect = connect %>% 
+  filter(eggs == "med") %>% 
+  filter(mpa_size == 8) %>% 
+  filter(mpa_spacing == 2) %>% 
+  mutate(fp = case_when(
+    fp == "med" ~ "medium",
+    TRUE ~ fp
+  ))
+
+p1 = ggplot(sub_connect) +
+  geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
+  # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +  
+  # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  geom_point(aes(fct_reorder(movement, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
+  geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
+  geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
+  geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
+  theme_bw() +
+  facet_grid(~fp, ncol = 1) +
+  theme(strip.text = element_text(face = "bold"),
+        strip.background = element_rect(fill = "white"),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(x = "Movement (Adult / Larval)", 
+       y = "Relative Contribution to Connectivity (Adult / Larval)",
+       color = "") +
+  ylim(c(NA, 16)) +
+  scale_color_manual(values = colors)
+
+ggsave(p1, path = here::here("figs"), file = paste0("figS9.pdf"), height = 6, width = 8)
+
+sub_connect = connect %>% 
+  filter(eggs == "med") %>% 
+  filter(mpa_size == 8) %>% 
+  filter(mpa_spacing == 4) %>% 
+  mutate(fp = case_when(
+    fp == "med" ~ "medium",
+    TRUE ~ fp
+  ))
+
+p1 = ggplot(sub_connect) +
+  geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
+  # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +  
+  # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  geom_point(aes(fct_reorder(movement, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
+  geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
+  geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
+  geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
+  theme_bw() +
+  facet_grid(~fp, ncol = 1) +
+  theme(strip.text = element_text(face = "bold"),
+        strip.background = element_rect(fill = "white"),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(x = "Movement (Adult / Larval)", 
+       y = "Relative Contribution to Connectivity (Adult / Larval)",
+       color = "") +
+  ylim(c(NA, 16)) +
+  scale_color_manual(values = colors)
+
+ggsave(p1, path = here::here("figs"), file = paste0("figS10.pdf"), height = 6, width = 8)
+
+sub_connect = connect %>% 
+  filter(eggs == "med") %>% 
+  filter(mpa_size == 8) %>% 
+  filter(mpa_spacing == 8) %>% 
+  mutate(fp = case_when(
+    fp == "med" ~ "medium",
+    TRUE ~ fp
+  ))
+
+p1 = ggplot(sub_connect) +
+  geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
+  # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +  
+  # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  geom_point(aes(fct_reorder(movement, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
+  geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
+  geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
+  geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
+  theme_bw() +
+  facet_grid(~fp, ncol = 1) +
+  theme(strip.text = element_text(face = "bold"),
+        strip.background = element_rect(fill = "white"),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(x = "Movement (Adult / Larval)", 
+       y = "Relative Contribution to Connectivity (Adult / Larval)",
+       color = "") +
+  ylim(c(NA, 16)) +
+  scale_color_manual(values = colors)
+
+ggsave(p1, path = here::here("figs"), file = paste0("figS11.pdf"), height = 6, width = 8)
+
+sub_connect = connect %>% 
+  filter(eggs == "med") %>% 
+  filter(mpa_size == 8) %>% 
+  filter(mpa_spacing == 16) %>% 
+  mutate(fp = case_when(
+    fp == "med" ~ "medium",
+    TRUE ~ fp
+  ))
+
+p1 = ggplot(sub_connect) +
+  geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
+  # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +  
+  # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  geom_point(aes(fct_reorder(movement, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
+  geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
+  geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
+  geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
+  theme_bw() +
+  facet_grid(~fp, ncol = 1) +
+  theme(strip.text = element_text(face = "bold"),
+        strip.background = element_rect(fill = "white"),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(x = "Movement (Adult / Larval)", 
+       y = "Relative Contribution to Connectivity (Adult / Larval)",
+       color = "") +
+  ylim(c(NA, 16)) +
+  scale_color_manual(values = colors)
+
+ggsave(p1, path = here::here("figs"), file = paste0("figS12.pdf"), height = 6, width = 8)
+
+sub_connect = connect %>% 
+  filter(eggs == "med") %>% 
+  filter(mpa_size == 16) %>% 
+  filter(mpa_spacing == 0) %>% 
+  mutate(fp = case_when(
+    fp == "med" ~ "medium",
+    TRUE ~ fp
+  ))
+
+p1 = ggplot(sub_connect) +
+  geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
+  # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +  
+  # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
+  geom_point(aes(fct_reorder(movement, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
+  geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
+  geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
+  geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
+  theme_bw() +
+  facet_grid(~fp, ncol = 1) +
+  theme(strip.text = element_text(face = "bold"),
+        strip.background = element_rect(fill = "white"),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(x = "Movement (Adult / Larval)", 
+       y = "Relative Contribution to Connectivity (Adult / Larval)",
+       color = "") +
+  ylim(c(NA, 16)) +
+  scale_color_manual(values = colors)
+
+ggsave(p1, path = here::here("figs"), file = paste0("figS13.pdf"), height = 6, width = 8)
