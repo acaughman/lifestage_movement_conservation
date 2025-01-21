@@ -163,10 +163,10 @@ p1 = ggplot(sub_connect) +
   geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
   geom_point(aes(adult, relative_mpa_abs, color = as.factor(larval), shape = as.factor(mpa_size)), size = 3) +
   geom_line(aes(adult, relative_mpa_abs, color = as.factor(larval), linetype = as.factor(mpa_size)), linewidth = 1) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
   scale_color_viridis_d(end = 0.9) +
   labs(x = "Adult Movement",
-       y = "Contribution to Overall Connectivity (Adult / Larval)",
+       y = "Relative Number of Settlers (Adult / Larval)",
        color = "Larval Movement",
        shape = "MPA Size",
        linetype = "MPA Size") 
@@ -175,10 +175,10 @@ p2 = ggplot(sub_connect) +
   geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
   geom_point(aes(adult, relative_ret_imp, color = as.factor(larval), shape = as.factor(mpa_size)), size = 3) +
   geom_line(aes(adult, relative_ret_imp, color = as.factor(larval), linetype = as.factor(mpa_size)), linewidth = 1) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
   scale_color_viridis_d(end = 0.9) +
   labs(x = "Adult Movement",
-       y = "Contribution to Overall Connectivity (Retention / Import)",
+       y = "Relative Number of Settlers (Retention / Import)",
        color = "Larval Movement",
        shape = "MPA Size",
        linetype = "MPA Size") 
@@ -191,10 +191,10 @@ p3 = ggplot(sub_connect) +
   geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
   geom_point(aes(adult, relative_rel, color = as.factor(larval), shape = as.factor(mpa_size)), size = 3) +
   geom_line(aes(adult, relative_rel, color = as.factor(larval), linetype = as.factor(mpa_size)), linewidth = 1) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
   scale_color_viridis_d(end = 0.9) +
   labs(x = "Adult Movement",
-       y = "Relative Connectivity (Adult / Larval)",
+       y = "Number of Settlers (Adult / Larval)",
        color = "Larval Movement",
        shape = "MPA Size",
        linetype = "MPA Size") +
@@ -204,7 +204,7 @@ p4 = ggplot(sub_connect) +
   geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
   geom_point(aes(adult, relative_fished_abs, color = as.factor(larval), shape = as.factor(mpa_size)), size = 3) +
   geom_line(aes(adult, relative_fished_abs, color = as.factor(larval), linetype = as.factor(mpa_size)), linewidth = 1) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
   scale_color_viridis_d(end = 0.9) +
   labs(x = "Adult Movement",
        y = "",
@@ -217,7 +217,7 @@ p5 = ggplot(sub_connect) +
   geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
   geom_point(aes(adult, relative_mpa_abs, color = as.factor(larval), shape = as.factor(mpa_size)), size = 3) +
   geom_line(aes(adult, relative_mpa_abs, color = as.factor(larval), linetype = as.factor(mpa_size)), linewidth = 1) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
   scale_color_viridis_d(end = 0.9) +
   labs(x = "Adult Movement",
        y = "",
@@ -249,13 +249,13 @@ p1 = ggplot(sub_connect) +
   # geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
   # geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   # geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
   # facet_wrap(~fp) +
   # theme(strip.text = element_text(face = "bold"),
   #       strip.background = element_rect(fill = "white"),
   #       axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
   labs(x = "Movement (Adult / Larval)", 
-       y = "Relative Contribution to Connectivity (Adult / Larval)",
+       y = "Relative Number of Settlers (Adult / Larval)",
        color = "") +
   # ylim(c(NA, 11)) +
   scale_color_manual(values = colors)
@@ -269,7 +269,7 @@ p2 = ggplot(sub_connect) +
   geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
   # geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   # geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
   # facet_wrap(~fp) +
   # theme(strip.text = element_text(face = "bold"),
   #       strip.background = element_rect(fill = "white"),
@@ -289,7 +289,7 @@ p3 = ggplot(sub_connect) +
   # geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
   geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   # geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
   # facet_wrap(~fp) +
   # theme(strip.text = element_text(face = "bold"),
   #       strip.background = element_rect(fill = "white"),
@@ -309,7 +309,7 @@ p4 = ggplot(sub_connect) +
   # geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
   # geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
   # facet_wrap(~fp) +
   # theme(strip.text = element_text(face = "bold"),
   #       strip.background = element_rect(fill = "white"),
@@ -320,9 +320,9 @@ p4 = ggplot(sub_connect) +
   # ylim(c(NA, 11)) +
   scale_color_manual(values = colors)
 
-p = p1 / (p2 + p3 + p4) + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
+p = (p2 + p3 + p4) + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
 
-ggsave(p, path = here::here("figs"), file = paste0("fig2.pdf"), height = 10, width = 15)
+ggsave(p, path = here::here("figs"), file = paste0("fig2.pdf"), height = 6, width = 20)
 
 # Fishing Pressure and Connectivity ---------------------------------------
 
@@ -340,13 +340,12 @@ sub_connect = connect %>%
 
 p1 = ggplot(sub_connect) +
   geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
-  geom_point(aes(fct_reorder(movement, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
-  geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
+  geom_point(aes(fct_reorder(movement, relative_mpa_R, .desc = TRUE), relative_mpa_R, color = "Retention"), size = 3) +
   geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
   labs(x = "Movement (Adult / Larval)", 
-       y = "Relative Connectivity (Adult / Larval)",
+       y = "Number of Settlers (Adult / Larval)",
        color = "") +
   facet_wrap(~fp,ncol = 3) +
   scale_color_manual(values = colors) +
@@ -355,61 +354,58 @@ p1 = ggplot(sub_connect) +
         strip.background = element_rect(fill = "white"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
-ggsave(p1, path = here::here("figs"), file = paste0("fig3.pdf"), height = 6, width = 8)
+ggsave(p1, path = here::here("figs"), file = paste0("fig3.pdf"), height = 6, width = 10)
 
 # MPA Design --------------------------------------------------------------
 
 sub_connect = connect %>% 
-  filter(mpa_size %in% c(4,8)) %>% 
+  filter(mpa_size %in% c(8)) %>% 
   filter(eggs == "low") %>% 
-  filter(fp == "high") %>% 
-  mutate(fp = case_when(
-    fp == "med" ~ "medium",
-    TRUE ~ fp
-  ))
+  filter(fp == "high")
 
 p1 = ggplot(sub_connect) + 
-  geom_hline(aes(yintercept = 0), color = "red", alpha = 0.5, linetype = "dashed") +
-  geom_point(aes(mpa_spacing, relative_mpa_abs, color = movement, shape = mpa_size), size = 2) +
-  geom_line(aes(mpa_spacing, relative_mpa_abs, color = movement, group = movement, linetype = mpa_size)) +
-  theme_bw() +
+  geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
+  geom_point(aes(mpa_spacing, relative_mpa_abs, color = movement), size = 3) +
+  geom_line(aes(mpa_spacing, relative_mpa_abs, color = movement, group = as.factor(movement))) +
+  theme_bw(base_size = 16) +
   # facet_wrap(~mpa_size)
   labs(x = "MPA Spacing",
-       y = "Overall Connectivity (Adult / Larval)",
-       color = "Movement (Adult / Larval)",
-       shape = "MPA Size",
-       linetype = "MPA Size") +
+       y = "Relative Number of Settlers (Adult / Larval)",
+       color = "Movement (Adult / Larval)") +
   scale_color_viridis_d(end = 0.9) 
 
-# sub_connect = connect %>% 
-#   filter(mpa_spacing == 0) %>% 
-#   filter(eggs == "low") %>% 
-#   filter(fp == "high")
-# 
-# p2 = ggplot(sub_connect) + #bring in sizing somewhere , maybe p2? 
-#   geom_hline(aes(yintercept = 0), color = "red", alpha = 0.5, linetype = "dashed") +
-#   geom_point(aes(as.factor(mpa_size), relative_mpa_abs, color = movement), size = 2) +
-#   geom_line(aes(as.factor(mpa_size), relative_mpa_abs, color = movement, group = movement)) +
-#   theme_bw() +
-#   labs(x = "MPA Size",
-#        y = "Overall Connectivity (Adult / Larval)",
-#        color = "Movement (Adult / Larval)",
-#        shape = "Movement (Adult / Larval)") +
-#   scale_color_viridis_d(end = 0.9) +
-#   scale_shape_manual(values = c(19, 1, 1, 19, 19, 1, 19, 19, 19))
+sub_connect = connect %>% 
+  filter(mpa_spacing %in% c(0)) %>% 
+  filter(eggs == "low") %>% 
+  filter(fp == "high") 
+
+p2 = ggplot(sub_connect) + 
+  geom_hline(aes(yintercept = 1), color = "red", alpha = 0.5, linetype = "dashed") +
+  geom_point(aes(mpa_size, relative_mpa_abs, color = movement), size = 3) +
+  geom_line(aes(mpa_size, relative_mpa_abs, color = movement, group = as.factor(movement))) +
+  theme_bw(base_size = 16) +
+  # facet_wrap(~mpa_size)
+  labs(x = "MPA Size",
+       y = "Relative Number of Settlers (Adult / Larval)",
+       color = "Movement (Adult / Larval)") +
+  scale_color_viridis_d(end = 0.9) 
+
+plot = p1 / p2 + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
+
+ggsave(plot, path = here::here("figs"), file = paste0("fig4.pdf"), height = 12, width = 10)
 
 eq_pop_size_sub = eq_pop_size %>% 
-  filter(mpa_size %in% c(4,8)) %>% 
+  filter(mpa_size %in% c(8)) %>% 
   filter(fp == "high") %>% 
   filter(eggs == "low")
 
 p3 = ggplot(eq_pop_size_sub) +
   geom_hline(aes(yintercept = 0), color = "red", alpha = 0.5, linetype = "dashed") +
   # geom_hline(aes(yintercept = 0.7), color = "red", alpha = 0.5, linetype = "dashed") +
-  geom_point(aes(mpa_spacing, in_out, color = movement, shape = mpa_size), size = 2) +
-  geom_line(aes(mpa_spacing, in_out, color = movement, linetype = mpa_size, group = movement)) +
+  geom_point(aes(mpa_spacing, in_out, color = movement), size = 3) +
+  geom_line(aes(mpa_spacing, in_out, color = movement, group = movement)) +
   # facet_wrap(~mpa_size) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white")) +
   labs(x = "MPA Spacing",
@@ -417,8 +413,7 @@ p3 = ggplot(eq_pop_size_sub) +
        color = "Movement (Adult / Larval)",
        shape = "MPA Size",
        linetype = "MPA Size") +
-  scale_color_viridis_d(end = 0.9) +
-  theme(legend.position = "none")
+  scale_color_viridis_d(end = 0.9)
 
 eq_pop_size_sub_a = eq_pop_size %>% 
   filter(mpa_size == 8) %>% 
@@ -441,21 +436,26 @@ p4 = ggplot() +
   geom_point(data = eq_pop_size_sub_l, aes(larval, mean_larval, color = "Larval"), size = 3) +
   geom_line(data = eq_pop_size_sub_a, aes(adult, mean_adult, color = "Adult")) +
   geom_line(data = eq_pop_size_sub_l, aes(larval, mean_larval, color = "Larval")) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
   labs(x = "Movement Extent",
        y = "Log(Inside MPA Population / Outside MPA Population)",
        color = "") +
   scale_color_manual(values = c("Adult" = "#5ec962", "Larval" =  "#440154"))
 
-plot = p1 / (p3 + p4) + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
+plot = (p3 / p4) + plot_annotation(tag_levels = "A")
 
-ggsave(plot, path = here::here("figs"), file = paste0("fig4.pdf"), height = 15, width = 15)
+ggsave(plot, path = here::here("figs"), file = paste0("fig5.pdf"), height = 12, width = 8)
 
 # In/0ut across eggs -------------------------------------------------------
 
 eq_pop_size_sub = eq_pop_size %>% 
   filter(mpa_size == 8) %>% 
-  filter(fp == "high")
+  filter(fp == "high") %>% 
+  mutate(eggs = case_when(
+    eggs == "med" ~ "medium",
+    TRUE ~ eggs
+  )) %>% 
+  mutate(eggs = fct_relevel(eggs, c("low", "medium", "high")))
 
 p1 = ggplot(eq_pop_size_sub) +
   geom_hline(aes(yintercept = 0), color = "red", alpha = 0.5, linetype = "dashed") +
@@ -463,7 +463,7 @@ p1 = ggplot(eq_pop_size_sub) +
   geom_point(aes(mpa_spacing, in_out, color = movement), size = 2) +
   geom_line(aes(mpa_spacing, in_out, color = movement, group = movement)) +
   facet_wrap(~eggs) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white")) +
   labs(x = "MPA Spacing",
@@ -496,13 +496,13 @@ p1 = ggplot(sub_connect) +
   geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
   geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
   facet_grid(~fp) +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
   labs(x = "Movement (Adult / Larval)", 
-       y = "Relative Contribution to Connectivity (Adult / Larval)",
+       y = "Relative Number of Settlers (Adult / Larval)",
        color = "") +
   ylim(c(NA, 16)) +
   scale_color_manual(values = colors)
@@ -528,13 +528,13 @@ p1 = ggplot(sub_connect) +
   geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
   geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
   facet_grid(~fp) +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
   labs(x = "Movement (Adult / Larval)", 
-       y = "Relative Contribution to Connectivity (Adult / Larval)",
+       y = "Relative Number of Settlers (Adult / Larval)",
        color = "") +
   ylim(c(NA, 16)) +
   scale_color_manual(values = colors)
@@ -560,13 +560,13 @@ p1 = ggplot(sub_connect) +
   geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
   geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
   facet_grid(~fp) +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
   labs(x = "Movement (Adult / Larval)", 
-       y = "Relative Contribution to Connectivity (Adult / Larval)",
+       y = "Relative Number of Settlers (Adult / Larval)",
        color = "") +
   ylim(c(NA, 16)) +
   scale_color_manual(values = colors)
@@ -592,13 +592,13 @@ p1 = ggplot(sub_connect) +
   geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
   geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
   facet_grid(~fp) +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
   labs(x = "Movement (Adult / Larval)", 
-       y = "Relative Contribution to Connectivity (Adult / Larval)",
+       y = "Relative Number of Settlers (Adult / Larval)",
        color = "") +
   ylim(c(NA, 16)) +
   scale_color_manual(values = colors)
@@ -624,13 +624,13 @@ p1 = ggplot(sub_connect) +
   geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
   geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
   facet_grid(~fp) +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
   labs(x = "Movement (Adult / Larval)", 
-       y = "Relative Contribution to Connectivity (Adult / Larval)",
+       y = "Relative Number of Settlers (Adult / Larval)",
        color = "") +
   ylim(c(NA, 16)) +
   scale_color_manual(values = colors)
@@ -656,13 +656,13 @@ p1 = ggplot(sub_connect) +
   geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
   geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
   facet_grid(~fp) +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
   labs(x = "Movement (Adult / Larval)", 
-       y = "Relative Contribution to Connectivity (Adult / Larval)",
+       y = "Relative Number of Settlers (Adult / Larval)",
        color = "") +
   ylim(c(NA, 16)) +
   scale_color_manual(values = colors)
@@ -688,13 +688,13 @@ p1 = ggplot(sub_connect) +
   geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
   geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
   facet_grid(~fp) +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
   labs(x = "Movement (Adult / Larval)", 
-       y = "Relative Contribution to Connectivity (Adult / Larval)",
+       y = "Relative Number of Settlers (Adult / Larval)",
        color = "") +
   ylim(c(NA, 16)) +
   scale_color_manual(values = colors)
@@ -720,13 +720,13 @@ p1 = ggplot(sub_connect) +
   geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
   geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
   facet_grid(~fp) +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
   labs(x = "Movement (Adult / Larval)", 
-       y = "Relative Contribution to Connectivity (Adult / Larval)",
+       y = "Relative Number of Settlers (Adult / Larval)",
        color = "") +
   ylim(c(NA, 16)) +
   scale_color_manual(values = colors)
@@ -752,13 +752,13 @@ p1 = ggplot(sub_connect) +
   geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
   geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
   facet_grid(~fp) +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
   labs(x = "Movement (Adult / Larval)", 
-       y = "Relative Contribution to Connectivity (Adult / Larval)",
+       y = "Relative Number of Settlers (Adult / Larval)",
        color = "") +
   ylim(c(NA, 16)) +
   scale_color_manual(values = colors)
@@ -784,13 +784,13 @@ p1 = ggplot(sub_connect) +
   geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
   geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
   facet_grid(~fp) +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
   labs(x = "Movement (Adult / Larval)", 
-       y = "Relative Contribution to Connectivity (Adult / Larval)",
+       y = "Relative Number of Settlers (Adult / Larval)",
        color = "") +
   ylim(c(NA, 16)) +
   scale_color_manual(values = colors)
@@ -816,13 +816,13 @@ p1 = ggplot(sub_connect) +
   geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
   geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
   facet_grid(~fp) +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
   labs(x = "Movement (Adult / Larval)", 
-       y = "Relative Contribution to Connectivity (Adult / Larval)",
+       y = "Relative Number of Settlers (Adult / Larval)",
        color = "") +
   ylim(c(NA, 16)) +
   scale_color_manual(values = colors)
@@ -848,15 +848,16 @@ p1 = ggplot(sub_connect) +
   geom_point(aes(movement, relative_mpa_R, color = "Retention"), size = 3) +
   geom_point(aes(movement, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(movement, relative_mpa_E, color = "Export"), size = 3) +
-  theme_bw() +
+  theme_bw(base_size = 16) +
   facet_grid(~fp) +
   theme(strip.text = element_text(face = "bold"),
         strip.background = element_rect(fill = "white"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
   labs(x = "Movement (Adult / Larval)", 
-       y = "Relative Contribution to Connectivity (Adult / Larval)",
+       y = "Relative Number of Settlers (Adult / Larval)",
        color = "") +
   ylim(c(NA, 16)) +
   scale_color_manual(values = colors)
 
 ggsave(p1, path = here::here("figs"), file = paste0("figS13.pdf"), height = 6, width = 8)
+
