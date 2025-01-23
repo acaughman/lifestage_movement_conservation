@@ -1,6 +1,22 @@
 library(tidyverse)
 library(patchwork)
 
+
+# RF data ---------------------------------------------------------
+
+rf = read_csv(here::here("data", "raw_data", "rf_data.csv")) %>% 
+  mutate(pld_dist = ((pi * (1.33 * (pld)^1.3)^2)) / 100 / 2) %>% 
+  filter(!is.na(homerange)) %>% 
+  filter(!is.na(pld)) %>% 
+  mutate(dominate = case_when(
+    round(homerange, 2) < round(pld_dist, 2) ~ "PLD",
+    round(homerange, 2) >= round(pld_dist, 2) ~ "Home range"
+  ))
+
+dominate_sum = rf %>% 
+  group_by(dominate) %>% 
+  summarize(count = n())
+
 # Data Load and Initial Manipulation --------------------------------------
 
 full_pisco <- read_csv(here::here("data", "raw_data", "full_pisco.csv")) %>%
