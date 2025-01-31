@@ -29,10 +29,9 @@ for (eggs in c(10, 100, 10000)) {
 
     fp <- fishing_pressure
 
-    output_df <- read_csv(here::here("outputs", paste0("2x2_0_", eggs_c, "E", fishing_pressure_c, "F.csv"))) %>%
+    output_df <- read_csv(here::here("outputs", paste0("8x8_16_", eggs_c, "E", fishing_pressure_c, "F.csv"))) %>%
       mutate(
         mpa = case_when(
-          # (lat %in% c(22:29) & lon %in% c(22:29)) ~ "MPA 1",
           (lat %in% c(10:17) & lon %in% c(22:29)) ~ "MPA 1",
           (lat %in% c(34:41) & lon %in% c(22:29)) ~ "MPA 2",
           TRUE ~ "Non-MPA"
@@ -218,6 +217,6 @@ for (eggs in c(10, 100, 10000)) {
       "adult", "larval"
     )
 
-    write_csv(connect_df, here::here("outputs", paste0("connectivity_2x2_0_", eggs_c, "E", fishing_pressure_c, "F.csv")))
+    write_csv(connect_df, here::here("outputs", paste0("connectivity_8x8_16_", eggs_c, "E", fishing_pressure_c, "F.csv")))
   }
 }

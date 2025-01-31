@@ -25,7 +25,6 @@ for (eggs in c(10, 100, 10000)) {
       fishing_pressure_c <- "high"
     }
 
-
     # simulation variables
     resolution <- c(50, 50)
     years <- 100 # eventually set up for pre fishing, pre MPA
@@ -102,7 +101,7 @@ for (eggs in c(10, 100, 10000)) {
           }
 
           # create MPA
-          f_mort[25:26, 25:26, ] <- 1 # size 2x2
+          # f_mort[25:26, 25:26, ] <- 1 # size 2x2
           # f_mort[24:27, 24:27, ] <- 1 # size 4x4
           # f_mort[22:29, 22:29, ] <- 1 # size 8x8
           # f_mort[17:32, 17:32, ] <- 1 # size 16x16
@@ -114,8 +113,8 @@ for (eggs in c(10, 100, 10000)) {
           # f_mort[30:33, 24:27, ] <- 1 # size 4x4, spacing 8
           # f_mort[14:17, 24:27, ] <- 1 # size 4x4, spacing 16
           # f_mort[34:37, 24:27, ] <- 1 # size 4x4, spacing 16
-          # f_mort[17:24, 22:29, ] <- 1 # size 8x8, spacing 2
-          # f_mort[27:34, 22:29, ] <- 1 # size 8x8, spacing 2
+          f_mort[17:24, 22:29, ] <- 1 # size 8x8, spacing 2
+          f_mort[27:34, 22:29, ] <- 1 # size 8x8, spacing 2
           # f_mort[16:23, 22:29, ] <- 1 # size 8x8, spacing 4
           # f_mort[28:35, 22:29, ] <- 1 # size 8x8, spacing 4
           # f_mort[14:21, 22:29, ] <- 1 # size 8x8, spacing 8
@@ -227,9 +226,10 @@ for (eggs in c(10, 100, 10000)) {
     output_df <- output_df %>%
       full_join(fished_df)
 
-    write_csv(output_df, here::here("outputs", paste0("2x2_0_", eggs_c, "E", fishing_pressure_c, "F.csv")))
-
-    rm(list = ls())
+    write_csv(output_df, here::here("outputs", paste0("8x8_2_", eggs_c, "E", fishing_pressure_c, "F.csv")))
+    
+    rm(fished_df, output_df)
     gc()
   }
 }
+rm(list = ls())

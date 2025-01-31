@@ -1,6 +1,5 @@
 library(tidyverse)
 library(patchwork)
-library(sensitivity)
 
 # Data Input --------------------------------------------------------------
 
@@ -16,14 +15,14 @@ rm(output)
 
 mpa <- mpa %>%
   mutate(adult_cat = case_when(
-    adult %in% c(2) ~ "low",
+    adult %in% c(0.5) ~ "low",
     adult %in% c(8) ~ "medium",
-    adult %in% c(16) ~ "high"
+    adult %in% c(32) ~ "high"
   )) %>%
   mutate(larval_cat = case_when(
-    larval %in% c(4) ~ "low",
-    larval %in% c(8) ~ "medium",
-    larval %in% c(32) ~ "high"
+    larval %in% c(8) ~ "low",
+    larval %in% c(32) ~ "medium",
+    larval %in% c(192) ~ "high"
   )) %>%
   mutate(
     movement = c(paste0(adult, " / ", larval)),
@@ -45,9 +44,9 @@ mpa <- mpa %>%
     fp = fct_relevel(fp, c("low", "med", "high"))
   ) %>%
   mutate(movement = fct_relevel(movement, c(
-    "2 / 4", "2 / 8", "2 / 32",
-    "8 / 4", "8 / 8", "8 / 32",
-    "16 / 4", "16 / 8", "16 / 32"
+    "0.5 / 8", "0.5 / 32", "0.5 / 192",
+    "8 / 8", "8 / 32", "8 / 192",
+    "32 / 8", "32 / 32", "32 / 192"
   ))) %>%
   pivot_wider(names_from = mpa, values_from = mean_pop) %>%
   mutate(move_cat = fct_relevel(
@@ -97,14 +96,14 @@ connect <- connect_full %>%
     relative_ret_imp = mpa_ret / (mpa_import + mpa_ret)
   ) %>%
   mutate(adult_cat = case_when(
-    adult %in% c(2) ~ "low",
+    adult %in% c(0.5) ~ "low",
     adult %in% c(8) ~ "medium",
-    adult %in% c(16) ~ "high"
+    adult %in% c(32) ~ "high"
   )) %>%
   mutate(larval_cat = case_when(
-    larval %in% c(4) ~ "low",
-    larval %in% c(8) ~ "medium",
-    larval %in% c(32) ~ "high"
+    larval %in% c(8) ~ "low",
+    larval %in% c(32) ~ "medium",
+    larval %in% c(192) ~ "high"
   )) %>%
   mutate(
     movement = c(paste0(adult, " / ", larval)),
@@ -112,9 +111,9 @@ connect <- connect_full %>%
     move_ratio = adult / larval
   ) %>%
   mutate(movement = fct_relevel(movement, c(
-    "2 / 4", "2 / 8", "2 / 32",
-    "8 / 4", "8 / 8", "8 / 32",
-    "16 / 4", "16 / 8", "16 / 32"
+    "0.5 / 8", "0.5 / 32", "0.5 / 192",
+    "8 / 8", "8 / 32", "8 / 192",
+    "32 / 8", "32 / 32", "32 / 192"
   ))) %>%
   mutate(ratio_cat = case_when(
     move_ratio < 1 ~ "Larval Greater",
