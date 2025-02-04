@@ -329,9 +329,9 @@ sub_connect <- connect %>%
 
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3) +
+  geom_point(aes(move_cat, relative_mpa_R, color = "Retention"), size = 4) +
   geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
-  geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 3) +
+  geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 2) +
   theme_bw(base_size = 16) +
   labs(
     x = "Movement (Adult / Larval)",
@@ -405,12 +405,10 @@ eq_pop_size_sub <- eq_pop_size %>%
     "high / low", "high / medium", "high / high"
   ))
 
-recruit_0 <- 1500
-
 p3 <- ggplot(eq_pop_size_sub) +
   # geom_hline(aes(yintercept = 0.7), color = "red", alpha = 0.5, linetype = "dashed") +
-  geom_point(aes(mpa_spacing, mpa_1 / recruit_0, color = move_cat), size = 3) +
-  geom_line(aes(mpa_spacing, mpa_1 / recruit_0, color = move_cat, group = move_cat), linewidth = 1) +
+  geom_point(aes(mpa_spacing, mpa_1 , color = move_cat), size = 3) +
+  geom_line(aes(mpa_spacing, mpa_1 , color = move_cat, group = move_cat), linewidth = 1) +
   # facet_wrap(~mpa_size) +
   theme_bw(base_size = 16) +
   theme(
@@ -419,7 +417,7 @@ p3 <- ggplot(eq_pop_size_sub) +
   ) +
   labs(
     x = "MPA Spacing",
-    y = "Population Abundance (As Proportion of Carrying Capacity)",
+    y = "Population Abundance",
     color = "Movement (Adult / Larval)",
     shape = "MPA Size",
     linetype = "MPA Size"
@@ -575,7 +573,7 @@ p4 <- ggplot(eq_pop_size_sub) +
   ) +
   labs(
     x = "MPA Spacing",
-    y = "Log(Inside MPA Population / Outside MPA Population)",
+    y = "Population Abundance",
     color = "Movement (Adult / Larval)",
     shape = "Movement (Adult / Larval)"
   ) +
@@ -604,7 +602,7 @@ p1 <- ggplot(sub_connect) +
   # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_point(aes(fct_reorder(move_cat, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
   geom_point(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3) +
-  geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
+  # geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 3) +
   theme_bw(base_size = 16) +
   facet_grid(~fp) +
@@ -639,7 +637,7 @@ p1 <- ggplot(sub_connect) +
   # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_point(aes(fct_reorder(move_cat, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
   geom_point(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3) +
-  geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
+  # geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 3) +
   theme_bw(base_size = 16) +
   facet_grid(~fp) +
@@ -814,7 +812,7 @@ p1 <- ggplot(sub_connect) +
   # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_point(aes(fct_reorder(move_cat, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
   geom_point(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3) +
-  geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
+  # geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 3) +
   theme_bw(base_size = 16) +
   facet_grid(~fp) +
@@ -989,7 +987,7 @@ p1 <- ggplot(sub_connect) +
   # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_point(aes(fct_reorder(move_cat, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
   geom_point(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3) +
-  geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
+  # geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 3) +
   theme_bw(base_size = 16) +
   facet_grid(~fp) +
