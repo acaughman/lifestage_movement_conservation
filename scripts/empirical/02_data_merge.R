@@ -18,10 +18,10 @@ sites <- read_csv(here::here("data", "raw_data", "PISCO_kelpforest_site_table.cs
   select(site, mpa_name, latitude, longitude, site_status) %>%
   mutate(mpa_name = str_to_lower(mpa_name)) %>%
   rename(affiliated_mpa = mpa_name)
-settle <- read_csv(here::here("data", "raw_data", "settlement_mpa.csv"))[, -1] %>%
-  janitor::clean_names() %>%
-  select(-mpa) %>%
-  select(affiliated_mpa, settlement_mpa_total)
+# settle <- read_csv(here::here("data", "raw_data", "settlement_mpa.csv"))[, -1] %>%
+#   janitor::clean_names() %>%
+#   select(-mpa) %>%
+#   select(affiliated_mpa, settlement_mpa_total)
 
 ### Read in MPA data
 
@@ -106,9 +106,7 @@ mpas_of_interest <- c(
   "santa barbara island smr", "naples smca", "campus point smca"
 )
 
-pisco_merge <- settle %>%
-  mutate(affiliated_mpa = str_to_lower(affiliated_mpa)) %>%
-  full_join(mpa_traits) %>%
+pisco_merge <- mpa_traits %>%
   full_join(sites) %>%
   distinct() %>%
   filter(!is.na(size)) %>%
@@ -123,7 +121,7 @@ pisco_merge <- settle %>%
 
 pisco_merge$date <- as.Date(with(pisco_merge, paste(year, month, day, sep = "-")), "%Y-%m-%d")
 
-rm(pisco, settle, sites, mpa_traits)
+rm(pisco, sites, mpa_traits)
 
 ### Calculate distance between MPAs
 mpa_centroids <- st_centroid(mpa_sf)
@@ -193,8 +191,6 @@ mpa_sf <- mpa_sf %>%
 
 pisco_merge <- full_join(pisco_merge, mpa_sf)
 
-write_csv(pisco_merge, here::here("data", "raw_data", "full_pisco.csv"))
-
 ### MERGE PLD AND HOME RANGE
 rf_data <- full_join(homerange_rf, pld_rf) %>%
   mutate(pld = case_when(
@@ -220,7 +216,7 @@ SST_filter <- SST %>%
 SST_filter <- SST_filter %>%
   filter((lat_c %in% pisco_merge$lat_c) & (lon_c %in% pisco_merge$lon_c)) %>%
   mutate(date = as.Date(stringr::str_remove(t, "T00:00:00Z"))) %>%
-  select(-t, -latitude, -longitude)
+  dplyr::select(-t, -latitude, -longitude)
 
 rm(SST)
 
@@ -229,6 +225,8 @@ rm(SST)
 pisco_SST <- left_join(pisco_merge, SST_filter)
 
 rm(SST_filter)
+
+write_csv(pisco_SST, here::here("data", "raw_data", "full_pisco.csv"))
 
 rf_in_pisco <- rf_data %>%
   filter(sciname %in% pisco_SST$sciname)

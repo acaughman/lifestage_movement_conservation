@@ -17,16 +17,16 @@ dominate_sum = rf %>%
   group_by(dominate) %>% 
   summarize(count = n())
 
+percent_dominate_adult = dominate_sum$count[1] / sum(dominate_sum$count) * 100
+
 # Data Load and Initial Manipulation --------------------------------------
 
 full_pisco <- read_csv(here::here("data", "raw_data", "full_pisco.csv")) %>%
   distinct() %>% 
-  filter(level != "CAN") %>%
-  filter(site_status == "MPA")%>% 
-  filter(mpa_defacto_designation != "ref") %>%
+  filter(level != "CAN") %>% 
   dplyr::select(-lat_c, -lon_c, -latitude, -longitude) %>%   #remove lat, long for site maps below
   distinct() %>% 
-  group_by(date, site, affiliated_mpa, mpa_defacto_designation, zone, transect) %>% 
+  group_by(date, site, affiliated_mpa, site_status, zone, transect) %>% 
   mutate(total_count = sum(count),
          total_biomass = sum(weight_kg)) %>% 
   replace_na(list(total_biomass = 0, count = 0)) %>% 
@@ -77,13 +77,57 @@ sub_pisco = full_pisco %>%
   mutate(affiliated_mpa = fct_reorder(affiliated_mpa, min_dist, .desc = FALSE)) %>% 
   mutate(sciname = fct_relevel(sciname, c("Embiotoca jacksoni", "Paralabrax clathratus",
                                             "Phanerodon furcatus", "Ophiodon elongatus",
-                                            "Sebastes mystinus"))) 
+                                            "Sebastes mystinus"))) %>% 
+  mutate(mpa_designation = case_when(
+    mpa_defacto_designation == "ref" ~ "reference",
+    TRUE ~ "MPA"
+  )) %>% 
+  dplyr::select(-mpa_defacto_designation, -mpa_state_designation) %>% 
+  mutate(movement = fct_relevel(movement, "low HR, low PLD", "low HR, high PLD", "med HR, low PLD", "med HR, high PLD", "high HR, high PLD"))
+
+mpa_sites = sub_pisco %>% 
+  filter(mpa_designation == "MPA") %>% 
+  distinct() %>% 
+  rename(mpa_count = count) %>% 
+  dplyr::select(-mpa_designation, -biomass, -se_bio, -n_rep, -sd_bio)
+ref_sites = sub_pisco %>% 
+  filter(mpa_designation == "reference") %>% 
+  distinct() %>% 
+  rename(ref_count = count) %>% 
+  dplyr::select(-mpa_designation, -biomass, -se_bio, -n_rep, -sd_bio)
+
+wider_pisco = full_join(mpa_sites, ref_sites) %>% 
+  mutate(in_out = mpa_count / ref_count)
 
 mpa_summary = full_pisco %>% 
-  select(affiliated_mpa, implementation_date, settlement_mpa_total, size, min_dist, max_dist) %>% 
-  distinct()
+  dplyr::select(affiliated_mpa, implementation_date,  size, min_dist, max_dist) %>% 
+  distinct() %>% 
+  mutate(larvae_spacing = case_when(
+   min_dist > 192 ~ "not close enough",
+   min_dist <= 192 & min_dist >32 ~ "close enough for high PLD",
+   min_dist <= 32  & min_dist > 8 ~ "close enough for high/medium PLD",
+   min_dist <= 8 ~ "close enough for all"
+  )) %>% 
+  mutate(adult_spacing = case_when(
+    min_dist > 32 ~ "not close enough",
+    min_dist <=32 & min_dist > 8 ~ "close enough for high movement",
+    min_dist <= 8  & min_dist > 0.5 ~ "close enough for high/medium movement",
+    min_dist <= 0.5 ~ "close enough for all"
+  )) %>% 
+  mutate(larval_size = case_when(
+    size < 8 ~ "not large enough",
+    size >= 8 & size < 32 ~ "large enough for low PLD",
+    size >=32 & size < 192 ~ "large enough for low/medium PLD",
+    size >= 192 ~ "large enough for all"
+  )) %>% 
+  mutate(adult_size = case_when( #using 2 x home range rule
+    size < 0.5 * 2 ~ "not large enough",
+    size >= 0.5 * 2 & size < 8 * 2 ~ "large enough for low movement",
+    size >= 8 * 2 & size < 32 * 2 ~ "large enough for low/medium movement",
+    size >= 32 * 2 ~ "large enough for all"
+  ))
 
-p1 <- ggplot(sub_pisco, aes(sciname, count, color = movement)) +
+p1 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(sciname, count, color = movement)) +
   geom_boxplot() +
   theme_bw() +
   scale_y_log10() +
@@ -95,35 +139,37 @@ p1 <- ggplot(sub_pisco, aes(sciname, count, color = movement)) +
   ) +
   labs(y = "Count/Transect", x = "", color = "MPA")
 
-p2 <- ggplot(sub_pisco, aes(sciname, biomass, color = movement)) +
-  geom_boxplot() +
-  theme_bw() +
-  scale_y_log10() +
-  theme(strip.background = element_rect(fill = "transparent")) +
-  scale_color_viridis_d() +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
-  labs(y = "Biomass (kg/transect)", x = "", color = "MPA")
+# p2 <- ggplot(sub_pisco%>% filter(site_status == "MPA"), aes(sciname, biomass, color = movement)) +
+#   geom_boxplot() +
+#   theme_bw() +
+#   scale_y_log10() +
+#   theme(strip.background = element_rect(fill = "transparent")) +
+#   scale_color_viridis_d() +
+#   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+#   labs(y = "Biomass (kg/transect)", x = "", color = "MPA")
+# 
+# p1 / p2 + plot_layout(guides = "collect")
 
-p1 / p2 + plot_layout(guides = "collect")
-
-tsp <- ggplot(sub_pisco, aes(date, count, color = movement)) +
+tsp <- ggplot(sub_pisco%>% filter(site_status == "MPA"), aes(date, count, color = movement)) +
   geom_vline(aes(xintercept = ymd(2014, truncated = 2L)), color = "red", linetype = "dashed", alpha = 0.5) +
   geom_vline(aes(xintercept = ymd(2016, truncated = 2L)), color = "red", linetype = "dashed", alpha = 0.5) +
-  geom_line() +
+  geom_line(linewidth = 1) +
   theme_bw(base_size = 20) +
-  facet_grid(affiliated_mpa ~ sciname) +
+  facet_wrap(~affiliated_mpa, scales = "free_y") +
   scale_y_log10() +
   theme(strip.background = element_rect(fill = "transparent")) +
-  scale_color_viridis_d(guide = "none") +
+  scale_color_viridis_d(end = 0.9) +
   labs(x = "", y = "Count") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+  labs(color = "")
 tsp
 
 kelp_bass = sub_pisco %>% 
   filter(sciname == "Paralabrax clathratus") %>% 
-  filter(!(affiliated_mpa %in% c("santa barbara island smr", "carrington point smr")))
+  filter(!(affiliated_mpa %in% c("santa barbara island smr", "carrington point smr"))) %>% 
+  full_join(mpa_summary)
 
-size <- ggplot(kelp_bass, aes(date, count, color = as.factor(size)), linewidth = 1) +
+size <- ggplot(kelp_bass, aes(date, count, color = adult_size), linewidth = 1) +
   geom_vline(aes(xintercept = ymd(2014, truncated = 2L)), color = "red", linetype = "dashed", alpha = 0.5) +
   geom_vline(aes(xintercept = ymd(2016, truncated = 2L)), color = "red", linetype = "dashed", alpha = 0.5) +
   geom_line() +
@@ -138,12 +184,13 @@ size
 
 average_pisco = sub_pisco %>% 
   group_by(sciname, affiliated_mpa) %>% 
-  mutate(avg_count = mean(count, na.rm = TRUE))
+  mutate(avg_count = mean(count, na.rm = TRUE)) %>% 
+  full_join(mpa_summary)
 
 ggplot() +
-  geom_point(data = average_pisco, aes(x = sciname, y = avg_count, color = min_dist)) +
+  geom_point(data = average_pisco, aes(x = sciname, y = avg_count, color = adult_spacing)) +
   theme_bw() +
-  scale_color_viridis_c() +
+  scale_color_viridis_d(end = 0.9) +
   facet_wrap(~size) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
