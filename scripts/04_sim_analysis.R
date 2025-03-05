@@ -146,7 +146,7 @@ colors <- c("Retention" = "#5ec962", "Import" = "#3b528b", "Export" = "#440154",
 
 sub_connect <- connect %>%
   filter(mpa_size %in% c(4, 8)) %>%
-  filter(mpa_spacing == 8) %>%
+  filter(mpa_spacing == 16) %>%
   filter(eggs == "low") %>%
   filter(fp == "high")
 
@@ -184,7 +184,7 @@ ggsave(p, path = here::here("figs"), file = paste0("fig1.pdf"), height = 8, widt
 
 sub_connect <- connect %>%
   filter(mpa_size %in% c(8)) %>%
-  filter(mpa_spacing == 8) %>%
+  filter(mpa_spacing == 16) %>%
   filter(eggs == "low") %>%
   filter(fp == "high")
 
@@ -214,9 +214,9 @@ ggsave(p3, path = here::here("figs"), file = paste0("figS1.pdf"), height = 8, wi
 
 sub_connect <- connect %>%
   filter(mpa_size == 8) %>%
-  filter(mpa_spacing == 8) %>%
-  filter(eggs == "med") %>%
-  filter(fp == "med")
+  filter(mpa_spacing == 16) %>%
+  filter(fp == "high") %>%
+  filter(eggs == "low")
 
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
@@ -318,8 +318,8 @@ ggsave(p, path = here::here("figs"), file = paste0("fig2.pdf"), height = 8, widt
 
 sub_connect <- connect %>%
   filter(mpa_size == 8) %>%
-  filter(mpa_spacing == 8) %>%
-  filter(eggs == "med") %>%
+  filter(mpa_spacing == 16) %>%
+  filter(eggs == "low") %>%
   mutate(fp = case_when(
     fp == "med" ~ "medium",
     TRUE ~ fp
@@ -329,9 +329,9 @@ sub_connect <- connect %>%
 
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(move_cat, relative_mpa_R, color = "Retention"), size = 4) +
-  geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
-  geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 2) +
+  geom_jitter(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3, width = 0.25) +
+  geom_jitter(aes(move_cat, relative_mpa_I, color = "Import"), size = 3, width = 0.25) +
+  geom_jitter(aes(move_cat, relative_mpa_E, color = "Export"), size = 3, width = 0.25) +
   theme_bw(base_size = 16) +
   labs(
     x = "Movement (Adult / Larval)",
@@ -371,7 +371,7 @@ p1 <- ggplot(sub_connect) +
   scale_linetype_manual(values = c("solid", "dotdash", "dashed" ))
 
 sub_connect <- connect %>%
-  filter(mpa_spacing %in% c(0)) %>%
+  filter(mpa_spacing %in% c(16)) %>%
   filter(eggs == "low") %>%
   filter(fp == "high")
 
@@ -446,7 +446,7 @@ p4 <- ggplot(eq_pop_size_sub) +
 
 eq_pop_size_sub_a <- eq_pop_size %>%
   filter(mpa_size == 8) %>%
-  filter(mpa_spacing == 8) %>%
+  filter(mpa_spacing == 16) %>%
   filter(fp == "high") %>%
   filter(eggs == "low") %>%
   group_by(adult) %>%
@@ -454,7 +454,7 @@ eq_pop_size_sub_a <- eq_pop_size %>%
 
 eq_pop_size_sub_l <- eq_pop_size %>%
   filter(mpa_size == 8) %>%
-  filter(mpa_spacing == 8) %>%
+  filter(mpa_spacing == 16) %>%
   filter(fp == "high") %>%
   filter(eggs == "low") %>%
   group_by(larval) %>%
@@ -586,7 +586,7 @@ ggsave(p, path = here::here("figs"), file = paste0("figS14.pdf"), height = 15, w
 # Connectivity Across MPA sizes -------------------------------------------
 
 sub_connect <- connect %>%
-  filter(eggs == "med") %>%
+  filter(eggs == "low") %>%
   filter(mpa_size == 2) %>%
   filter(mpa_spacing == 0) %>%
   mutate(fp = case_when(
@@ -621,7 +621,7 @@ p1 <- ggplot(sub_connect) +
 ggsave(p1, path = here::here("figs"), file = paste0("figS2.pdf"), height = 6, width = 8)
 
 sub_connect <- connect %>%
-  filter(eggs == "med") %>%
+  filter(eggs == "low") %>%
   filter(mpa_size == 4) %>%
   filter(mpa_spacing == 0) %>%
   mutate(fp = case_when(
@@ -656,7 +656,7 @@ p1 <- ggplot(sub_connect) +
 ggsave(p1, path = here::here("figs"), file = paste0("figS3.pdf"), height = 6, width = 8)
 
 sub_connect <- connect %>%
-  filter(eggs == "med") %>%
+  filter(eggs == "low") %>%
   filter(mpa_size == 4) %>%
   filter(mpa_spacing == 2) %>%
   mutate(fp = case_when(
@@ -691,7 +691,7 @@ p1 <- ggplot(sub_connect) +
 ggsave(p1, path = here::here("figs"), file = paste0("figS4.pdf"), height = 6, width = 8)
 
 sub_connect <- connect %>%
-  filter(eggs == "med") %>%
+  filter(eggs == "low") %>%
   filter(mpa_size == 4) %>%
   filter(mpa_spacing == 4) %>%
   mutate(fp = case_when(
@@ -726,7 +726,7 @@ p1 <- ggplot(sub_connect) +
 ggsave(p1, path = here::here("figs"), file = paste0("figS5.pdf"), height = 6, width = 8)
 
 sub_connect <- connect %>%
-  filter(eggs == "med") %>%
+  filter(eggs == "low") %>%
   filter(mpa_size == 4) %>%
   filter(mpa_spacing == 8) %>%
   mutate(fp = case_when(
@@ -761,7 +761,7 @@ p1 <- ggplot(sub_connect) +
 ggsave(p1, path = here::here("figs"), file = paste0("figS6.pdf"), height = 6, width = 8)
 
 sub_connect <- connect %>%
-  filter(eggs == "med") %>%
+  filter(eggs == "low") %>%
   filter(mpa_size == 4) %>%
   filter(mpa_spacing == 16) %>%
   mutate(fp = case_when(
@@ -796,7 +796,7 @@ p1 <- ggplot(sub_connect) +
 ggsave(p1, path = here::here("figs"), file = paste0("figS7.pdf"), height = 6, width = 8)
 
 sub_connect <- connect %>%
-  filter(eggs == "med") %>%
+  filter(eggs == "low") %>%
   filter(mpa_size == 8) %>%
   filter(mpa_spacing == 0) %>%
   mutate(fp = case_when(
@@ -831,7 +831,7 @@ p1 <- ggplot(sub_connect) +
 ggsave(p1, path = here::here("figs"), file = paste0("figS8.pdf"), height = 6, width = 8)
 
 sub_connect <- connect %>%
-  filter(eggs == "med") %>%
+  filter(eggs == "low") %>%
   filter(mpa_size == 8) %>%
   filter(mpa_spacing == 2) %>%
   mutate(fp = case_when(
@@ -866,7 +866,7 @@ p1 <- ggplot(sub_connect) +
 ggsave(p1, path = here::here("figs"), file = paste0("figS9.pdf"), height = 6, width = 8)
 
 sub_connect <- connect %>%
-  filter(eggs == "med") %>%
+  filter(eggs == "low") %>%
   filter(mpa_size == 8) %>%
   filter(mpa_spacing == 4) %>%
   mutate(fp = case_when(
@@ -901,7 +901,7 @@ p1 <- ggplot(sub_connect) +
 ggsave(p1, path = here::here("figs"), file = paste0("figS10.pdf"), height = 6, width = 8)
 
 sub_connect <- connect %>%
-  filter(eggs == "med") %>%
+  filter(eggs == "low") %>%
   filter(mpa_size == 8) %>%
   filter(mpa_spacing == 8) %>%
   mutate(fp = case_when(
@@ -936,7 +936,7 @@ p1 <- ggplot(sub_connect) +
 ggsave(p1, path = here::here("figs"), file = paste0("figS11.pdf"), height = 6, width = 8)
 
 sub_connect <- connect %>%
-  filter(eggs == "med") %>%
+  filter(eggs == "low") %>%
   filter(mpa_size == 8) %>%
   filter(mpa_spacing == 16) %>%
   mutate(fp = case_when(
@@ -971,7 +971,7 @@ p1 <- ggplot(sub_connect) +
 ggsave(p1, path = here::here("figs"), file = paste0("figS12.pdf"), height = 6, width = 8)
 
 sub_connect <- connect %>%
-  filter(eggs == "med") %>%
+  filter(eggs == "low") %>%
   filter(mpa_size == 16) %>%
   filter(mpa_spacing == 0) %>%
   mutate(fp = case_when(

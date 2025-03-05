@@ -96,7 +96,9 @@ for (eggs in c(10, 100, 10000)) {
           if (t == 41) {
             # f_mort[, , ] <- f_mort / (1 - ((2 * 2) / (resolution[1] * resolution[2]))) # size 2x2
             # f_mort[, ,] = f_mort / (1 - ((4 * 4) / (resolution[1] * resolution[2])))
-            f_mort[, , ] <- f_mort / (1 - ((8 * 8) / (resolution[1] * resolution[2])))
+            # f_mort[, ,] = f_mort / (1 - ((4 * 4 * 2) / (resolution[1] * resolution[2])))
+            # f_mort[, , ] <- f_mort / (1 - ((8 * 8) / (resolution[1] * resolution[2])))
+            f_mort[, , ] <- f_mort / (1 - ((8 * 8 * 2) / (resolution[1] * resolution[2])))
             # f_mort[, ,] = f_mort / (1 - ((16 * 16) / (resolution[1] * resolution[2])))
           }
 
