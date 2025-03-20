@@ -324,8 +324,8 @@ sub_connect <- connect %>%
     fp == "med" ~ "medium",
     TRUE ~ fp
   )) %>%
-  mutate(fp = fct_relevel(fp, c("low", "medium", "high"))) %>% 
-  filter(move_cat %in% c("high / medium", "high / low", "medium / low"))
+  mutate(fp = fct_relevel(fp, c("low", "medium", "high"))) %>%
+  filter(move_cat %in% c("high / medium", "high / low", "medium / low", "medium / medium"))
 
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
@@ -348,6 +348,18 @@ p1 <- ggplot(sub_connect) +
 
 ggsave(p1, path = here::here("figs"), file = paste0("fig3.pdf"), height = 6, width = 10)
 
+# tipping points ----------------------------------------------------------
+
+tp <- mpa %>%
+  filter(generation == 20) %>%
+  filter(fp == "high") %>%
+  filter(eggs == "low") %>% 
+  filter(age == "adult") %>% 
+  ungroup() %>% 
+  mutate(tip_point = mpa_1 / 3) %>% 
+  select(-reference, -in_out, -ratio_cat, -generation, -move_ratio, -mpa_1) %>% 
+  mutate(mean_tp = mean(tip_point))
+
 # MPA Design --------------------------------------------------------------
 
 sub_connect <- connect %>%
@@ -368,7 +380,7 @@ p1 <- ggplot(sub_connect) +
     linetype = ""
   ) +
   scale_color_viridis_d(end = 0.9) +
-  scale_linetype_manual(values = c("solid", "dotdash", "dashed" ))
+  scale_linetype_manual(values = c("solid", "dotdash", "dashed"))
 
 sub_connect <- connect %>%
   filter(mpa_spacing %in% c(16)) %>%
@@ -388,7 +400,7 @@ p2 <- ggplot(sub_connect) +
     linetype = ""
   ) +
   scale_color_viridis_d(end = 0.9) +
-  scale_linetype_manual(values = c("solid", "dotdash", "dashed" ))
+  scale_linetype_manual(values = c("solid", "dotdash", "dashed"))
 
 plot <- p1 / p2 + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
 
@@ -403,12 +415,13 @@ eq_pop_size_sub <- eq_pop_size %>%
     "low / low", "low / medium", "low / high",
     "medium / low", "medium / medium", "medium / high",
     "high / low", "high / medium", "high / high"
-  ))
+  )) %>% 
+  left_join(tp)
 
 p3 <- ggplot(eq_pop_size_sub) +
-  # geom_hline(aes(yintercept = 0.7), color = "red", alpha = 0.5, linetype = "dashed") +
-  geom_point(aes(mpa_spacing, mpa_1 , color = move_cat), size = 3) +
-  geom_line(aes(mpa_spacing, mpa_1 , color = move_cat, group = move_cat), linewidth = 1) +
+  geom_hline(aes(yintercept = tp$mean_tp[1]), color = "red", alpha = 0.5, linetype = "dashed") +
+  geom_point(aes(mpa_spacing, mpa_1, color = move_cat), size = 3) +
+  geom_line(aes(mpa_spacing, mpa_1, color = move_cat, group = move_cat), linewidth = 1) +
   # facet_wrap(~mpa_size) +
   theme_bw(base_size = 16) +
   theme(
@@ -424,11 +437,23 @@ p3 <- ggplot(eq_pop_size_sub) +
   ) +
   scale_color_viridis_d(end = 0.9)
 
+eq_pop_size_sub <- eq_pop_size %>%
+  filter(mpa_spacing %in% c(0)) %>%
+  filter(fp == "high") %>%
+  filter(eggs == "low") %>%
+  mutate(move_cat = fct_relevel(
+    move_cat,
+    "low / low", "low / medium", "low / high",
+    "medium / low", "medium / medium", "medium / high",
+    "high / low", "high / medium", "high / high"
+  )) %>% 
+  left_join(tp)
+
 p4 <- ggplot(eq_pop_size_sub) +
-  geom_hline(aes(yintercept = 0), color = "red", alpha = 0.5, linetype = "dashed") +
+  geom_hline(aes(yintercept = tp$mean_tp[1]), color = "red", alpha = 0.5, linetype = "dashed") +
   # geom_hline(aes(yintercept = 0.7), color = "red", alpha = 0.5, linetype = "dashed") +
-  geom_point(aes(mpa_spacing, in_out, color = move_cat), size = 3) +
-  geom_line(aes(mpa_spacing, in_out, color = move_cat, group = move_cat), linewidth = 1) +
+  geom_point(aes(mpa_size, mpa_1, color = move_cat), size = 3) +
+  geom_line(aes(mpa_size, mpa_1, color = move_cat, group = move_cat), linewidth = 1) +
   # facet_wrap(~mpa_size) +
   theme_bw(base_size = 16) +
   theme(
@@ -436,8 +461,8 @@ p4 <- ggplot(eq_pop_size_sub) +
     strip.background = element_rect(fill = "white")
   ) +
   labs(
-    x = "MPA Spacing",
-    y = "Log(Inside MPA Population / Outside MPA Population)",
+    x = "MPA Size",
+    y = "Population Abundance",
     color = "Movement (Adult / Larval)",
     shape = "MPA Size",
     linetype = "MPA Size"
@@ -450,7 +475,7 @@ eq_pop_size_sub_a <- eq_pop_size %>%
   filter(fp == "high") %>%
   filter(eggs == "low") %>%
   group_by(adult) %>%
-  summarise(mean_adult = mean(in_out))
+  summarise(mean_adult = mean(mpa_1))
 
 eq_pop_size_sub_l <- eq_pop_size %>%
   filter(mpa_size == 8) %>%
@@ -458,7 +483,7 @@ eq_pop_size_sub_l <- eq_pop_size %>%
   filter(fp == "high") %>%
   filter(eggs == "low") %>%
   group_by(larval) %>%
-  summarise(mean_larval = mean(in_out))
+  summarise(mean_larval = mean(mpa_1))
 
 p5 <- ggplot() +
   geom_point(data = eq_pop_size_sub_a, aes(adult, mean_adult, color = "Adult"), size = 3) +
@@ -468,7 +493,7 @@ p5 <- ggplot() +
   theme_bw(base_size = 16) +
   labs(
     x = "Movement Extent",
-    y = "Log(Inside MPA Population / Outside MPA Population)",
+    y = "Population Abundance",
     color = ""
   ) +
   scale_color_manual(values = c("Adult" = "#5ec962", "Larval" = "#440154"))
@@ -476,6 +501,21 @@ p5 <- ggplot() +
 plot <- (p3 + p4 + plot_layout(guides = "collect")) / p5 + plot_annotation(tag_levels = "A")
 
 ggsave(plot, path = here::here("figs"), file = paste0("fig5.pdf"), height = 15, width = 10)
+
+
+# Percent Increase calc ---------------------------------------------------
+
+# adult high to medium
+(eq_pop_size_sub_a$mean_adult[2] - eq_pop_size_sub_a$mean_adult[3]) / abs(eq_pop_size_sub_a$mean_adult[3]) * 100
+
+# adult medium to low
+(eq_pop_size_sub_a$mean_adult[1] - eq_pop_size_sub_a$mean_adult[2]) / abs(eq_pop_size_sub_a$mean_adult[2]) * 100
+
+# larval high to medium
+(eq_pop_size_sub_l$mean_larval[2] - eq_pop_size_sub_l$mean_larval[3]) / abs(eq_pop_size_sub_l$mean_larval[3]) * 100
+
+# adult medium to low
+(eq_pop_size_sub_l$mean_larval[1] - eq_pop_size_sub_l$mean_larval[2]) / abs(eq_pop_size_sub_l$mean_larval[2]) * 100
 
 # across eggs -------------------------------------------------------
 
@@ -583,7 +623,7 @@ p <- (p1 + p2) / (p3 + p4) + plot_annotation(tag_levels = "A") + plot_layout(gui
 
 ggsave(p, path = here::here("figs"), file = paste0("figS14.pdf"), height = 15, width = 15)
 
-# Connectivity Across MPA sizes -------------------------------------------
+# Across MPA sizes -------------------------------------------
 
 sub_connect <- connect %>%
   filter(eggs == "low") %>%
@@ -595,6 +635,23 @@ sub_connect <- connect %>%
   )) %>%
   mutate(fp = fct_relevel(fp, c("low", "medium", "high")))
 
+eq_pop_size_sub <- eq_pop_size %>%
+  filter(eggs == "low") %>%
+  filter(mpa_size == 2) %>%
+  filter(mpa_spacing == 0) %>%
+  mutate(fp = case_when(
+    fp == "med" ~ "medium",
+    TRUE ~ fp
+  )) %>%
+  mutate(fp = as.factor(fp)) %>%
+  mutate(fp = fct_relevel(fp, c("low", "medium", "high"))) %>%
+  mutate(move_cat = fct_relevel(
+    move_cat,
+    "low / low", "low / medium", "low / high",
+    "medium / low", "medium / medium", "medium / high",
+    "high / low", "high / medium", "high / high"
+  ))
+
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
   # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
@@ -612,13 +669,26 @@ p1 <- ggplot(sub_connect) +
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
   ) +
   labs(
-    x = "Movement (Adult / Larval)",
+    x = "",
     y = "Adult Proportion of Total Settlers ",
     color = ""
   ) +
   scale_color_manual(values = colors)
 
-ggsave(p1, path = here::here("figs"), file = paste0("figS2.pdf"), height = 6, width = 8)
+p2 <- ggplot(eq_pop_size_sub) +
+  geom_point(aes(move_cat, mpa_1, color = fp), size = 3) +
+  theme_bw(base_size = 16) +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  ) +
+  scale_color_viridis_d(end = 0.9) +
+  labs(
+    x = "Movement (Adult / Larval)",
+    y = "Population Abundance",
+    color = "Fishing"
+  )
+
+ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS2.pdf"), height = 12, width = 8)
 
 sub_connect <- connect %>%
   filter(eggs == "low") %>%
@@ -630,6 +700,23 @@ sub_connect <- connect %>%
   )) %>%
   mutate(fp = fct_relevel(fp, c("low", "medium", "high")))
 
+eq_pop_size_sub <- eq_pop_size %>%
+  filter(eggs == "low") %>%
+  filter(mpa_size == 4) %>%
+  filter(mpa_spacing == 0) %>%
+  mutate(fp = case_when(
+    fp == "med" ~ "medium",
+    TRUE ~ fp
+  )) %>%
+  mutate(fp = as.factor(fp)) %>%
+  mutate(fp = fct_relevel(fp, c("low", "medium", "high"))) %>%
+  mutate(move_cat = fct_relevel(
+    move_cat,
+    "low / low", "low / medium", "low / high",
+    "medium / low", "medium / medium", "medium / high",
+    "high / low", "high / medium", "high / high"
+  ))
+
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
   # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
@@ -653,7 +740,20 @@ p1 <- ggplot(sub_connect) +
   ) +
   scale_color_manual(values = colors)
 
-ggsave(p1, path = here::here("figs"), file = paste0("figS3.pdf"), height = 6, width = 8)
+p2 <- ggplot(eq_pop_size_sub) +
+  geom_point(aes(move_cat, mpa_1, color = fp), size = 3) +
+  theme_bw(base_size = 16) +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  ) +
+  scale_color_viridis_d(end = 0.9) +
+  labs(
+    x = "Movement (Adult / Larval)",
+    y = "Population Abundance",
+    color = "Fishing"
+  )
+
+ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS3.pdf"), height = 12, width = 8)
 
 sub_connect <- connect %>%
   filter(eggs == "low") %>%
@@ -665,6 +765,23 @@ sub_connect <- connect %>%
   )) %>%
   mutate(fp = fct_relevel(fp, c("low", "medium", "high")))
 
+eq_pop_size_sub <- eq_pop_size %>%
+  filter(eggs == "low") %>%
+  filter(mpa_size == 4) %>%
+  filter(mpa_spacing == 2) %>%
+  mutate(fp = case_when(
+    fp == "med" ~ "medium",
+    TRUE ~ fp
+  )) %>%
+  mutate(fp = as.factor(fp)) %>%
+  mutate(fp = fct_relevel(fp, c("low", "medium", "high"))) %>%
+  mutate(move_cat = fct_relevel(
+    move_cat,
+    "low / low", "low / medium", "low / high",
+    "medium / low", "medium / medium", "medium / high",
+    "high / low", "high / medium", "high / high"
+  ))
+
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
   # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
@@ -688,7 +805,20 @@ p1 <- ggplot(sub_connect) +
   ) +
   scale_color_manual(values = colors)
 
-ggsave(p1, path = here::here("figs"), file = paste0("figS4.pdf"), height = 6, width = 8)
+p2 <- ggplot(eq_pop_size_sub) +
+  geom_point(aes(move_cat, mpa_1, color = fp), size = 3) +
+  theme_bw(base_size = 16) +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  ) +
+  scale_color_viridis_d(end = 0.9) +
+  labs(
+    x = "Movement (Adult / Larval)",
+    y = "Population Abundance",
+    color = "Fishing"
+  )
+
+ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS4.pdf"), height = 12, width = 8)
 
 sub_connect <- connect %>%
   filter(eggs == "low") %>%
@@ -700,6 +830,23 @@ sub_connect <- connect %>%
   )) %>%
   mutate(fp = fct_relevel(fp, c("low", "medium", "high")))
 
+eq_pop_size_sub <- eq_pop_size %>%
+  filter(eggs == "low") %>%
+  filter(mpa_size == 4) %>%
+  filter(mpa_spacing == 4) %>%
+  mutate(fp = case_when(
+    fp == "med" ~ "medium",
+    TRUE ~ fp
+  )) %>%
+  mutate(fp = as.factor(fp)) %>%
+  mutate(fp = fct_relevel(fp, c("low", "medium", "high"))) %>%
+  mutate(move_cat = fct_relevel(
+    move_cat,
+    "low / low", "low / medium", "low / high",
+    "medium / low", "medium / medium", "medium / high",
+    "high / low", "high / medium", "high / high"
+  ))
+
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
   # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
@@ -723,7 +870,20 @@ p1 <- ggplot(sub_connect) +
   ) +
   scale_color_manual(values = colors)
 
-ggsave(p1, path = here::here("figs"), file = paste0("figS5.pdf"), height = 6, width = 8)
+p2 <- ggplot(eq_pop_size_sub) +
+  geom_point(aes(move_cat, mpa_1, color = fp), size = 3) +
+  theme_bw(base_size = 16) +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  ) +
+  scale_color_viridis_d(end = 0.9) +
+  labs(
+    x = "Movement (Adult / Larval)",
+    y = "Population Abundance",
+    color = "Fishing"
+  )
+
+ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS5.pdf"), height = 12, width = 8)
 
 sub_connect <- connect %>%
   filter(eggs == "low") %>%
@@ -735,6 +895,23 @@ sub_connect <- connect %>%
   )) %>%
   mutate(fp = fct_relevel(fp, c("low", "medium", "high")))
 
+eq_pop_size_sub <- eq_pop_size %>%
+  filter(eggs == "low") %>%
+  filter(mpa_size == 4) %>%
+  filter(mpa_spacing == 8) %>%
+  mutate(fp = case_when(
+    fp == "med" ~ "medium",
+    TRUE ~ fp
+  )) %>%
+  mutate(fp = as.factor(fp)) %>%
+  mutate(fp = fct_relevel(fp, c("low", "medium", "high"))) %>%
+  mutate(move_cat = fct_relevel(
+    move_cat,
+    "low / low", "low / medium", "low / high",
+    "medium / low", "medium / medium", "medium / high",
+    "high / low", "high / medium", "high / high"
+  ))
+
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
   # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
@@ -758,7 +935,20 @@ p1 <- ggplot(sub_connect) +
   ) +
   scale_color_manual(values = colors)
 
-ggsave(p1, path = here::here("figs"), file = paste0("figS6.pdf"), height = 6, width = 8)
+p2 <- ggplot(eq_pop_size_sub) +
+  geom_point(aes(move_cat, mpa_1, color = fp), size = 3) +
+  theme_bw(base_size = 16) +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  ) +
+  scale_color_viridis_d(end = 0.9) +
+  labs(
+    x = "Movement (Adult / Larval)",
+    y = "Population Abundance",
+    color = "Fishing"
+  )
+
+ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS6.pdf"), height = 12, width = 8)
 
 sub_connect <- connect %>%
   filter(eggs == "low") %>%
@@ -770,6 +960,23 @@ sub_connect <- connect %>%
   )) %>%
   mutate(fp = fct_relevel(fp, c("low", "medium", "high")))
 
+eq_pop_size_sub <- eq_pop_size %>%
+  filter(eggs == "low") %>%
+  filter(mpa_size == 4) %>%
+  filter(mpa_spacing == 16) %>%
+  mutate(fp = case_when(
+    fp == "med" ~ "medium",
+    TRUE ~ fp
+  )) %>%
+  mutate(fp = as.factor(fp)) %>%
+  mutate(fp = fct_relevel(fp, c("low", "medium", "high"))) %>%
+  mutate(move_cat = fct_relevel(
+    move_cat,
+    "low / low", "low / medium", "low / high",
+    "medium / low", "medium / medium", "medium / high",
+    "high / low", "high / medium", "high / high"
+  ))
+
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
   # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
@@ -793,7 +1000,20 @@ p1 <- ggplot(sub_connect) +
   ) +
   scale_color_manual(values = colors)
 
-ggsave(p1, path = here::here("figs"), file = paste0("figS7.pdf"), height = 6, width = 8)
+p2 <- ggplot(eq_pop_size_sub) +
+  geom_point(aes(move_cat, mpa_1, color = fp), size = 3) +
+  theme_bw(base_size = 16) +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  ) +
+  scale_color_viridis_d(end = 0.9) +
+  labs(
+    x = "Movement (Adult / Larval)",
+    y = "Population Abundance",
+    color = "Fishing"
+  )
+
+ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS7.pdf"), height = 12, width = 8)
 
 sub_connect <- connect %>%
   filter(eggs == "low") %>%
@@ -805,6 +1025,23 @@ sub_connect <- connect %>%
   )) %>%
   mutate(fp = fct_relevel(fp, c("low", "medium", "high")))
 
+eq_pop_size_sub <- eq_pop_size %>%
+  filter(eggs == "low") %>%
+  filter(mpa_size == 8) %>%
+  filter(mpa_spacing == 0) %>%
+  mutate(fp = case_when(
+    fp == "med" ~ "medium",
+    TRUE ~ fp
+  )) %>%
+  mutate(fp = as.factor(fp)) %>%
+  mutate(fp = fct_relevel(fp, c("low", "medium", "high"))) %>%
+  mutate(move_cat = fct_relevel(
+    move_cat,
+    "low / low", "low / medium", "low / high",
+    "medium / low", "medium / medium", "medium / high",
+    "high / low", "high / medium", "high / high"
+  ))
+
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
   # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
@@ -828,7 +1065,20 @@ p1 <- ggplot(sub_connect) +
   ) +
   scale_color_manual(values = colors)
 
-ggsave(p1, path = here::here("figs"), file = paste0("figS8.pdf"), height = 6, width = 8)
+p2 <- ggplot(eq_pop_size_sub) +
+  geom_point(aes(move_cat, mpa_1, color = fp), size = 3) +
+  theme_bw(base_size = 16) +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  ) +
+  scale_color_viridis_d(end = 0.9) +
+  labs(
+    x = "Movement (Adult / Larval)",
+    y = "Population Abundance",
+    color = "Fishing"
+  )
+
+ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS8.pdf"), height = 12, width = 8)
 
 sub_connect <- connect %>%
   filter(eggs == "low") %>%
@@ -840,6 +1090,23 @@ sub_connect <- connect %>%
   )) %>%
   mutate(fp = fct_relevel(fp, c("low", "medium", "high")))
 
+eq_pop_size_sub <- eq_pop_size %>%
+  filter(eggs == "low") %>%
+  filter(mpa_size == 8) %>%
+  filter(mpa_spacing == 2) %>%
+  mutate(fp = case_when(
+    fp == "med" ~ "medium",
+    TRUE ~ fp
+  )) %>%
+  mutate(fp = as.factor(fp)) %>%
+  mutate(fp = fct_relevel(fp, c("low", "medium", "high"))) %>%
+  mutate(move_cat = fct_relevel(
+    move_cat,
+    "low / low", "low / medium", "low / high",
+    "medium / low", "medium / medium", "medium / high",
+    "high / low", "high / medium", "high / high"
+  ))
+
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
   # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
@@ -863,7 +1130,20 @@ p1 <- ggplot(sub_connect) +
   ) +
   scale_color_manual(values = colors)
 
-ggsave(p1, path = here::here("figs"), file = paste0("figS9.pdf"), height = 6, width = 8)
+p2 <- ggplot(eq_pop_size_sub) +
+  geom_point(aes(move_cat, mpa_1, color = fp), size = 3) +
+  theme_bw(base_size = 16) +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  ) +
+  scale_color_viridis_d(end = 0.9) +
+  labs(
+    x = "Movement (Adult / Larval)",
+    y = "Population Abundance",
+    color = "Fishing"
+  )
+
+ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS9.pdf"), height = 12, width = 8)
 
 sub_connect <- connect %>%
   filter(eggs == "low") %>%
@@ -875,6 +1155,23 @@ sub_connect <- connect %>%
   )) %>%
   mutate(fp = fct_relevel(fp, c("low", "medium", "high")))
 
+eq_pop_size_sub <- eq_pop_size %>%
+  filter(eggs == "low") %>%
+  filter(mpa_size == 8) %>%
+  filter(mpa_spacing == 4) %>%
+  mutate(fp = case_when(
+    fp == "med" ~ "medium",
+    TRUE ~ fp
+  )) %>%
+  mutate(fp = as.factor(fp)) %>%
+  mutate(fp = fct_relevel(fp, c("low", "medium", "high"))) %>%
+  mutate(move_cat = fct_relevel(
+    move_cat,
+    "low / low", "low / medium", "low / high",
+    "medium / low", "medium / medium", "medium / high",
+    "high / low", "high / medium", "high / high"
+  ))
+
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
   # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
@@ -898,7 +1195,20 @@ p1 <- ggplot(sub_connect) +
   ) +
   scale_color_manual(values = colors)
 
-ggsave(p1, path = here::here("figs"), file = paste0("figS10.pdf"), height = 6, width = 8)
+p2 <- ggplot(eq_pop_size_sub) +
+  geom_point(aes(move_cat, mpa_1, color = fp), size = 3) +
+  theme_bw(base_size = 16) +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  ) +
+  scale_color_viridis_d(end = 0.9) +
+  labs(
+    x = "Movement (Adult / Larval)",
+    y = "Population Abundance",
+    color = "Fishing"
+  )
+
+ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS10.pdf"), height = 12, width = 8)
 
 sub_connect <- connect %>%
   filter(eggs == "low") %>%
@@ -910,6 +1220,23 @@ sub_connect <- connect %>%
   )) %>%
   mutate(fp = fct_relevel(fp, c("low", "medium", "high")))
 
+eq_pop_size_sub <- eq_pop_size %>%
+  filter(eggs == "low") %>%
+  filter(mpa_size == 8) %>%
+  filter(mpa_spacing == 8) %>%
+  mutate(fp = case_when(
+    fp == "med" ~ "medium",
+    TRUE ~ fp
+  )) %>%
+  mutate(fp = as.factor(fp)) %>%
+  mutate(fp = fct_relevel(fp, c("low", "medium", "high"))) %>%
+  mutate(move_cat = fct_relevel(
+    move_cat,
+    "low / low", "low / medium", "low / high",
+    "medium / low", "medium / medium", "medium / high",
+    "high / low", "high / medium", "high / high"
+  ))
+
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
   # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
@@ -933,7 +1260,20 @@ p1 <- ggplot(sub_connect) +
   ) +
   scale_color_manual(values = colors)
 
-ggsave(p1, path = here::here("figs"), file = paste0("figS11.pdf"), height = 6, width = 8)
+p2 <- ggplot(eq_pop_size_sub) +
+  geom_point(aes(move_cat, mpa_1, color = fp), size = 3) +
+  theme_bw(base_size = 16) +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  ) +
+  scale_color_viridis_d(end = 0.9) +
+  labs(
+    x = "Movement (Adult / Larval)",
+    y = "Population Abundance",
+    color = "Fishing"
+  )
+
+ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS11.pdf"), height = 12, width = 8)
 
 sub_connect <- connect %>%
   filter(eggs == "low") %>%
@@ -945,6 +1285,23 @@ sub_connect <- connect %>%
   )) %>%
   mutate(fp = fct_relevel(fp, c("low", "medium", "high")))
 
+eq_pop_size_sub <- eq_pop_size %>%
+  filter(eggs == "low") %>%
+  filter(mpa_size == 8) %>%
+  filter(mpa_spacing == 16) %>%
+  mutate(fp = case_when(
+    fp == "med" ~ "medium",
+    TRUE ~ fp
+  )) %>%
+  mutate(fp = as.factor(fp)) %>%
+  mutate(fp = fct_relevel(fp, c("low", "medium", "high"))) %>%
+  mutate(move_cat = fct_relevel(
+    move_cat,
+    "low / low", "low / medium", "low / high",
+    "medium / low", "medium / medium", "medium / high",
+    "high / low", "high / medium", "high / high"
+  ))
+
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
   # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
@@ -968,7 +1325,20 @@ p1 <- ggplot(sub_connect) +
   ) +
   scale_color_manual(values = colors)
 
-ggsave(p1, path = here::here("figs"), file = paste0("figS12.pdf"), height = 6, width = 8)
+p2 <- ggplot(eq_pop_size_sub) +
+  geom_point(aes(move_cat, mpa_1, color = fp), size = 3) +
+  theme_bw(base_size = 16) +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  ) +
+  scale_color_viridis_d(end = 0.9) +
+  labs(
+    x = "Movement (Adult / Larval)",
+    y = "Population Abundance",
+    color = "Fishing"
+  )
+
+ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS12.pdf"), height = 12, width = 8)
 
 sub_connect <- connect %>%
   filter(eggs == "low") %>%
@@ -980,6 +1350,23 @@ sub_connect <- connect %>%
   )) %>%
   mutate(fp = fct_relevel(fp, c("low", "medium", "high")))
 
+eq_pop_size_sub <- eq_pop_size %>%
+  filter(eggs == "low") %>%
+  filter(mpa_size == 16) %>%
+  filter(mpa_spacing == 0) %>%
+  mutate(fp = case_when(
+    fp == "med" ~ "medium",
+    TRUE ~ fp
+  )) %>%
+  mutate(fp = as.factor(fp)) %>%
+  mutate(fp = fct_relevel(fp, c("low", "medium", "high"))) %>%
+  mutate(move_cat = fct_relevel(
+    move_cat,
+    "low / low", "low / medium", "low / high",
+    "medium / low", "medium / medium", "medium / high",
+    "high / low", "high / medium", "high / high"
+  ))
+
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
   # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
@@ -1003,8 +1390,17 @@ p1 <- ggplot(sub_connect) +
   ) +
   scale_color_manual(values = colors)
 
-ggsave(p1, path = here::here("figs"), file = paste0("figS13.pdf"), height = 6, width = 8)
+p2 <- ggplot(eq_pop_size_sub) +
+  geom_point(aes(move_cat, mpa_1, color = fp), size = 3) +
+  theme_bw(base_size = 16) +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  ) +
+  scale_color_viridis_d(end = 0.9) +
+  labs(
+    x = "Movement (Adult / Larval)",
+    y = "Population Abundance",
+    color = "Fishing"
+  )
 
-
-# In/Out Biomass across MPA size ------------------------------------------
-
+ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS13.pdf"), height = 12, width = 8)
