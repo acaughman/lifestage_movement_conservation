@@ -35,7 +35,10 @@ for (eggs in c(10, 100, 10000)) {
     # fish variables
     num_eggs <- eggs # number of eggs per female fish
     n_mort <- 1 - 0.3 # natural mortality
-    f_mort_orig <- 1 - array(fishing_pressure, c(resolution, sexes)) # fishing mortality (same dimension as simulation)
+    
+    dd <- (5 * 0.7 - 1) / (4 * 0.7 * num_eggs) # density dependence for larval mortality
+    
+    f_mort_orig <- array(fishing_pressure, c(resolution, sexes)) # fishing mortality (same dimension as simulation)
 
     adult_move <- c(0.5, 8, 32)
     larval_move <- c(8, 32, 192)
@@ -44,9 +47,6 @@ for (eggs in c(10, 100, 10000)) {
     move_combos <- move_combos
 
     initial <- 300
-    recruit_0 <- 1500
-
-    dd <- (5 * 0.7 - 1) / (4 * 0.7 * recruit_0) # density dependence for larval mortality
 
     pop <- array(0, c(resolution, age_classes, sexes)) # initialize grid
     pop[, , 2, ] <- initial / 2 # add initial adults
@@ -79,7 +79,7 @@ for (eggs in c(10, 100, 10000)) {
         output[, , , , t] <- pop
 
         # births
-        pop[, , 1, ] <- pop[, , 2, 1] * num_eggs / 2 # assumes 50% females
+        pop[, , 1, ] <- pop[, , 2, 1] * num_eggs # assumes 50% females
 
         # larvae move
         pop[, , 1, 1] <- rowSums(recruit_movement_matrix * array(rep(pop[, , 1, 1], each = resolution[1] * resolution[2]), c(resolution, resolution[1] * resolution[2])), dims = 2)
@@ -97,38 +97,38 @@ for (eggs in c(10, 100, 10000)) {
             # f_mort[, , ] <- f_mort / (1 - ((2 * 2) / (resolution[1] * resolution[2]))) # size 2x2
             # f_mort[, ,] = f_mort / (1 - ((4 * 4) / (resolution[1] * resolution[2])))
             # f_mort[, ,] = f_mort / (1 - ((4 * 4 * 2) / (resolution[1] * resolution[2])))
-            # f_mort[, , ] <- f_mort / (1 - ((8 * 8) / (resolution[1] * resolution[2])))
-            f_mort[, , ] <- f_mort / (1 - ((8 * 8 * 2) / (resolution[1] * resolution[2])))
+            f_mort[, , ] <- f_mort / (1 - ((8 * 8) / (resolution[1] * resolution[2])))
+            # f_mort[, , ] <- f_mort / (1 - ((8 * 8 * 2) / (resolution[1] * resolution[2])))
             # f_mort[, ,] = f_mort / (1 - ((16 * 16) / (resolution[1] * resolution[2])))
           }
 
           # create MPA
-          # f_mort[25:26, 25:26, ] <- 1 # size 2x2
-          # f_mort[24:27, 24:27, ] <- 1 # size 4x4
-          # f_mort[22:29, 22:29, ] <- 1 # size 8x8
-          # f_mort[17:32, 17:32, ] <- 1 # size 16x16
-          # f_mort[21:24, 24:27, ] <- 1 # size 4x4, spacing 2
-          # f_mort[27:30, 24:27, ] <- 1 # size 4x4, spacing 2
-          # f_mort[20:23, 24:27, ] <- 1 # size 4x4, spacing 4
-          # f_mort[28:31, 24:27, ] <- 1 # size 4x4, spacing 4
-          # f_mort[18:21, 24:27, ] <- 1 # size 4x4, spacing 8
-          # f_mort[30:33, 24:27, ] <- 1 # size 4x4, spacing 8
-          # f_mort[14:17, 24:27, ] <- 1 # size 4x4, spacing 16
-          # f_mort[34:37, 24:27, ] <- 1 # size 4x4, spacing 16
-          f_mort[17:24, 22:29, ] <- 1 # size 8x8, spacing 2
-          f_mort[27:34, 22:29, ] <- 1 # size 8x8, spacing 2
-          # f_mort[16:23, 22:29, ] <- 1 # size 8x8, spacing 4
-          # f_mort[28:35, 22:29, ] <- 1 # size 8x8, spacing 4
-          # f_mort[14:21, 22:29, ] <- 1 # size 8x8, spacing 8
-          # f_mort[30:37, 22:29, ] <- 1 # size 8x8, spacing 8
-          # f_mort[10:17, 22:29, ] <- 1 # size 8x8, spacing 16
-          # f_mort[34:41, 22:29, ] <- 1 # size 8x8, spacing 16
+          # f_mort[25:26, 25:26, ] <- 0 # size 2x2
+          # f_mort[24:27, 24:27, ] <- 0 # size 4x4
+          f_mort[22:29, 22:29, ] <- 0 # size 8x8
+          # f_mort[17:32, 17:32, ] <- 0 # size 16x16
+          # f_mort[21:24, 24:27, ] <- 0 # size 4x4, spacing 2
+          # f_mort[27:30, 24:27, ] <- 0 # size 4x4, spacing 2
+          # f_mort[20:23, 24:27, ] <- 0 # size 4x4, spacing 4
+          # f_mort[28:31, 24:27, ] <- 0 # size 4x4, spacing 4
+          # f_mort[18:21, 24:27, ] <- 0 # size 4x4, spacing 8
+          # f_mort[30:33, 24:27, ] <- 0 # size 4x4, spacing 8
+          # f_mort[14:17, 24:27, ] <- 0 # size 4x4, spacing 16
+          # f_mort[34:37, 24:27, ] <- 0 # size 4x4, spacing 16
+          # f_mort[17:24, 22:29, ] <- 0 # size 8x8, spacing 2
+          # f_mort[27:34, 22:29, ] <- 0 # size 8x8, spacing 2
+          # f_mort[16:23, 22:29, ] <- 0 # size 8x8, spacing 4
+          # f_mort[28:35, 22:29, ] <- 0 # size 8x8, spacing 4
+          # f_mort[14:21, 22:29, ] <- 0 # size 8x8, spacing 8
+          # f_mort[30:37, 22:29, ] <- 0 # size 8x8, spacing 8
+          # f_mort[10:17, 22:29, ] <- 0 # size 8x8, spacing 16
+          # f_mort[34:41, 22:29, ] <- 0 # size 8x8, spacing 16
         }
 
         # fishing mortality
         if (t > 20) {
-          fished_array[, , , t] <- pop[, , 2, ] * (1 - f_mort)
-          pop[, , 2, ] <- pop[, , 2, ] * f_mort
+          fished_array[, , , t] <- pop[, , 2, ] * (f_mort)
+          pop[, , 2, ] <- pop[, , 2, ] * (1-f_mort)
         }
 
         # adult move
@@ -162,7 +162,7 @@ for (eggs in c(10, 100, 10000)) {
       # creates dataframe from fishing array data
       for (a in 1:years) {
         for (b in 1:sexes) {
-          fishing <- output[, , c, b, a] %>%
+          fishing <- fished_array[, , b, a] %>%
             as.data.frame()
           fishing$generation <- paste0(a)
           fishing$sex <- paste0(b)
@@ -228,7 +228,7 @@ for (eggs in c(10, 100, 10000)) {
     output_df <- output_df %>%
       full_join(fished_df)
 
-    write_csv(output_df, here::here("outputs", paste0("8x8_2_", eggs_c, "E", fishing_pressure_c, "F.csv")))
+    write_csv(output_df, here::here("outputs", paste0("8x8_0_", eggs_c, "E", fishing_pressure_c, "F.csv")))
     
     rm(fished_df, output_df)
     gc()
