@@ -324,8 +324,7 @@ sub_connect <- connect %>%
     fp == "med" ~ "medium",
     TRUE ~ fp
   )) %>%
-  mutate(fp = fct_relevel(fp, c("low", "medium", "high"))) %>%
-  filter(move_cat %in% c("high / medium", "high / low", "medium / low", "medium / medium"))
+  mutate(fp = fct_relevel(fp, c("low", "medium", "high"))) 
 
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
@@ -350,15 +349,15 @@ ggsave(p1, path = here::here("figs"), file = paste0("fig3.pdf"), height = 6, wid
 
 # tipping points ----------------------------------------------------------
 
-tp <- mpa %>%
-  filter(generation == 20) %>%
-  filter(fp == "high") %>%
-  filter(eggs == "low") %>% 
-  filter(age == "adult") %>% 
-  ungroup() %>% 
-  mutate(tip_point = mpa_1 / 3) %>% 
-  select(-reference, -in_out, -ratio_cat, -generation, -move_ratio, -mpa_1) %>% 
-  mutate(mean_tp = mean(tip_point))
+# tp <- mpa %>%
+#   filter(generation == 20) %>%
+#   filter(fp == "high") %>%
+#   filter(eggs == "low") %>% 
+#   filter(age == "adult") %>% 
+#   ungroup() %>% 
+#   mutate(tip_point = mpa_1 / 3) %>% 
+#   select(-reference, -in_out, -ratio_cat, -generation, -move_ratio, -mpa_1) %>% 
+#   mutate(mean_tp = mean(tip_point))
 
 # MPA Design --------------------------------------------------------------
 
@@ -415,13 +414,12 @@ eq_pop_size_sub <- eq_pop_size %>%
     "low / low", "low / medium", "low / high",
     "medium / low", "medium / medium", "medium / high",
     "high / low", "high / medium", "high / high"
-  )) %>% 
-  left_join(tp)
+  )) 
 
 p3 <- ggplot(eq_pop_size_sub) +
-  geom_hline(aes(yintercept = tp$mean_tp[1]), color = "red", alpha = 0.5, linetype = "dashed") +
-  geom_point(aes(mpa_spacing, mpa_1, color = move_cat), size = 3) +
-  geom_line(aes(mpa_spacing, mpa_1, color = move_cat, group = move_cat), linewidth = 1) +
+  geom_hline(aes(yintercept = 0), color = "red", alpha = 0.5, linetype = "dashed") +
+  geom_point(aes(mpa_spacing, in_out, color = move_cat), size = 3) +
+  geom_line(aes(mpa_spacing, in_out, color = move_cat, group = move_cat), linewidth = 1) +
   # facet_wrap(~mpa_size) +
   theme_bw(base_size = 16) +
   theme(
@@ -430,7 +428,7 @@ p3 <- ggplot(eq_pop_size_sub) +
   ) +
   labs(
     x = "MPA Spacing",
-    y = "Population Abundance",
+    y = "Log(In/Out)",
     color = "Movement (Adult / Larval)",
     shape = "MPA Size",
     linetype = "MPA Size"
@@ -446,23 +444,23 @@ eq_pop_size_sub <- eq_pop_size %>%
     "low / low", "low / medium", "low / high",
     "medium / low", "medium / medium", "medium / high",
     "high / low", "high / medium", "high / high"
-  )) %>% 
-  left_join(tp)
+  )) 
 
 p4 <- ggplot(eq_pop_size_sub) +
-  geom_hline(aes(yintercept = tp$mean_tp[1]), color = "red", alpha = 0.5, linetype = "dashed") +
+  geom_hline(aes(yintercept = 0), color = "red", alpha = 0.5, linetype = "dashed") +
   # geom_hline(aes(yintercept = 0.7), color = "red", alpha = 0.5, linetype = "dashed") +
-  geom_point(aes(mpa_size, mpa_1, color = move_cat), size = 3) +
-  geom_line(aes(mpa_size, mpa_1, color = move_cat, group = move_cat), linewidth = 1) +
+  geom_point(aes(mpa_size, in_out, color = move_cat), size = 3) +
+  geom_line(aes(mpa_size, in_out, color = move_cat, group = move_cat), linewidth = 1) +
   # facet_wrap(~mpa_size) +
   theme_bw(base_size = 16) +
   theme(
     strip.text = element_text(face = "bold"),
-    strip.background = element_rect(fill = "white")
+    strip.background = element_rect(fill = "white"),
+    legend.position = "none"
   ) +
   labs(
     x = "MPA Size",
-    y = "Population Abundance",
+    y = "Log(In/Out)",
     color = "Movement (Adult / Larval)",
     shape = "MPA Size",
     linetype = "MPA Size"
@@ -475,7 +473,7 @@ eq_pop_size_sub_a <- eq_pop_size %>%
   filter(fp == "high") %>%
   filter(eggs == "low") %>%
   group_by(adult) %>%
-  summarise(mean_adult = mean(mpa_1))
+  summarise(mean_adult = mean(in_out))
 
 eq_pop_size_sub_l <- eq_pop_size %>%
   filter(mpa_size == 8) %>%
@@ -483,7 +481,7 @@ eq_pop_size_sub_l <- eq_pop_size %>%
   filter(fp == "high") %>%
   filter(eggs == "low") %>%
   group_by(larval) %>%
-  summarise(mean_larval = mean(mpa_1))
+  summarise(mean_larval = mean(in_out))
 
 p5 <- ggplot() +
   geom_point(data = eq_pop_size_sub_a, aes(adult, mean_adult, color = "Adult"), size = 3) +
@@ -493,15 +491,14 @@ p5 <- ggplot() +
   theme_bw(base_size = 16) +
   labs(
     x = "Movement Extent",
-    y = "Population Abundance",
+    y = "Log(In/Out)",
     color = ""
   ) +
   scale_color_manual(values = c("Adult" = "#5ec962", "Larval" = "#440154"))
 
-plot <- (p3 + p4 + plot_layout(guides = "collect")) / p5 + plot_annotation(tag_levels = "A")
+plot <- p4 + p3 + p5 + plot_annotation(tag_levels = "A")
 
-ggsave(plot, path = here::here("figs"), file = paste0("fig5.pdf"), height = 15, width = 10)
-
+ggsave(plot, path = here::here("figs"), file = paste0("fig5.pdf"), height = 8, width = 15)
 
 # Percent Increase calc ---------------------------------------------------
 
@@ -676,7 +673,7 @@ p1 <- ggplot(sub_connect) +
   scale_color_manual(values = colors)
 
 p2 <- ggplot(eq_pop_size_sub) +
-  geom_point(aes(move_cat, mpa_1, color = fp), size = 3) +
+  geom_point(aes(move_cat, in_out, color = fp), size = 3) +
   theme_bw(base_size = 16) +
   theme(
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
@@ -684,7 +681,7 @@ p2 <- ggplot(eq_pop_size_sub) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Population Abundance",
+    y = "Log(In/Out)",
     color = "Fishing"
   )
 
@@ -741,7 +738,7 @@ p1 <- ggplot(sub_connect) +
   scale_color_manual(values = colors)
 
 p2 <- ggplot(eq_pop_size_sub) +
-  geom_point(aes(move_cat, mpa_1, color = fp), size = 3) +
+  geom_point(aes(move_cat, in_out, color = fp), size = 3) +
   theme_bw(base_size = 16) +
   theme(
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
@@ -749,7 +746,7 @@ p2 <- ggplot(eq_pop_size_sub) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Population Abundance",
+    y = "Log(In/Out)",
     color = "Fishing"
   )
 
@@ -806,7 +803,7 @@ p1 <- ggplot(sub_connect) +
   scale_color_manual(values = colors)
 
 p2 <- ggplot(eq_pop_size_sub) +
-  geom_point(aes(move_cat, mpa_1, color = fp), size = 3) +
+  geom_point(aes(move_cat, in_out, color = fp), size = 3) +
   theme_bw(base_size = 16) +
   theme(
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
@@ -814,7 +811,7 @@ p2 <- ggplot(eq_pop_size_sub) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Population Abundance",
+    y = "Log(In/Out)",
     color = "Fishing"
   )
 
@@ -871,7 +868,7 @@ p1 <- ggplot(sub_connect) +
   scale_color_manual(values = colors)
 
 p2 <- ggplot(eq_pop_size_sub) +
-  geom_point(aes(move_cat, mpa_1, color = fp), size = 3) +
+  geom_point(aes(move_cat, in_out, color = fp), size = 3) +
   theme_bw(base_size = 16) +
   theme(
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
@@ -879,7 +876,7 @@ p2 <- ggplot(eq_pop_size_sub) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Population Abundance",
+    y = "Log(In/Out)",
     color = "Fishing"
   )
 
@@ -936,7 +933,7 @@ p1 <- ggplot(sub_connect) +
   scale_color_manual(values = colors)
 
 p2 <- ggplot(eq_pop_size_sub) +
-  geom_point(aes(move_cat, mpa_1, color = fp), size = 3) +
+  geom_point(aes(move_cat, in_out, color = fp), size = 3) +
   theme_bw(base_size = 16) +
   theme(
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
@@ -944,7 +941,7 @@ p2 <- ggplot(eq_pop_size_sub) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Population Abundance",
+    y = "Log(In/Out)",
     color = "Fishing"
   )
 
@@ -1001,7 +998,7 @@ p1 <- ggplot(sub_connect) +
   scale_color_manual(values = colors)
 
 p2 <- ggplot(eq_pop_size_sub) +
-  geom_point(aes(move_cat, mpa_1, color = fp), size = 3) +
+  geom_point(aes(move_cat, in_out, color = fp), size = 3) +
   theme_bw(base_size = 16) +
   theme(
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
@@ -1009,7 +1006,7 @@ p2 <- ggplot(eq_pop_size_sub) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Population Abundance",
+    y = "Log(In/Out)",
     color = "Fishing"
   )
 
@@ -1066,7 +1063,7 @@ p1 <- ggplot(sub_connect) +
   scale_color_manual(values = colors)
 
 p2 <- ggplot(eq_pop_size_sub) +
-  geom_point(aes(move_cat, mpa_1, color = fp), size = 3) +
+  geom_point(aes(move_cat, in_out, color = fp), size = 3) +
   theme_bw(base_size = 16) +
   theme(
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
@@ -1074,7 +1071,7 @@ p2 <- ggplot(eq_pop_size_sub) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Population Abundance",
+    y = "Log(In/Out)",
     color = "Fishing"
   )
 
@@ -1131,7 +1128,7 @@ p1 <- ggplot(sub_connect) +
   scale_color_manual(values = colors)
 
 p2 <- ggplot(eq_pop_size_sub) +
-  geom_point(aes(move_cat, mpa_1, color = fp), size = 3) +
+  geom_point(aes(move_cat, in_out, color = fp), size = 3) +
   theme_bw(base_size = 16) +
   theme(
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
@@ -1139,7 +1136,7 @@ p2 <- ggplot(eq_pop_size_sub) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Population Abundance",
+    y = "Log(In/Out)",
     color = "Fishing"
   )
 
@@ -1196,7 +1193,7 @@ p1 <- ggplot(sub_connect) +
   scale_color_manual(values = colors)
 
 p2 <- ggplot(eq_pop_size_sub) +
-  geom_point(aes(move_cat, mpa_1, color = fp), size = 3) +
+  geom_point(aes(move_cat, in_out, color = fp), size = 3) +
   theme_bw(base_size = 16) +
   theme(
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
@@ -1204,7 +1201,7 @@ p2 <- ggplot(eq_pop_size_sub) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Population Abundance",
+    y = "Log(In/Out)",
     color = "Fishing"
   )
 
@@ -1261,7 +1258,7 @@ p1 <- ggplot(sub_connect) +
   scale_color_manual(values = colors)
 
 p2 <- ggplot(eq_pop_size_sub) +
-  geom_point(aes(move_cat, mpa_1, color = fp), size = 3) +
+  geom_point(aes(move_cat, in_out, color = fp), size = 3) +
   theme_bw(base_size = 16) +
   theme(
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
@@ -1269,7 +1266,7 @@ p2 <- ggplot(eq_pop_size_sub) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Population Abundance",
+    y = "Log(In/Out)",
     color = "Fishing"
   )
 
@@ -1326,7 +1323,7 @@ p1 <- ggplot(sub_connect) +
   scale_color_manual(values = colors)
 
 p2 <- ggplot(eq_pop_size_sub) +
-  geom_point(aes(move_cat, mpa_1, color = fp), size = 3) +
+  geom_point(aes(move_cat, in_out, color = fp), size = 3) +
   theme_bw(base_size = 16) +
   theme(
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
@@ -1334,7 +1331,7 @@ p2 <- ggplot(eq_pop_size_sub) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Population Abundance",
+    y = "Log(In/Out)",
     color = "Fishing"
   )
 
@@ -1391,7 +1388,7 @@ p1 <- ggplot(sub_connect) +
   scale_color_manual(values = colors)
 
 p2 <- ggplot(eq_pop_size_sub) +
-  geom_point(aes(move_cat, mpa_1, color = fp), size = 3) +
+  geom_point(aes(move_cat, in_out, color = fp), size = 3) +
   theme_bw(base_size = 16) +
   theme(
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
@@ -1399,7 +1396,7 @@ p2 <- ggplot(eq_pop_size_sub) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Population Abundance",
+    y = "Log(In/Out)",
     color = "Fishing"
   )
 
