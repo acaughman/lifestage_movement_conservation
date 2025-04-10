@@ -23,42 +23,45 @@ percent_dominate_adult <- dominate_sum$count[1] / sum(dominate_sum$count) * 100
 
 full_pisco <- read_csv(here::here("data", "raw_data", "full_pisco.csv")) %>%
   distinct() %>%
+  # remove canopy
   filter(level != "CAN") %>%
-  dplyr::select(-lat_c, -lon_c, -latitude, -longitude) %>% # remove lat, long for site maps below
+  dplyr::select(-latitude, -longitude) %>% # remove lat, long for site maps below
   distinct() %>%
-  # get average per transect in each MPA and ref
+  # get average count per transect in each MPA and ref per year and species
   group_by(year, affiliated_mpa, sciname, site_status) %>%
   mutate(
     count = mean(count, na.rm = TRUE),
     biomass = mean(weight_kg, na.rm = TRUE)
   ) %>%
   replace_na(list(biomass_per = 0, count_per = 0)) %>%
-  ungroup() %>%
-  dplyr::select(-weight_kg, -length_to_use, -weight_g, -date, -day, -month, -zone, -transect, -level, -site, -region4, -temp) %>%
+  ungroup()  %>%
+  #remove old grouping variables
+  dplyr::select(-weight_kg, -length_to_use, -weight_g, -day, -month, -zone, -transect, -level, -site, -region4) %>%
   distinct() %>%
+  # remove species without full scientific names
   filter(!is.na(sciname)) %>%
   filter(!grepl("spp", sciname)) %>%
   # remove data from within 2 years of MPA implementation
   mutate(imp_year = year(mdy(implementation_date))) %>%
   filter(year > imp_year + 2) %>%
-  # remove outliers within years
+  # remove outliers within species
   group_by(sciname) %>%
   mutate(
     q1 = quantile(count, probs = 0.25),
     q3 = quantile(count, probs = 0.75)
   ) %>%
   filter(count < q3 + (2.5 * (q3 - q1))) %>%
-  filter(count > q1 - (2.5 * (q3 - q1))) %>%
+  filter(count > q1 - (2.5 * (q3 - q1)))%>%
+  # remove species without at least 10 data points
   mutate(species_count = n()) %>%
   filter(species_count > 10) %>%
-  select(-species_count, -q1, -q3, -imp_year, -implementation_date) %>%
-  # calcluate year average
+  dplyr::select(-species_count, -q1, -q3, -imp_year, -implementation_date)%>%
+  # calcluate species average across mpa and site status
   group_by(affiliated_mpa, sciname, site_status) %>%
   mutate(
     avg_count = mean(count, na.rm = TRUE),
     avg_biomass = mean(biomass, na.rm = TRUE)
   )
-
 
 pisco_rf <- left_join(rf, full_pisco) %>%
   filter(!is.na(affiliated_mpa))
@@ -151,53 +154,23 @@ ref_sites <- sub_pisco %>%
 wider_pisco <- full_join(mpa_sites, ref_sites) %>%
   mutate(in_out = log(mpa_count / ref_count)) %>%
   filter(!is.na(in_out)) %>%
-  select(sciname, affiliated_mpa, in_out)
+  dplyr::select(sciname, affiliated_mpa, in_out)
 
-mpa_summary <- full_pisco %>%
-  ungroup() %>%
-  dplyr::select(affiliated_mpa, size, min_dist, max_dist) %>%
-  distinct() %>%
-  mutate(larvae_spacing = case_when(
-    min_dist > 192 ~ "not close enough",
-    min_dist <= 192 & min_dist > 32 ~ "close enough for high PLD",
-    min_dist <= 32 & min_dist > 8 ~ "close enough for high/medium PLD",
-    min_dist <= 8 ~ "close enough for all"
-  )) %>%
-  mutate(adult_spacing = case_when(
-    min_dist > 32 ~ "not close enough",
-    min_dist <= 32 & min_dist > 8 ~ "close enough for high movement",
-    min_dist <= 8 & min_dist > 0.5 ~ "close enough for high/medium movement",
-    min_dist <= 0.5 ~ "close enough for all"
-  )) %>%
-  mutate(larval_size = case_when(
-    size < 8 ~ "not large enough",
-    size >= 8 & size < 32 ~ "large enough for low PLD",
-    size >= 32 & size < 192 ~ "large enough for low/medium PLD",
-    size >= 192 ~ "large enough for all"
-  )) %>%
-  mutate(adult_size = case_when( # using 2 x home range rule
-    size < 0.5 * 2 ~ "not large enough",
-    size >= 0.5 * 2 & size < 8 * 2 ~ "large enough for low movement",
-    size >= 8 * 2 & size < 32 * 2 ~ "large enough for low/medium movement",
-    size >= 32 * 2 ~ "large enough for all"
-  ))
-
-sub_pisco <- list(sub_pisco, mpa_summary, wider_pisco) %>%
+sub_pisco <- list(sub_pisco, wider_pisco) %>%
   reduce(full_join)
 
 sub_pisco %>%
   ungroup() %>%
-  select(sciname, movement) %>%
+  dplyr::select(sciname, movement) %>%
   distinct() %>%
   group_by(movement) %>%
   summarize(n = n())
-
 
 # MPA Sup Fig -------------------------------------------------------------
 
 mpas <- full_pisco %>%
   ungroup() %>%
-  select(affiliated_mpa, size, min_dist) %>%
+  dplyr::select(affiliated_mpa, size, min_dist) %>%
   distinct()
 
 ci <- st_read(here::here("data", "raw_data", "channel_islands.shp"))
