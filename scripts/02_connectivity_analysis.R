@@ -29,10 +29,10 @@ for (eggs in c(10, 100, 10000)) {
 
     fp <- fishing_pressure
 
-    output_df <- read_csv(here::here("outputs", paste0("8x8_2_", eggs_c, "E", fishing_pressure_c, "F.csv"))) %>%
+    output_df <- read_csv(here::here("outputs", paste0("2x2_0_", eggs_c, "E", fishing_pressure_c, "F.csv"))) %>%
       mutate(
         mpa = case_when(
-          # (lat %in% c(25, 26) & lon %in% c(25, 26)) ~ "MPA 1", # 2 x 2
+          (lat %in% c(25, 26) & lon %in% c(25, 26)) ~ "MPA 1", # 2 x 2
           # (lat %in% c(24:27) & lon %in% c(24:27)) ~ "MPA 1", # 4 x 4
           # (lat %in% c(22:29) & lon %in% c(22:29)) ~ "MPA 1", # 8 x 8
           # (lat %in% c(17:32) & lon %in% c(17:32)) ~ "MPA 1", # 16 x 16
@@ -44,8 +44,8 @@ for (eggs in c(10, 100, 10000)) {
           # (lat %in% c(30:33) & lon %in% c(24:27)) ~ "MPA 2",
           # (lat %in% c(14:17) & lon %in% c(24:27)) ~ "MPA 1", # 4 x 4 16
           # (lat %in% c(34:37) & lon %in% c(24:27)) ~ "MPA 2",
-          (lat %in% c(17:24) & lon %in% c(22:29)) ~ "MPA 1", # 8 x 8 2
-          (lat %in% c(27:34) & lon %in% c(22:29)) ~ "MPA 2",
+          # (lat %in% c(17:24) & lon %in% c(22:29)) ~ "MPA 1", # 8 x 8 2
+          # (lat %in% c(27:34) & lon %in% c(22:29)) ~ "MPA 2",
           # (lat %in% c(16:23) & lon %in% c(22:29)) ~ "MPA 1", # 8 x 8 4
           # (lat %in% c(28:35) & lon %in% c(22:29)) ~ "MPA 2",
           # (lat %in% c(14:21) & lon %in% c(22:29)) ~ "MPA 1", # 8 x 8 8
@@ -235,6 +235,6 @@ for (eggs in c(10, 100, 10000)) {
       "adult", "larval"
     )
 
-    write_csv(connect_df, here::here("outputs", paste0("connectivity_8x8_2_", eggs_c, "E", fishing_pressure_c, "F.csv")))
+    write_csv(connect_df, here::here("outputs", paste0("connectivity_2x2_0_", eggs_c, "E", fishing_pressure_c, "F.csv")))
   }
 }
