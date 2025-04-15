@@ -73,41 +73,25 @@ sub_pisco <- full_pisco %>%
     "Ophiodon elongatus",
     "Acanthoclinus fuscus",
     "Phanerodon furcatus",
-    "Sebastes auriculatus",
-    "Sebastes melanops",
-    "Sebastes melanostomus",
-    "Sebastes mystinus",
     "Trachurus symmetricus",
     "Hypsypops rubicundus",
-    "Sebastes serriceps",
-    "Embiotoca jacksoni"
+    "Embiotoca jacksoni",
+    "Caulolatilus princeps",
+    "Semicossyphus pulcher"
   )) %>%
-  full_join(pisco_rf) %>%
   filter(target_status == "Targeted") %>%
-  mutate(hr_cat = case_when(
-    magnitude_homerange < 0 ~ "low HR",
-    magnitude_homerange > 1 ~ "high HR",
-    !is.na(magnitude_homerange) ~ "med HR"
-  )) %>%
-  mutate(pld_cat = case_when(
-    month_pld == 0 ~ "low PLD",
-    month_pld > 0 ~ "high PLD"
-  )) %>%
+  # based on randomforest data or expert opinion
   mutate(movement = case_when(
-    sciname == "Paralabrax clathratus" ~ "low HR, high PLD",
-    sciname == "Medialuna californiensis" ~ "med HR, high PLD",
-    sciname == "Ophiodon elongatus" ~ "med HR, high PLD",
-    sciname == "Acanthoclinus fuscus" ~ "low HR, high PLD",
-    sciname == "Phanerodon furcatus" ~ "med HR, low PLD",
-    sciname == "Sebastes auriculatus" ~ "med HR, high PLD",
-    sciname == "Sebastes melanops" ~ "med HR, high PLD",
-    sciname == "Sebastes melanostomus" ~ "med HR, high PLD",
-    sciname == "Sebastes mystinus" ~ "med HR, high PLD",
-    sciname == "Trachurus symmetricus" ~ "high HR, high PLD",
-    sciname == "Hypsypops rubicundus" ~ "low HR, high PLD",
-    sciname == "Sebastes serriceps" ~ "low HR, high PLD",
-    sciname == "Embiotoca jacksoni" ~ "low HR, low PLD",
-    !is.na(hr_cat) & !is.na(pld_cat) ~ paste0(hr_cat, ", ", pld_cat)
+    sciname == "Paralabrax clathratus" ~ "low / high",
+    sciname == "Medialuna californiensis" ~ "med / high",
+    sciname == "Ophiodon elongatus" ~ "med / high",
+    sciname == "Acanthoclinus fuscus" ~ "low / high",
+    sciname == "Phanerodon furcatus" ~ "med / low",
+    sciname == "Trachurus symmetricus" ~ "high / high",
+    sciname == "Hypsypops rubicundus" ~ "low / high",
+    sciname == "Embiotoca jacksoni" ~ "low / low",
+    sciname == "Caulolatilus princeps" ~ "low / low",
+    sciname == "Semicossyphus pulcher" ~ "low / high"
   )) %>%
   mutate(hr_cat = case_when(
     sciname == "Paralabrax clathratus" ~ "low HR",
@@ -115,15 +99,11 @@ sub_pisco <- full_pisco %>%
     sciname == "Ophiodon elongatus" ~ "med HR",
     sciname == "Acanthoclinus fuscus" ~ "low HR",
     sciname == "Phanerodon furcatus" ~ "med HR",
-    sciname == "Sebastes auriculatus" ~ "med HR",
-    sciname == "Sebastes melanops" ~ "med HR",
-    sciname == "Sebastes melanostomus" ~ "med HR",
-    sciname == "Sebastes mystinus" ~ "med HR",
     sciname == "Trachurus symmetricus" ~ "high HR",
     sciname == "Hypsypops rubicundus" ~ "low HR",
-    sciname == "Sebastes serriceps" ~ "low HR",
     sciname == "Embiotoca jacksoni" ~ "low HR",
-    !is.na(hr_cat) ~ hr_cat
+    sciname == "Caulolatilus princeps" ~ "low HR",
+    sciname == "Semicossyphus pulcher" ~ "low HR",
   )) %>%
   filter(!is.na(movement)) %>%
   mutate(affiliated_mpa = fct_reorder(affiliated_mpa, min_dist, .desc = FALSE)) %>%
@@ -131,9 +111,8 @@ sub_pisco <- full_pisco %>%
     mpa_defacto_designation == "ref" ~ "reference",
     TRUE ~ "MPA"
   )) %>%
-  dplyr::select(-mpa_defacto_designation, -mpa_state_designation) %>%
-  filter(!(movement %in% c("high HR, low PLD", "med HR, high PLD"))) %>%
-  mutate(movement = fct_relevel(movement, "low HR, low PLD", "low HR, high PLD", "med HR, low PLD", "med HR, high PLD", "high HR, high PLD")) %>%
+  dplyr::select(-mpa_defacto_designation, -mpa_state_designation)%>%
+  mutate(movement = fct_relevel(movement, "low / low", "low / high", "med / low", "med / high", "high / high")) %>%
   mutate(hr_cat = fct_relevel(hr_cat, "low HR", "high HR"))
 
 mpa_sites <- sub_pisco %>%
@@ -157,14 +136,74 @@ wider_pisco <- full_join(mpa_sites, ref_sites) %>%
   dplyr::select(sciname, affiliated_mpa, in_out)
 
 sub_pisco <- list(sub_pisco, wider_pisco) %>%
-  reduce(full_join)
+  reduce(full_join) %>% 
+  select(affiliated_mpa, size, min_dist, in_out, sciname, movement, site_status, hr_cat) %>% 
+  distinct() %>% 
+  filter(site_status == "MPA")
 
 sub_pisco %>%
   ungroup() %>%
   dplyr::select(sciname, movement) %>%
   distinct() %>%
   group_by(movement) %>%
-  summarize(n = n())
+  mutate(n = n())
+
+# in/out figs --------------------------------------------------------------
+
+hline_df <- data.frame(hr_cat = c("low HR", "high HR"), val = c(0.5 * 2, 32 * 2)) %>%
+  mutate(hr_cat = as.factor(hr_cat)) %>%
+  mutate(hr_cat = fct_relevel(hr_cat, "low HR", "high HR"))
+
+col <- viridis::viridis(n = 9, end = 0.9)[c(1, 3, 9)]
+
+p6 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(size, in_out, color = movement)) +
+  geom_hline(aes(yintercept = 0), alpha = 0.5, linetype = "dashed", color = "red") +
+  geom_vline(data = hline_df, aes(xintercept = val), linetype = "dashed", alpha = 0.5) +
+  # geom_vline(aes(xintercept = 8 * 2), color = "red", linetype = "dashed")+
+  # geom_vline(aes(xintercept = 32 * 2), color = "red", linetype = "dashed")+
+  # geom_line() +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 2) +
+  theme_bw(base_size = 16) +
+  theme(strip.background = element_rect(fill = "transparent"),
+        legend.position = "bottom") +
+  scale_color_manual(values = col) +
+  facet_wrap(~hr_cat, scales = "free_y") +
+  labs(y = "Log(In/Out)", x = "MPA Size", color = "Movement (Adult / Larval)")
+p6 # make colors match colors from other fig
+
+# ggsave(p6, filename = here::here("figs", "fig6.pdf"), height = 8, width = 10)
+
+p2 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(size, in_out, color = movement, group = sciname)) +
+  geom_hline(aes(yintercept = 0), alpha = 0.2, linetype = "dashed") +
+  geom_vline(aes(xintercept = 0.5 * 2), color = "red", linetype = "dashed") +
+  geom_vline(aes(xintercept = 8), color = "blue", linetype = "dashed") +
+  geom_vline(aes(xintercept = 32 * 2), color = "red", linetype = "dashed") +
+  # geom_line() +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 2) +
+  theme_bw(base_size = 16) +
+  theme(strip.background = element_rect(fill = "transparent")) +
+  scale_color_manual(values = col) +
+  # facet_wrap(~sciname, scales = "free_y") +
+  labs(y = "Log(In/Out)", x = "MPA Size", color = "")
+p2 # add icons
+
+ggsave(p2, filename = here::here("figs", "figS16.pdf"), height = 12, width = 12)
+
+p2 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(min_dist, in_out, color = movement, group = sciname)) +
+  geom_hline(aes(yintercept = 0), alpha = 0.2, linetype = "dashed") +
+  geom_vline(aes(xintercept = 0.5), color = "red", linetype = "dashed") +
+  geom_vline(aes(xintercept = 8), color = "blue", linetype = "dashed") +
+  geom_vline(aes(xintercept = 32), color = "red", linetype = "dashed") +
+  # geom_line() +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 2) +
+  theme_bw(base_size = 16) +
+  theme(strip.background = element_rect(fill = "transparent")) +
+  scale_color_manual(values = col) +
+  # facet_wrap(~movement, scales = "free_y") +
+  labs(y = "Log(In/Out)", x = "MPA Spacing", color = "")
+p2 # add icons
+
+ggsave(p2, filename = here::here("figs", "figS17.pdf"), height = 12, width = 12)
 
 # MPA Sup Fig -------------------------------------------------------------
 
@@ -189,15 +228,15 @@ mpa1 <- mpa1 %>%
   filter(NAME == "Anacapa Island State Marine Conservation Area" | grepl("Painted", NAME))
 mpa2 <- mpa2 %>%
   filter(NAME == "Carrington Point (Santa Rosa Island) State Marine Reserve" |
-    NAME == "Gull Island (Santa Cruz Island) State Marine Reserve" |
-    NAME == "Harris Point (San Miguel Island) State Marine Reserve" |
-    NAME == "Anacapa Island State Marine Reserve" |
-    NAME == "Santa Barbara Island State Marine Reserve" |
-    NAME == "Scorpion (Santa Cruz Island) State Marine Reserve" |
-    NAME == "South Point (Santa Rosa Island) State Marine Reserve")
+           NAME == "Gull Island (Santa Cruz Island) State Marine Reserve" |
+           NAME == "Harris Point (San Miguel Island) State Marine Reserve" |
+           NAME == "Anacapa Island State Marine Reserve" |
+           NAME == "Santa Barbara Island State Marine Reserve" |
+           NAME == "Scorpion (Santa Cruz Island) State Marine Reserve" |
+           NAME == "South Point (Santa Rosa Island) State Marine Reserve")
 mpa3 <- mpa3 %>%
   filter(NAME == "Campus Point State Marine Conservation Area" |
-    NAME == "Naples State Marine Conservation Area")
+           NAME == "Naples State Marine Conservation Area")
 
 mpa_sf <- list(mpa1, mpa2, mpa3) %>%
   reduce(rbind) %>%
@@ -242,59 +281,3 @@ p3 <- ggplot(mpas) +
 plot = (p1 + p2) / p3 + plot_annotation(tag_levels = "A")
 
 ggsave(plot, filename = here::here("figs", "figS15.pdf"), height = 10, width = 12)
-
-# in/out figs --------------------------------------------------------------
-
-hline_df <- data.frame(hr_cat = c("low HR", "high HR"), val = c(0.5 * 2, 32 * 2)) %>%
-  mutate(hr_cat = as.factor(hr_cat)) %>%
-  mutate(hr_cat = fct_relevel(hr_cat, "low HR", "high HR"))
-
-col <- viridis::viridis(n = 9, end = 0.9)[c(1, 3, 9)]
-
-p2 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(size, in_out, color = movement)) +
-  geom_hline(aes(yintercept = 0), alpha = 0.5, linetype = "dashed") +
-  geom_vline(data = hline_df, aes(xintercept = val), color = "red", linetype = "dashed") +
-  # geom_vline(aes(xintercept = 8 * 2), color = "red", linetype = "dashed")+
-  # geom_vline(aes(xintercept = 32 * 2), color = "red", linetype = "dashed")+
-  # geom_line() +
-  geom_smooth(method = "lm", se = FALSE, linewidth = 2) +
-  theme_bw(base_size = 16) +
-  theme(strip.background = element_rect(fill = "transparent")) +
-  scale_color_manual(values = col) +
-  facet_wrap(~hr_cat, scales = "free_y") +
-  labs(y = "Log(In/Out)", x = "", color = "")
-p2 # make colors match colors from other fig
-
-ggsave(p2, filename = here::here("figs", "fig6.pdf"), height = 8, width = 10)
-
-p2 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(size, in_out, color = movement, group = sciname)) +
-  geom_hline(aes(yintercept = 0), alpha = 0.2, linetype = "dashed") +
-  geom_vline(aes(xintercept = 0.5 * 2), color = "red", linetype = "dashed") +
-  geom_vline(aes(xintercept = 8), color = "blue", linetype = "dashed") +
-  geom_vline(aes(xintercept = 32 * 2), color = "red", linetype = "dashed") +
-  # geom_line() +
-  geom_smooth(method = "lm", se = FALSE, linewidth = 2) +
-  theme_bw(base_size = 16) +
-  theme(strip.background = element_rect(fill = "transparent")) +
-  scale_color_manual(values = col) +
-  # facet_wrap(~movement, scales = "free_y") +
-  labs(y = "Log(In/Out)", x = "MPA Size", color = "")
-p2 # add icons
-
-ggsave(p2, filename = here::here("figs", "figS16.pdf"), height = 12, width = 12)
-
-p2 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(min_dist, in_out, color = movement, group = sciname)) +
-  geom_hline(aes(yintercept = 0), alpha = 0.2, linetype = "dashed") +
-  geom_vline(aes(xintercept = 0.5), color = "red", linetype = "dashed") +
-  geom_vline(aes(xintercept = 8), color = "blue", linetype = "dashed") +
-  geom_vline(aes(xintercept = 32), color = "red", linetype = "dashed") +
-  # geom_line() +
-  geom_smooth(method = "lm", se = FALSE, linewidth = 2) +
-  theme_bw(base_size = 16) +
-  theme(strip.background = element_rect(fill = "transparent")) +
-  scale_color_manual(values = col) +
-  # facet_wrap(~movement, scales = "free_y") +
-  labs(y = "Log(In/Out)", x = "MPA Spacing", color = "")
-p2 # add icons
-
-ggsave(p2, filename = here::here("figs", "figS17.pdf"), height = 12, width = 12)
