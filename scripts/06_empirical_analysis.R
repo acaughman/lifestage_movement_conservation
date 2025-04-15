@@ -150,15 +150,11 @@ sub_pisco %>%
 
 # in/out figs --------------------------------------------------------------
 
-hline_df <- data.frame(hr_cat = c("low HR", "high HR"), val = c(0.5 * 2, 32 * 2)) %>%
-  mutate(hr_cat = as.factor(hr_cat)) %>%
-  mutate(hr_cat = fct_relevel(hr_cat, "low HR", "high HR"))
-
 col <- viridis::viridis(n = 9, end = 0.9)[c(1, 3, 9)]
 
 p6 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(size, in_out, color = movement)) +
   geom_hline(aes(yintercept = 0), alpha = 0.5, linetype = "dashed", color = "red") +
-  geom_vline(data = hline_df, aes(xintercept = val), linetype = "dashed", alpha = 0.5) +
+  # geom_vline(data = hline_df, aes(xintercept = val), linetype = "dashed", alpha = 0.5) +
   # geom_vline(aes(xintercept = 8 * 2), color = "red", linetype = "dashed")+
   # geom_vline(aes(xintercept = 32 * 2), color = "red", linetype = "dashed")+
   # geom_line() +
@@ -168,16 +164,16 @@ p6 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(size, in_out, color
         legend.position = "bottom") +
   scale_color_manual(values = col) +
   facet_wrap(~hr_cat, scales = "free_y") +
-  labs(y = "Log(In/Out)", x = "MPA Size", color = "Movement (Adult / Larval)")
+  labs(y = "Log(In/Out)", x =  expression(MPA~Size~(km^2)), color = "Movement (Adult / Larval)")
 p6 # make colors match colors from other fig
 
 # ggsave(p6, filename = here::here("figs", "fig6.pdf"), height = 8, width = 10)
 
 p2 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(size, in_out, color = movement, group = sciname)) +
   geom_hline(aes(yintercept = 0), alpha = 0.2, linetype = "dashed") +
-  geom_vline(aes(xintercept = 0.5 * 2), color = "red", linetype = "dashed") +
-  geom_vline(aes(xintercept = 8), color = "blue", linetype = "dashed") +
-  geom_vline(aes(xintercept = 32 * 2), color = "red", linetype = "dashed") +
+  # geom_vline(aes(xintercept = 0.5 * 2), color = "red", linetype = "dashed") +
+  # geom_vline(aes(xintercept = 8), color = "blue", linetype = "dashed") +
+  # geom_vline(aes(xintercept = 32 * 2), color = "red", linetype = "dashed") +
   # geom_line() +
   geom_smooth(method = "lm", se = FALSE, linewidth = 2) +
   theme_bw(base_size = 16) +
@@ -191,9 +187,9 @@ ggsave(p2, filename = here::here("figs", "figS16.pdf"), height = 12, width = 12)
 
 p2 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(min_dist, in_out, color = movement, group = sciname)) +
   geom_hline(aes(yintercept = 0), alpha = 0.2, linetype = "dashed") +
-  geom_vline(aes(xintercept = 0.5), color = "red", linetype = "dashed") +
-  geom_vline(aes(xintercept = 8), color = "blue", linetype = "dashed") +
-  geom_vline(aes(xintercept = 32), color = "red", linetype = "dashed") +
+  # geom_vline(aes(xintercept = 0.5), color = "red", linetype = "dashed") +
+  # geom_vline(aes(xintercept = 8), color = "blue", linetype = "dashed") +
+  # geom_vline(aes(xintercept = 32), color = "red", linetype = "dashed") +
   # geom_line() +
   geom_smooth(method = "lm", se = FALSE, linewidth = 2) +
   theme_bw(base_size = 16) +

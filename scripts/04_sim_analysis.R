@@ -399,7 +399,7 @@ p1 <- ggplot(sub_connect) +
   theme_bw(base_size = 16) +
   # facet_wrap(~mpa_size)
   labs(
-    x = "MPA Spacing",
+    x = "MPA Spacing (# grid cells)",
     y = "Adult Proportion of Total Settlers ",
     color = "Movement (Adult / Larval)",
     linetype = ""
@@ -414,12 +414,12 @@ sub_connect <- connect %>%
 
 p2 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(mpa_size, relative_mpa_abs, color = move_cat), size = 3) +
-  geom_line(aes(mpa_size, relative_mpa_abs, color = move_cat, group = as.factor(move_cat), linetype = ratio_cat), linewidth = 1) +
+  geom_point(aes(mpa_size * mpa_size, relative_mpa_abs, color = move_cat), size = 3) +
+  geom_line(aes(mpa_size * mpa_size, relative_mpa_abs, color = move_cat, group = as.factor(move_cat), linetype = ratio_cat), linewidth = 1) +
   theme_bw(base_size = 16) +
   # facet_wrap(~mpa_size)
   labs(
-    x = "MPA Size",
+    x = "MPA Size (# grid cells)",
     y = "Adult Proportion of Total Settlers ",
     color = "Movement (Adult / Larval)",
     linetype = ""
@@ -457,7 +457,7 @@ p3 <- ggplot(eq_pop_size_sub) +
     strip.background = element_rect(fill = "white")
   ) +
   labs(
-    x = "MPA Spacing",
+    x = "MPA Spacing (# grid cells)",
     y = "Log(In/Out)",
     color = "Movement (Adult / Larval)",
     shape = "MPA Size",
@@ -477,13 +477,13 @@ eq_pop_size_sub <- eq_pop_size %>%
   )) 
 
 p4 <- ggplot(eq_pop_size_sub) +
-  geom_vline(aes(xintercept = 0.5 * 1), linetype = "dashed", alpha = 0.5) +
-  geom_vline(aes(xintercept = 8  * 1), linetype = "dashed", alpha = 0.5) +
-  geom_vline(aes(xintercept = 32 * 1), linetype = "dashed", alpha = 0.5) +
+  # geom_vline(aes(xintercept = 0.5 * 0.5 * 2), linetype = "dashed", alpha = 0.5) +
+  # geom_vline(aes(xintercept = 8 * 8 * 2), linetype = "dashed", alpha = 0.5) +
+  # geom_vline(aes(xintercept = 32 * 32 * 2), linetype = "dashed", alpha = 0.5) +
   geom_hline(aes(yintercept = 0), color = "red", alpha = 0.5, linetype = "dashed") +
   # geom_hline(aes(yintercept = 0.7), color = "red", alpha = 0.5, linetype = "dashed") +
-  geom_point(aes(mpa_size, in_out, color = move_cat), size = 3) +
-  geom_line(aes(mpa_size, in_out, color = move_cat, group = move_cat), linewidth = 1) +
+  geom_point(aes(mpa_size * mpa_size, in_out, color = move_cat), size = 3) +
+  geom_line(aes(mpa_size * mpa_size, in_out, color = move_cat, group = move_cat), linewidth = 1) +
   # facet_wrap(~mpa_size) +
   theme_bw(base_size = 16) +
   theme(
@@ -492,7 +492,7 @@ p4 <- ggplot(eq_pop_size_sub) +
     legend.position = "none"
   ) +
   labs(
-    x = "MPA Size",
+    x = "MPA Size (# grid cells)",
     y = "Log(In/Out)",
     color = "Movement (Adult / Larval)",
     shape = "MPA Size",
