@@ -383,7 +383,7 @@ p3 <- ggplot(sub_connect) +
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
   )
 
-ggsave(p1 / p2 / p3 + plot_annotation(tag_levels = "A"), path = here::here("figs"), file = paste0("fig4.pdf"), height = 15, width = 10)
+ggsave(p1 / p3 / p2 + plot_annotation(tag_levels = "A"), path = here::here("figs"), file = paste0("fig4.pdf"), height = 15, width = 10)
 
 # MPA Design Connectivity --------------------------------------------------------------
 
