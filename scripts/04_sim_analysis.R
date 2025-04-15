@@ -158,7 +158,7 @@ p1 <- ggplot(sub_connect) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Adult Movement",
-    y = "Adult Proportion of Total Settlers ",
+    y = "Adult Proportion of MPA Origin Settlers ",
     color = "Larval Movement",
     shape = "MPA Size",
     linetype = "MPA Size"
@@ -172,7 +172,7 @@ p2 <- ggplot(sub_connect) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Adult Movement",
-    y = "Retention Proportion of Total Settlers",
+    y = "Retention Proportion of MPA Origin Settlers",
     color = "Larval Movement",
     shape = "MPA Size",
     linetype = "MPA Size"
@@ -202,7 +202,7 @@ p3 <- ggplot(sub_connect) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Adult Movement",
-    y = "Adult Proportion of Total Settlers",
+    y = "Adult Proportion of MPA Origin Settlers",
     color = "Larval Movement",
     linetype = ""
   ) +
@@ -234,7 +234,7 @@ p1 <- ggplot(sub_connect) +
   #       axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Adult Proportion of Total Settlers ",
+    y = "Adult Proportion of MPA Origin Settlers ",
     color = ""
   ) +
   # ylim(c(NA, 11)) +
@@ -257,7 +257,7 @@ p2 <- ggplot(sub_connect) +
   #       axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Adult Proportion of Total Retention",
+    y = "Adult Proportion of Retention",
     color = ""
   ) +
   # ylim(c(NA, 11)) +
@@ -280,7 +280,7 @@ p3 <- ggplot(sub_connect) +
   #       axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Adult Proportion of Total Import",
+    y = "Adult Proportion of Import",
     color = ""
   ) +
   # ylim(c(NA, 11)) +
@@ -303,7 +303,7 @@ p4 <- ggplot(sub_connect) +
   #       axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Adult Proportion of Total Export",
+    y = "Adult Proportion of Export",
     color = ""
   ) +
   # ylim(c(NA, 11)) +
@@ -353,7 +353,7 @@ p2 <- ggplot(sub_connect) +
   theme_bw(base_size = 16) +
   labs(
     x = "",
-    y = "Adult Proportion of Total Settlers",
+    y = "Adult Proportion of MPA Origin Settlers",
     color = ""
   ) +
   facet_wrap(~fp, ncol = 3) +
@@ -400,7 +400,7 @@ p1 <- ggplot(sub_connect) +
   # facet_wrap(~mpa_size)
   labs(
     x = "MPA Spacing (# grid cells)",
-    y = "Adult Proportion of Total Settlers ",
+    y = "Adult Proportion of MPA Origin Settlers ",
     color = "Movement (Adult / Larval)",
     linetype = ""
   ) +
@@ -420,7 +420,7 @@ p2 <- ggplot(sub_connect) +
   # facet_wrap(~mpa_size)
   labs(
     x = "MPA Size (# grid cells)",
-    y = "Adult Proportion of Total Settlers ",
+    y = "Adult Proportion of MPA Origin Settlers ",
     color = "Movement (Adult / Larval)",
     linetype = ""
   ) +
@@ -587,7 +587,7 @@ p1 <- ggplot(sub_connect) +
   ) +
   labs(
     x = "MPA Spacing",
-    y = "Adult Proportion of Total Retention",
+    y = "Adult Proportion of Retention",
     color = "Movement (Adult / Larval)",
     shape = "Movement (Adult / Larval)"
   ) +
@@ -606,7 +606,7 @@ p2 <- ggplot(sub_connect) +
   ) +
   labs(
     x = "MPA Spacing",
-    y = "Adult Proportion of Total Import",
+    y = "Adult Proportion of Import",
     color = "Movement (Adult / Larval)",
     shape = "Movement (Adult / Larval)"
   ) +
@@ -631,28 +631,28 @@ p3 <- ggplot(eq_pop_size_sub) +
   ) +
   scale_color_viridis_d(end = 0.9)
 
-p4 <- ggplot(eq_pop_size_sub) +
-  geom_hline(aes(yintercept = 0), color = "red", alpha = 0.5, linetype = "dashed") +
-  # geom_hline(aes(yintercept = 0.7), color = "red", alpha = 0.5, linetype = "dashed") +
-  geom_point(aes(mpa_spacing, mpa_1, color = move_cat), size = 2) +
-  geom_line(aes(mpa_spacing, mpa_1, color = move_cat, group = move_cat)) +
-  facet_wrap(~eggs) +
-  theme_bw(base_size = 16) +
-  theme(
-    strip.text = element_text(face = "bold"),
-    strip.background = element_rect(fill = "white")
-  ) +
-  labs(
-    x = "MPA Spacing",
-    y = "Population Abundance",
-    color = "Movement (Adult / Larval)",
-    shape = "Movement (Adult / Larval)"
-  ) +
-  scale_color_viridis_d(end = 0.9)
+# p4 <- ggplot(eq_pop_size_sub) +
+#   geom_hline(aes(yintercept = 0), color = "red", alpha = 0.5, linetype = "dashed") +
+#   # geom_hline(aes(yintercept = 0.7), color = "red", alpha = 0.5, linetype = "dashed") +
+#   geom_point(aes(mpa_spacing, mpa_1, color = move_cat), size = 2) +
+#   geom_line(aes(mpa_spacing, mpa_1, color = move_cat, group = move_cat)) +
+#   facet_wrap(~eggs) +
+#   theme_bw(base_size = 16) +
+#   theme(
+#     strip.text = element_text(face = "bold"),
+#     strip.background = element_rect(fill = "white")
+#   ) +
+#   labs(
+#     x = "MPA Spacing",
+#     y = "Population Abundance",
+#     color = "Movement (Adult / Larval)",
+#     shape = "Movement (Adult / Larval)"
+#   ) +
+#   scale_color_viridis_d(end = 0.9)
 
-p <- (p1 + p2) / (p3 + p4) + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
+p <- p1 + p2 + p3 + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
 
-ggsave(p, path = here::here("figs"), file = paste0("figS14.pdf"), height = 15, width = 15)
+ggsave(p, path = here::here("figs"), file = paste0("figS14.pdf"), height = 10, width = 15)
 
 # Across MPA sizes -------------------------------------------
 
@@ -701,7 +701,7 @@ p1 <- ggplot(sub_connect) +
   ) +
   labs(
     x = "",
-    y = "Adult Proportion of Total Settlers ",
+    y = "Adult Proportion of MPA Origin Settlers ",
     color = ""
   ) +
   scale_color_manual(values = colors)
@@ -766,7 +766,7 @@ p1 <- ggplot(sub_connect) +
   ) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Adult Proportion of Total Settlers ",
+    y = "Adult Proportion of MPA Origin Settlers",
     color = ""
   ) +
   scale_color_manual(values = colors)
@@ -831,7 +831,7 @@ p1 <- ggplot(sub_connect) +
   ) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Adult Proportion of Total Settlers ",
+    y = "Adult Proportion of MPA Origin Settlers ",
     color = ""
   ) +
   scale_color_manual(values = colors)
@@ -896,7 +896,7 @@ p1 <- ggplot(sub_connect) +
   ) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Adult Proportion of Total Settlers ",
+    y = "Adult Proportion of MPA Origin Settlers ",
     color = ""
   ) +
   scale_color_manual(values = colors)
@@ -961,7 +961,7 @@ p1 <- ggplot(sub_connect) +
   ) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Adult Proportion of Total Settlers ",
+    y = "Adult Proportion of MPA Origin Settlers ",
     color = ""
   ) +
   scale_color_manual(values = colors)
@@ -1026,7 +1026,7 @@ p1 <- ggplot(sub_connect) +
   ) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Adult Proportion of Total Settlers ",
+    y = "Adult Proportion of MPA Origin Settlers ",
     color = ""
   ) +
   scale_color_manual(values = colors)
@@ -1091,7 +1091,7 @@ p1 <- ggplot(sub_connect) +
   ) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Adult Proportion of Total Settlers ",
+    y = "Adult Proportion of MPA Origin Settlers ",
     color = ""
   ) +
   scale_color_manual(values = colors)
@@ -1156,7 +1156,7 @@ p1 <- ggplot(sub_connect) +
   ) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Adult Proportion of Total Settlers ",
+    y = "Adult Proportion of MPA Origin Settlers ",
     color = ""
   ) +
   scale_color_manual(values = colors)
@@ -1221,7 +1221,7 @@ p1 <- ggplot(sub_connect) +
   ) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Adult Proportion of Total Settlers ",
+    y = "Adult Proportion of MPA Origin Settlers ",
     color = ""
   ) +
   scale_color_manual(values = colors)
@@ -1286,7 +1286,7 @@ p1 <- ggplot(sub_connect) +
   ) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Adult Proportion of Total Settlers ",
+    y = "Adult Proportion of MPA Origin Settlers ",
     color = ""
   ) +
   scale_color_manual(values = colors)
@@ -1351,7 +1351,7 @@ p1 <- ggplot(sub_connect) +
   ) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Adult Proportion of Total Settlers ",
+    y = "Adult Proportion of MPA Origin Settlers ",
     color = ""
   ) +
   scale_color_manual(values = colors)
@@ -1416,7 +1416,7 @@ p1 <- ggplot(sub_connect) +
   ) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Adult Proportion of Total Settlers ",
+    y = "Adult Proportion of MPA Origin Settlers ",
     color = ""
   ) +
   scale_color_manual(values = colors)

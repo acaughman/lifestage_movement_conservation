@@ -148,6 +148,27 @@ sub_pisco %>%
   group_by(movement) %>%
   mutate(n = n())
 
+
+# LMs ---------------------------------------------------------------------
+
+low_low = sub_pisco %>% 
+  filter(movement == "low / low")
+
+lm_low_low = lm(in_out ~ size, data = low_low)
+summary(lm_low_low)
+
+low_high = sub_pisco %>% 
+  filter(movement == "low / high")
+
+lm_low_high = lm(in_out ~ size, data = low_high)
+summary(lm_low_high)
+
+high_high = sub_pisco %>% 
+  filter(movement == "high / high")
+
+lm_high_high = lm(in_out ~ size, data = high_high)
+summary(lm_high_high)
+
 # in/out figs --------------------------------------------------------------
 
 col <- viridis::viridis(n = 9, end = 0.9)[c(1, 3, 9)]
