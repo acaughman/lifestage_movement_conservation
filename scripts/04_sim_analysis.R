@@ -140,7 +140,7 @@ eq_pop_size <- mpa %>%
   filter(age == "adult") %>%
   filter(generation == 90)
 
-colors <- c("Retention" = "#73d056", "Import" = "#277f8e", "Export" = "#440154", "Retention + Import" = "#21918c")
+colors <- c("Retention" = "#95d840", "Import" = "#238a8d", "Export" = "#440154", "Retention + Import" = "#3dbc74")
 
 # Theoretical vs Realized Connectivity ------------------------------------
 
@@ -333,8 +333,8 @@ p1 <- ggplot(sub_connect) +
   # geom_jitter(aes(move_cat, relative_mpa_E, color = "Export"), size = 3, width = 0.25) +
   theme_bw(base_size = 16) +
   labs(
-    x = "Movement (Adult / Larval)",
-    y = "Adult Proportion of Retained Settlers",
+    x = "",
+    y = "",
     color = ""
   ) +
   facet_wrap(~fp, ncol = 3) +
@@ -352,8 +352,8 @@ p2 <- ggplot(sub_connect) +
   # geom_jitter(aes(move_cat, relative_mpa_E, color = "Export"), size = 3, width = 0.25) +
   theme_bw(base_size = 16) +
   labs(
-    x = "Movement (Adult / Larval)",
-    y = "Adult Proportion of Imported Settlers",
+    x = "",
+    y = "Adult Proportion of Total Settlers",
     color = ""
   ) +
   facet_wrap(~fp, ncol = 3) +
@@ -372,7 +372,7 @@ p3 <- ggplot(sub_connect) +
   theme_bw(base_size = 16) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Adult Proportion of Exported Settlers",
+    y = "",
     color = ""
   ) +
   facet_wrap(~fp, ncol = 3) +
@@ -383,7 +383,7 @@ p3 <- ggplot(sub_connect) +
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
   )
 
-ggsave(p1 / p2 / p3 + plot_annotation(tag_levels = "A"), path = here::here("figs"), file = paste0("fig4.pdf"), height = 6, width = 10)
+ggsave(p1 / p2 / p3 + plot_annotation(tag_levels = "A"), path = here::here("figs"), file = paste0("fig4.pdf"), height = 15, width = 10)
 
 # MPA Design Connectivity --------------------------------------------------------------
 
@@ -445,9 +445,8 @@ eq_pop_size_sub <- eq_pop_size %>%
   )) 
 
 p3 <- ggplot(eq_pop_size_sub) +
-  geom_vline(aes(xintercept = 8), linetype = "dashed", alpha = 0.5) +
-  geom_vline(aes(xintercept = 32), linetype = "dashed", alpha = 0.5) +
-  geom_vline(aes(xintercept = 0.5), linetype = "dashed", alpha = 0.5) +
+  # geom_vline(aes(xintercept = 8), linetype = "dashed", alpha = 0.5) +
+  # geom_vline(aes(xintercept = 0.5), linetype = "dashed", alpha = 0.5) +
   geom_hline(aes(yintercept = 0), color = "red", alpha = 0.5, linetype = "dashed") +
   geom_point(aes(mpa_spacing, in_out, color = move_cat), size = 3) +
   geom_line(aes(mpa_spacing, in_out, color = move_cat, group = move_cat), linewidth = 1) +
@@ -689,7 +688,7 @@ p1 <- ggplot(sub_connect) +
   # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  geom_point(aes(move_cat, relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
+  geom_point(aes(move_cat, relative_mpa_abs, color = "Retention + Import"), size = 4) +
   geom_point(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3) +
   # geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 3) +
@@ -754,7 +753,7 @@ p1 <- ggplot(sub_connect) +
   # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  geom_point(aes(move_cat, relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
+  geom_point(aes(move_cat, relative_mpa_abs, color = "Retention + Import"), size = 4) +
   geom_point(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3) +
   # geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 3) +
@@ -819,7 +818,7 @@ p1 <- ggplot(sub_connect) +
   # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  geom_point(aes(move_cat, relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
+  geom_point(aes(move_cat, relative_mpa_abs, color = "Retention + Import"), size = 4) +
   geom_point(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3) +
   geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 3) +
@@ -884,7 +883,7 @@ p1 <- ggplot(sub_connect) +
   # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  geom_point(aes(move_cat, relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
+  geom_point(aes(move_cat, relative_mpa_abs, color = "Retention + Import"), size = 4) +
   geom_point(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3) +
   geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 3) +
@@ -949,7 +948,7 @@ p1 <- ggplot(sub_connect) +
   # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  geom_point(aes(move_cat, relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
+  geom_point(aes(move_cat, relative_mpa_abs, color = "Retention + Import"), size = 4) +
   geom_point(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3) +
   geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 3) +
@@ -1014,7 +1013,7 @@ p1 <- ggplot(sub_connect) +
   # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  geom_point(aes(move_cat, relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
+  geom_point(aes(move_cat, relative_mpa_abs, color = "Retention + Import"), size = 4) +
   geom_point(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3) +
   geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 3) +
@@ -1079,7 +1078,7 @@ p1 <- ggplot(sub_connect) +
   # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  geom_point(aes(move_cat, relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
+  geom_point(aes(move_cat, relative_mpa_abs, color = "Retention + Import"), size = 4) +
   geom_point(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3) +
   # geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 3) +
@@ -1144,7 +1143,7 @@ p1 <- ggplot(sub_connect) +
   # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  geom_point(aes(move_cat, relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
+  geom_point(aes(move_cat, relative_mpa_abs, color = "Retention + Import"), size = 4) +
   geom_point(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3) +
   geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 3) +
@@ -1209,7 +1208,7 @@ p1 <- ggplot(sub_connect) +
   # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  geom_point(aes(move_cat, relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
+  geom_point(aes(move_cat, relative_mpa_abs, color = "Retention + Import"), size = 4) +
   geom_point(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3) +
   geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 3) +
@@ -1274,7 +1273,7 @@ p1 <- ggplot(sub_connect) +
   # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  geom_point(aes(move_cat, relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
+  geom_point(aes(move_cat, relative_mpa_abs, color = "Retention + Import"), size = 4) +
   geom_point(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3) +
   geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 3) +
@@ -1339,7 +1338,7 @@ p1 <- ggplot(sub_connect) +
   # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  geom_point(aes(move_cat, relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
+  geom_point(aes(move_cat, relative_mpa_abs, color = "Retention + Import"), size = 4) +
   geom_point(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3) +
   geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 3) +
@@ -1404,7 +1403,7 @@ p1 <- ggplot(sub_connect) +
   # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  geom_point(aes(move_cat, relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
+  geom_point(aes(move_cat, relative_mpa_abs, color = "Retention + Import"), size = 4) +
   geom_point(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3) +
   # geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
   geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 3) +
