@@ -169,6 +169,16 @@ high_high = sub_pisco %>%
 lm_high_high = lm(in_out ~ size, data = high_high)
 summary(lm_high_high)
 
+kb = low_high %>% 
+  filter(sciname == "Paralabrax clathratus")
+lm_kb = lm(in_out ~ size, data = kb)
+summary(lm_kb)
+
+cs = low_high %>% 
+  filter(sciname == "Semicossyphus pulcher")
+lm_cs = lm(in_out ~ size, data = cs)
+summary(lm_cs)
+
 # in/out figs --------------------------------------------------------------
 
 col <- viridis::viridis(n = 9, end = 0.9)[c(1, 3, 9)]
