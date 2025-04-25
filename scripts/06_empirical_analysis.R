@@ -185,7 +185,7 @@ p6 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(size, in_out, color
         legend.position = "bottom") +
   scale_color_manual(values = col) +
   facet_wrap(~hr_cat, scales = "free_y") +
-  labs(y = "Log(In/Out)", x =  expression(MPA~Size~(km^2)), color = "Movement (Adult / Larval)")
+  labs(y = "log(inside:outside)", x =  expression(MPA~Size~(km^2)), color = "Movement (Adult / Larval)")
 p6 # make colors match colors from other fig
 
 # ggsave(p6, filename = here::here("figs", "fig6.pdf"), height = 8, width = 10)
@@ -201,10 +201,10 @@ p2 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(size, in_out, color
   theme(strip.background = element_rect(fill = "transparent")) +
   scale_color_manual(values = col) +
   # facet_wrap(~sciname, scales = "free_y") +
-  labs(y = "Log(In/Out)", x = "MPA Size", color = "")
+  labs(y = "log(inside:outside)", x = "MPA Size", color = "")
 p2 # add icons
 
-ggsave(p2, filename = here::here("figs", "figS16.pdf"), height = 12, width = 12)
+ggsave(p2, filename = here::here("figs", "figS15.pdf"), height = 12, width = 12)
 
 p2 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(min_dist, in_out, color = movement, group = sciname)) +
   geom_hline(aes(yintercept = 0), alpha = 0.2, linetype = "dashed") +
@@ -217,7 +217,7 @@ p2 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(min_dist, in_out, c
   theme(strip.background = element_rect(fill = "transparent")) +
   scale_color_manual(values = col) +
   # facet_wrap(~movement, scales = "free_y") +
-  labs(y = "Log(In/Out)", x = "MPA Spacing", color = "")
+  labs(y = "log(inside:outside)", x = "MPA Spacing", color = "")
 p2 # add icons
 
 ggsave(p2, filename = here::here("figs", "figS17.pdf"), height = 12, width = 12)
@@ -297,4 +297,4 @@ p3 <- ggplot(mpas) +
 
 plot = (p1 + p2) / p3 + plot_annotation(tag_levels = "A")
 
-ggsave(plot, filename = here::here("figs", "figS15.pdf"), height = 10, width = 12)
+ggsave(plot, filename = here::here("figs", "figS16.pdf"), height = 10, width = 12)
