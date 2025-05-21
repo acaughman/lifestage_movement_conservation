@@ -58,7 +58,10 @@ mpa <- mpa %>%
 
 mpa <- mpa %>%
   janitor::clean_names() %>%
-  mutate(in_out = log(mpa_1 / reference))
+  mutate(
+    in_out = log(mpa_1 / reference),
+    base_in_out = mpa_1 / reference
+  )
 
 connect <- connect_full %>%
   mutate(
@@ -141,6 +144,11 @@ eq_pop_size <- mpa %>%
   filter(generation == 90)
 
 colors <- c("Retention" = "#95d840", "Import" = "#238a8d", "Export" = "#440154", "Retention + Import" = "#3dbc74")
+x_labs <- c(
+  "low / low", "low / medium", "low / high",
+  "**medium / low**", "medium / medium", "medium / high",
+  "high / low", "**high / medium**", "high / high"
+)
 
 # Theoretical vs Realized Connectivity ------------------------------------
 
@@ -148,12 +156,16 @@ sub_connect <- connect %>%
   filter(mpa_size %in% c(8)) %>%
   filter(mpa_spacing == 16) %>%
   filter(eggs == "low") %>%
-  filter(fp == "high")
+  filter(fp == "high") %>%
+  mutate(
+    larval_cat = fct_relevel(larval_cat, c("low", "medium", "high")),
+    adult_cat = fct_relevel(adult_cat, c("low", "medium", "high"))
+  )
 
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(adult, relative_mpa_abs, color = as.factor(larval)), size = 3) +
-  geom_line(aes(adult, relative_mpa_abs, color = as.factor(larval)), linewidth = 1) +
+  geom_point(aes(adult, relative_mpa_abs, color = larval_cat), size = 3) +
+  geom_line(aes(adult, relative_mpa_abs, color = larval_cat), linewidth = 1) +
   theme_bw(base_size = 16) +
   scale_color_viridis_d(end = 0.9) +
   labs(
@@ -163,12 +175,16 @@ p1 <- ggplot(sub_connect) +
     shape = "MPA Size",
     linetype = "MPA Size"
   ) +
-  theme(legend.position = "none")
+  theme(legend.position = "none") +
+  scale_x_continuous(
+    breaks = c(0.5, 8, 32),
+    labels = c("low", "medium", "high")
+  )
 
 p2 <- ggplot(sub_connect) +
   #   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(adult, relative_ret_imp, color = as.factor(larval)), size = 3) +
-  geom_line(aes(adult, relative_ret_imp, color = as.factor(larval)), linewidth = 1) +
+  geom_point(aes(adult, relative_ret_imp, color = larval_cat), size = 3) +
+  geom_line(aes(adult, relative_ret_imp, color = larval_cat), linewidth = 1) +
   theme_bw(base_size = 16) +
   scale_color_viridis_d(end = 0.9) +
   labs(
@@ -177,18 +193,22 @@ p2 <- ggplot(sub_connect) +
     color = "Larval Movement",
     shape = "MPA Size",
     linetype = "MPA Size"
+  ) +
+  scale_x_continuous(
+    breaks = c(0.5, 8, 32),
+    labels = c("low", "medium", "high")
   )
 
 linetype <- c("Theoretical" = "solid", "MPA Implementation" = "dashed", "MPA Equilibrium" = "dotted")
 
 p3 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(adult, relative_rel, color = as.factor(larval)), size = 3) +
-  geom_line(aes(adult, relative_rel, color = as.factor(larval), linetype = "Theoretical"), linewidth = 1) +
-  geom_point(aes(adult, relative_fished_abs, color = as.factor(larval)), size = 3) +
-  geom_line(aes(adult, relative_fished_abs, color = as.factor(larval), linetype = "MPA Implementation"), linewidth = 1) +
-  geom_point(aes(adult, relative_mpa_abs, color = as.factor(larval)), size = 3) +
-  geom_line(aes(adult, relative_mpa_abs, color = as.factor(larval), linetype = "MPA Equilibrium"), linewidth = 1) +
+  geom_point(aes(adult, relative_rel, color = larval_cat), size = 3) +
+  geom_line(aes(adult, relative_rel, color = larval_cat, linetype = "Theoretical"), linewidth = 1) +
+  geom_point(aes(adult, relative_fished_abs, color = larval_cat), size = 3) +
+  geom_line(aes(adult, relative_fished_abs, color = larval_cat, linetype = "MPA Implementation"), linewidth = 1) +
+  geom_point(aes(adult, relative_mpa_abs, color = larval_cat), size = 3) +
+  geom_line(aes(adult, relative_mpa_abs, color = larval_cat, linetype = "MPA Equilibrium"), linewidth = 1) +
   theme_bw(base_size = 16) +
   scale_color_viridis_d(end = 0.9) +
   labs(
@@ -197,7 +217,11 @@ p3 <- ggplot(sub_connect) +
     color = "Larval Movement",
     linetype = ""
   ) +
-  scale_linetype_manual(values = linetype)
+  scale_linetype_manual(values = linetype) +
+  scale_x_continuous(
+    breaks = c(0.5, 8, 32),
+    labels = c("low", "medium", "high")
+  )
 
 ggsave(p3, path = here::here("figs"), file = paste0("figS1.pdf"), height = 8, width = 8)
 
@@ -222,9 +246,11 @@ p3 <- ggplot(sub_connect) +
     y = "Adult Proportion of MPA Origin Settlers ",
     color = ""
   ) +
+  scale_x_discrete(labels = x_labs) +
   # ylim(c(NA, 11)) +
   scale_color_manual(values = colors) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+  theme(axis.text.x = ggtext::element_markdown())
 
 p4 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
@@ -245,9 +271,11 @@ p4 <- ggplot(sub_connect) +
     y = "Adult Proportion of Retention",
     color = ""
   ) +
+  scale_x_discrete(labels = x_labs) +
   # ylim(c(NA, 11)) +
   scale_color_manual(values = colors) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+  theme(axis.text.x = ggtext::element_markdown())
 
 p5 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
@@ -268,9 +296,11 @@ p5 <- ggplot(sub_connect) +
     y = "Adult Proportion of Import",
     color = ""
   ) +
+  scale_x_discrete(labels = x_labs) +
   # ylim(c(NA, 11)) +
   scale_color_manual(values = colors) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+  theme(axis.text.x = ggtext::element_markdown())
 
 p6 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
@@ -291,11 +321,13 @@ p6 <- ggplot(sub_connect) +
     y = "Adult Proportion of Export",
     color = ""
   ) +
+  scale_x_discrete(labels = x_labs) +
   # ylim(c(NA, 11)) +
   scale_color_manual(values = colors) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+  theme(axis.text.x = ggtext::element_markdown())
 
-p <- (p1 + p2) / (p4 + p6 + p5) + plot_annotation(tag_levels = "A") + plot_layout(heights = c(4,2))
+p <- (p1 + p2) / (p4 + p6 + p5) + plot_annotation(tag_levels = "A") + plot_layout(heights = c(4, 2))
 
 ggsave(p, path = here::here("figs"), file = paste0("fig2.pdf"), height = 12, width = 15)
 
@@ -322,14 +354,16 @@ p1 <- ggplot(sub_connect) +
     y = "Adult Proportion of Retention",
     color = ""
   ) +
+  scale_x_discrete(labels = x_labs) +
   facet_wrap(~fp, ncol = 3) +
   scale_color_manual(values = colors) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
-  )
-    
+  ) +
+  theme(axis.text.x = ggtext::element_markdown())
+
 p2 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
   # geom_jitter(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3, width = 0.25) +
@@ -341,13 +375,15 @@ p2 <- ggplot(sub_connect) +
     y = "Adult Proportion of Import",
     color = ""
   ) +
+  scale_x_discrete(labels = x_labs) +
   facet_wrap(~fp, ncol = 3) +
   scale_color_manual(values = colors) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
-  )
+  ) +
+  theme(axis.text.x = ggtext::element_markdown())
 
 p3 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
@@ -362,11 +398,13 @@ p3 <- ggplot(sub_connect) +
   ) +
   facet_wrap(~fp, ncol = 3) +
   scale_color_manual(values = colors) +
+  scale_x_discrete(labels = x_labs) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
-  )
+  ) +
+  theme(axis.text.x = ggtext::element_markdown())
 
 ggsave(p1 / p3 / p2 + plot_annotation(tag_levels = "A"), path = here::here("figs"), file = paste0("fig3.pdf"), height = 15, width = 10)
 
@@ -375,8 +413,8 @@ ggsave(p1 / p3 / p2 + plot_annotation(tag_levels = "A"), path = here::here("figs
 sub_connect <- connect %>%
   filter(mpa_size %in% c(8)) %>%
   filter(eggs == "low") %>%
-  filter(fp == "high") %>% 
-  filter(mpa_spacing !=0)
+  filter(fp == "high") %>%
+  filter(mpa_spacing != 0)
 
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
@@ -428,7 +466,7 @@ eq_pop_size_sub <- eq_pop_size %>%
     "low / low", "low / medium", "low / high",
     "medium / low", "medium / medium", "medium / high",
     "high / low", "high / medium", "high / high"
-  )) %>% 
+  )) %>%
   filter(mpa_spacing != 0)
 
 p3 <- ggplot(eq_pop_size_sub) +
@@ -445,7 +483,7 @@ p3 <- ggplot(eq_pop_size_sub) +
   ) +
   labs(
     x = "MPA Spacing (# grid cells)",
-    y = "log(inside:outside)",
+    y = "log(response)",
     color = "Movement (Adult / Larval)",
     shape = "MPA Size",
     linetype = "MPA Size"
@@ -461,7 +499,7 @@ eq_pop_size_sub <- eq_pop_size %>%
     "low / low", "low / medium", "low / high",
     "medium / low", "medium / medium", "medium / high",
     "high / low", "high / medium", "high / high"
-  )) 
+  ))
 
 p4 <- ggplot(eq_pop_size_sub) +
   # geom_vline(aes(xintercept = 0.5 * 0.5 * 2), linetype = "dashed", alpha = 0.5) +
@@ -480,7 +518,7 @@ p4 <- ggplot(eq_pop_size_sub) +
   ) +
   labs(
     x = "MPA Size (# grid cells)",
-    y = "log(inside:outside)",
+    y = "log(response)",
     color = "Movement (Adult / Larval)",
     shape = "MPA Size",
     linetype = "MPA Size"
@@ -493,7 +531,7 @@ eq_pop_size_sub_a <- eq_pop_size %>%
   filter(fp == "high") %>%
   filter(eggs == "low") %>%
   group_by(adult) %>%
-  summarise(mean_adult = mean(in_out))
+  summarise(mean_adult = log(mean(base_in_out)))
 
 eq_pop_size_sub_l <- eq_pop_size %>%
   # filter(mpa_size == 8) %>%
@@ -501,7 +539,7 @@ eq_pop_size_sub_l <- eq_pop_size %>%
   filter(fp == "high") %>%
   filter(eggs == "low") %>%
   group_by(larval) %>%
-  summarise(mean_larval = mean(in_out))
+  summarise(mean_larval = log(mean(base_in_out)))
 
 p5 <- ggplot() +
   geom_point(data = eq_pop_size_sub_a, aes(adult, mean_adult, color = "Adult"), size = 3) +
@@ -511,7 +549,7 @@ p5 <- ggplot() +
   theme_bw(base_size = 16) +
   labs(
     x = "Movement Extent",
-    y = "log(inside:outside)",
+    y = "log(response)",
     color = ""
   ) +
   scale_color_manual(values = c("Adult" = "#5ec962", "Larval" = "#440154")) +
@@ -523,16 +561,16 @@ ggsave(plot, path = here::here("figs"), file = paste0("fig5.pdf"), height = 15, 
 
 # Percent Increase calc ---------------------------------------------------
 
-# adult high to medium  352.3824
+# adult high to medium 370.6332
 (eq_pop_size_sub_a$mean_adult[2] - eq_pop_size_sub_a$mean_adult[3]) / abs(eq_pop_size_sub_a$mean_adult[3]) * 100
 
-# adult medium to low 413.8001
+# adult medium to low 393.9451
 (eq_pop_size_sub_a$mean_adult[1] - eq_pop_size_sub_a$mean_adult[2]) / abs(eq_pop_size_sub_a$mean_adult[2]) * 100
 
-# larval high to medium 1.715957
+# larval high to medium 2.017114
 (eq_pop_size_sub_l$mean_larval[2] - eq_pop_size_sub_l$mean_larval[3]) / abs(eq_pop_size_sub_l$mean_larval[3]) * 100
 
-# adult medium to low 3.065217
+# adult medium to low 3.584799
 (eq_pop_size_sub_l$mean_larval[1] - eq_pop_size_sub_l$mean_larval[2]) / abs(eq_pop_size_sub_l$mean_larval[2]) * 100
 
 # across eggs -------------------------------------------------------
@@ -550,7 +588,7 @@ eq_pop_size_sub <- eq_pop_size %>%
     "low / low", "low / medium", "low / high",
     "medium / low", "medium / medium", "medium / high",
     "high / low", "high / medium", "high / high"
-  ))%>%
+  )) %>%
   filter(mpa_spacing != 0)
 
 sub_connect <- connect %>%
@@ -614,7 +652,7 @@ p3 <- ggplot(eq_pop_size_sub) +
   ) +
   labs(
     x = "MPA Spacing",
-    y = "log(inside:outside)",
+    y = "log(response)",
     color = "Movement (Adult / Larval)",
     shape = "Movement (Adult / Larval)"
   ) +
@@ -704,7 +742,7 @@ p2 <- ggplot(eq_pop_size_sub) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "log(inside:outside)",
+    y = "log(response)",
     color = "Fishing"
   )
 
@@ -769,7 +807,7 @@ p2 <- ggplot(eq_pop_size_sub) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "log(inside:outside)",
+    y = "log(response)",
     color = "Fishing"
   )
 
@@ -834,7 +872,7 @@ p2 <- ggplot(eq_pop_size_sub) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "log(inside:outside)",
+    y = "log(response)",
     color = "Fishing"
   )
 
@@ -899,7 +937,7 @@ p2 <- ggplot(eq_pop_size_sub) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "log(inside:outside)",
+    y = "log(response)",
     color = "Fishing"
   )
 
@@ -964,7 +1002,7 @@ p2 <- ggplot(eq_pop_size_sub) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "log(inside:outside)",
+    y = "log(response)",
     color = "Fishing"
   )
 
@@ -1029,7 +1067,7 @@ p2 <- ggplot(eq_pop_size_sub) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "log(inside:outside)",
+    y = "log(response)",
     color = "Fishing"
   )
 
@@ -1094,7 +1132,7 @@ p2 <- ggplot(eq_pop_size_sub) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "log(inside:outside)",
+    y = "log(response)",
     color = "Fishing"
   )
 
@@ -1159,7 +1197,7 @@ p2 <- ggplot(eq_pop_size_sub) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "log(inside:outside)",
+    y = "log(response)",
     color = "Fishing"
   )
 
@@ -1224,7 +1262,7 @@ p2 <- ggplot(eq_pop_size_sub) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "log(inside:outside)",
+    y = "log(response)",
     color = "Fishing"
   )
 
@@ -1289,7 +1327,7 @@ p2 <- ggplot(eq_pop_size_sub) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "log(inside:outside)",
+    y = "log(response)",
     color = "Fishing"
   )
 
@@ -1354,7 +1392,7 @@ p2 <- ggplot(eq_pop_size_sub) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "log(inside:outside)",
+    y = "log(response)",
     color = "Fishing"
   )
 
@@ -1419,7 +1457,7 @@ p2 <- ggplot(eq_pop_size_sub) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "log(inside:outside)",
+    y = "log(response)",
     color = "Fishing"
   )
 
