@@ -42,9 +42,10 @@ full_pisco <- read_csv(here::here("data", "raw_data", "full_pisco.csv")) %>%
   filter(!is.na(sciname)) %>%
   filter(!grepl("spp", sciname)) %>%
   # remove data from within 2 years of MPA implementation
-  mutate(imp_year = year(mdy(implementation_date))) %>%
+  mutate(imp_year = year(mdy(implementation_date)))%>%
+  filter(year > imp_year)%>%
   filter(year > imp_year + 2) %>%
-  # remove outliers within species
+  # remove outliers withinspecies
   group_by(sciname) %>%
   mutate(
     q1 = quantile(count, probs = 0.25),
@@ -52,9 +53,10 @@ full_pisco <- read_csv(here::here("data", "raw_data", "full_pisco.csv")) %>%
   ) %>%
   filter(count < q3 + (2.5 * (q3 - q1))) %>%
   filter(count > q1 - (2.5 * (q3 - q1)))%>%
+  group_by(sciname, affiliated_mpa) %>% 
   # remove species without at least 10 data points
-  mutate(species_count = n()) %>%
-  filter(species_count > 10) %>%
+  mutate(species_count = n())%>%
+  filter(species_count > 3) %>%
   dplyr::select(-species_count, -q1, -q3, -imp_year, -implementation_date)%>%
   # calcluate species average across mpa and site status
   group_by(affiliated_mpa, sciname, site_status) %>%
@@ -62,9 +64,6 @@ full_pisco <- read_csv(here::here("data", "raw_data", "full_pisco.csv")) %>%
     avg_count = mean(count, na.rm = TRUE),
     avg_biomass = mean(biomass, na.rm = TRUE)
   )
-
-pisco_rf <- left_join(rf, full_pisco) %>%
-  filter(!is.na(affiliated_mpa))
 
 sub_pisco <- full_pisco %>%
   filter(sciname %in% c(
@@ -157,11 +156,11 @@ low_low = sub_pisco %>%
 lm_low_low = lm(in_out ~ size, data = low_low)
 summary(lm_low_low)
 
-low_high = sub_pisco %>% 
-  filter(movement == "low / high")
-
-lm_low_high = lm(in_out ~ size, data = low_high)
-summary(lm_low_high)
+# low_high = sub_pisco %>% 
+#   filter(movement == "low / high")
+# 
+# lm_low_high = lm(in_out ~ size, data = low_high)
+# summary(lm_low_high)
 
 high_high = sub_pisco %>% 
   filter(movement == "high / high")
@@ -169,12 +168,12 @@ high_high = sub_pisco %>%
 lm_high_high = lm(in_out ~ size, data = high_high)
 summary(lm_high_high)
 
-kb = low_high %>% 
+kb = sub_pisco %>% 
   filter(sciname == "Paralabrax clathratus")
 lm_kb = lm(in_out ~ size, data = kb)
 summary(lm_kb)
 
-cs = low_high %>% 
+cs = sub_pisco %>% 
   filter(sciname == "Semicossyphus pulcher")
 lm_cs = lm(in_out ~ size, data = cs)
 summary(lm_cs)
@@ -183,7 +182,7 @@ summary(lm_cs)
 
 col <- viridis::viridis(n = 9, end = 0.9)[c(1, 3, 9)]
 
-p6 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(size, in_out, color = movement)) +
+p6 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(size, in_out, color = movement, group = sciname)) +
   geom_hline(aes(yintercept = 0), alpha = 0.5, linetype = "dashed", color = "red") +
   # geom_vline(data = hline_df, aes(xintercept = val), linetype = "dashed", alpha = 0.5) +
   # geom_vline(aes(xintercept = 8 * 2), color = "red", linetype = "dashed")+
@@ -195,26 +194,11 @@ p6 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(size, in_out, color
         legend.position = "bottom") +
   scale_color_manual(values = col) +
   facet_wrap(~hr_cat, scales = "free_y") +
-  labs(y = "log(inside:outside)", x =  expression(MPA~Size~(km^2)), color = "Movement (Adult / Larval)")
+  labs(y = "log(response)", x =  expression(CA~MPA~Size~(km^2)), color = "Movement (Adult / Larval)")
 p6 # make colors match colors from other fig
 
 # ggsave(p6, filename = here::here("figs", "fig6.pdf"), height = 8, width = 10)
 
-p2 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(size, in_out, color = movement, group = sciname)) +
-  geom_hline(aes(yintercept = 0), alpha = 0.2, linetype = "dashed") +
-  # geom_vline(aes(xintercept = 0.5 * 2), color = "red", linetype = "dashed") +
-  # geom_vline(aes(xintercept = 8), color = "blue", linetype = "dashed") +
-  # geom_vline(aes(xintercept = 32 * 2), color = "red", linetype = "dashed") +
-  # geom_line() +
-  geom_smooth(method = "lm", se = FALSE, linewidth = 2) +
-  theme_bw(base_size = 16) +
-  theme(strip.background = element_rect(fill = "transparent")) +
-  scale_color_manual(values = col) +
-  # facet_wrap(~sciname, scales = "free_y") +
-  labs(y = "log(inside:outside)", x = "MPA Size", color = "")
-p2 # add icons
-
-ggsave(p2, filename = here::here("figs", "figS15.pdf"), height = 12, width = 12)
 
 p2 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(min_dist, in_out, color = movement, group = sciname)) +
   geom_hline(aes(yintercept = 0), alpha = 0.2, linetype = "dashed") +
@@ -227,10 +211,10 @@ p2 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(min_dist, in_out, c
   theme(strip.background = element_rect(fill = "transparent")) +
   scale_color_manual(values = col) +
   # facet_wrap(~movement, scales = "free_y") +
-  labs(y = "log(inside:outside)", x = "MPA Spacing", color = "")
+  labs(y = "log(response)", x = "MPA Spacing", color = "")
 p2 # add icons
 
-ggsave(p2, filename = here::here("figs", "figS17.pdf"), height = 12, width = 12)
+ggsave(p2, filename = here::here("figs", "figS16.pdf"), height = 12, width = 12)
 
 # MPA Sup Fig -------------------------------------------------------------
 
@@ -307,4 +291,4 @@ p3 <- ggplot(mpas) +
 
 plot = (p1 + p2) / p3 + plot_annotation(tag_levels = "A")
 
-ggsave(plot, filename = here::here("figs", "figS16.pdf"), height = 10, width = 12)
+ggsave(plot, filename = here::here("figs", "figS15.pdf"), height = 10, width = 15)
