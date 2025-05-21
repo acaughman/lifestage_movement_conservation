@@ -82,6 +82,7 @@ mpa_sf <- list(mpa1, mpa2, mpa3) %>%
 
 rm(mpa1, mpa2, mpa3, mpa_names1, mpa_names2, mpa_names3)
 
+
 ### Calculate distance between MPAs
 mpa_centroids <- st_centroid(mpa_sf)
 
