@@ -156,7 +156,7 @@ sub_connect <- connect %>%
   filter(mpa_size %in% c(8)) %>%
   filter(mpa_spacing == 16) %>%
   filter(eggs == "low") %>%
-  filter(fp == "high") %>%
+  filter(fp == "med") %>%
   mutate(
     larval_cat = fct_relevel(larval_cat, c("low", "medium", "high")),
     adult_cat = fct_relevel(adult_cat, c("low", "medium", "high"))
@@ -413,8 +413,9 @@ ggsave(p1 / p3 / p2 + plot_annotation(tag_levels = "A"), path = here::here("figs
 sub_connect <- connect %>%
   filter(mpa_size %in% c(8)) %>%
   filter(eggs == "low") %>%
-  filter(fp == "high") %>%
-  filter(mpa_spacing != 0)
+  filter(fp == "med") %>%
+  filter(mpa_spacing != 0)%>%
+  filter(mpa_spacing != 2)
 
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
@@ -434,7 +435,7 @@ p1 <- ggplot(sub_connect) +
 sub_connect <- connect %>%
   filter(mpa_spacing %in% c(0)) %>%
   filter(eggs == "low") %>%
-  filter(fp == "high")
+  filter(fp == "med")
 
 p2 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
@@ -459,7 +460,7 @@ ggsave(plot, path = here::here("figs"), file = paste0("fig4.pdf"), height = 12, 
 
 eq_pop_size_sub <- eq_pop_size %>%
   filter(mpa_size %in% c(8)) %>%
-  filter(fp == "high") %>%
+  filter(fp == "med") %>%
   filter(eggs == "low") %>%
   mutate(move_cat = fct_relevel(
     move_cat,
@@ -467,7 +468,8 @@ eq_pop_size_sub <- eq_pop_size %>%
     "medium / low", "medium / medium", "medium / high",
     "high / low", "high / medium", "high / high"
   )) %>%
-  filter(mpa_spacing != 0)
+  filter(mpa_spacing != 0) %>% 
+  filter(mpa_spacing != 2)
 
 p3 <- ggplot(eq_pop_size_sub) +
   # geom_vline(aes(xintercept = 8), linetype = "dashed", alpha = 0.5) +
@@ -492,7 +494,7 @@ p3 <- ggplot(eq_pop_size_sub) +
 
 eq_pop_size_sub <- eq_pop_size %>%
   filter(mpa_spacing %in% c(0)) %>%
-  filter(fp == "high") %>%
+  filter(fp == "med") %>%
   filter(eggs == "low") %>%
   mutate(move_cat = fct_relevel(
     move_cat,
@@ -528,7 +530,7 @@ p4 <- ggplot(eq_pop_size_sub) +
 eq_pop_size_sub_a <- eq_pop_size %>%
   # filter(mpa_size == 8) %>%
   # filter(mpa_spacing == 16) %>%
-  filter(fp == "high") %>%
+  filter(fp == "med") %>%
   filter(eggs == "low") %>%
   group_by(adult) %>%
   summarise(mean_adult = log(mean(base_in_out)))
@@ -536,7 +538,7 @@ eq_pop_size_sub_a <- eq_pop_size %>%
 eq_pop_size_sub_l <- eq_pop_size %>%
   # filter(mpa_size == 8) %>%
   # filter(mpa_spacing == 16) %>%
-  filter(fp == "high") %>%
+  filter(fp == "med") %>%
   filter(eggs == "low") %>%
   group_by(larval) %>%
   summarise(mean_larval = log(mean(base_in_out)))
@@ -577,7 +579,7 @@ ggsave(plot, path = here::here("figs"), file = paste0("fig5.pdf"), height = 15, 
 
 eq_pop_size_sub <- eq_pop_size %>%
   filter(mpa_size == 8) %>%
-  filter(fp == "high") %>%
+  filter(fp == "med") %>%
   mutate(eggs = case_when(
     eggs == "med" ~ "medium",
     TRUE ~ eggs
@@ -593,7 +595,7 @@ eq_pop_size_sub <- eq_pop_size %>%
 
 sub_connect <- connect %>%
   filter(mpa_size == 8) %>%
-  filter(fp == "high") %>%
+  filter(fp == "med") %>%
   mutate(eggs = case_when(
     eggs == "med" ~ "medium",
     TRUE ~ eggs

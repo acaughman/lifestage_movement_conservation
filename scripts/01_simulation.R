@@ -79,7 +79,7 @@ for (eggs in c(10, 100, 10000)) {
         output[, , , , t] <- pop
 
         # births
-        pop[, , 1, ] <- pop[, , 2, 1] * num_eggs # assumes 50% females
+        pop[, , 1, ] <- pop[, , 2, 1] * num_eggs 
 
         # larvae move
         pop[, , 1, 1] <- rowSums(recruit_movement_matrix * array(rep(pop[, , 1, 1], each = resolution[1] * resolution[2]), c(resolution, resolution[1] * resolution[2])), dims = 2)
@@ -139,6 +139,7 @@ for (eggs in c(10, 100, 10000)) {
         pop[, , 2, ] <- pop[, , 1, ] + pop[, , 2, ]
 
         output[, , 1, , t] <- pop[, , 1, ]
+        
         pop[, , 1, ] <- 0
       }
 
