@@ -327,9 +327,32 @@ p6 <- ggplot(sub_connect) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
   theme(axis.text.x = ggtext::element_markdown())
 
+connect_mean_a = sub_connect %>% 
+  group_by(adult) %>% 
+  summarise(mean_set = mean(mpa_abs, na.rm=TRUE))
+
+connect_mean_l = sub_connect %>% 
+  group_by(larval) %>% 
+  summarise(mean_set = mean(mpa_abs, na.rm=TRUE))
+
 p <- (p1 + p2) / (p4 + p6 + p5) + plot_annotation(tag_levels = "A") + plot_layout(heights = c(4, 2))
 
 ggsave(p, path = here::here("figs"), file = paste0("fig2.pdf"), height = 12, width = 15)
+
+
+# Percent Settler Change --------------------------------------------------
+
+# adult high to medium 43.84653
+(connect_mean_a$mean_set[2] - connect_mean_a$mean_set[3]) / abs(connect_mean_a$mean_set[3]) * 100
+
+# adult medium to low 58.42562
+(connect_mean_a$mean_set[1] - connect_mean_a$mean_set[2]) / abs(connect_mean_a$mean_set[2]) * 100
+
+# larval high to medium 30.02139
+(connect_mean_l$mean_set[2] - connect_mean_l$mean_set[3]) / abs(connect_mean_l$mean_set[3]) * 100
+
+# adult medium to low 63.34699
+(connect_mean_l$mean_set[1] - connect_mean_l$mean_set[2]) / abs(connect_mean_l$mean_set[2]) * 100
 
 # Fishing Pressure and Connectivity ---------------------------------------
 
@@ -748,7 +771,7 @@ p2 <- ggplot(eq_pop_size_sub) +
     color = "Fishing"
   )
 
-ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS2.pdf"), height = 12, width = 8)
+ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS2.png"), height = 12, width = 8)
 
 sub_connect <- connect %>%
   filter(eggs == "low") %>%
@@ -813,7 +836,7 @@ p2 <- ggplot(eq_pop_size_sub) +
     color = "Fishing"
   )
 
-ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS3.pdf"), height = 12, width = 8)
+ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS3.png"), height = 12, width = 8)
 
 sub_connect <- connect %>%
   filter(eggs == "low") %>%
@@ -878,7 +901,7 @@ p2 <- ggplot(eq_pop_size_sub) +
     color = "Fishing"
   )
 
-ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS4.pdf"), height = 12, width = 8)
+ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS4.png"), height = 12, width = 8)
 
 sub_connect <- connect %>%
   filter(eggs == "low") %>%
@@ -943,7 +966,7 @@ p2 <- ggplot(eq_pop_size_sub) +
     color = "Fishing"
   )
 
-ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS5.pdf"), height = 12, width = 8)
+ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS5.png"), height = 12, width = 8)
 
 sub_connect <- connect %>%
   filter(eggs == "low") %>%
@@ -1008,7 +1031,7 @@ p2 <- ggplot(eq_pop_size_sub) +
     color = "Fishing"
   )
 
-ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS6.pdf"), height = 12, width = 8)
+ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS6.png"), height = 12, width = 8)
 
 sub_connect <- connect %>%
   filter(eggs == "low") %>%
@@ -1073,7 +1096,7 @@ p2 <- ggplot(eq_pop_size_sub) +
     color = "Fishing"
   )
 
-ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS7.pdf"), height = 12, width = 8)
+ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS7.png"), height = 12, width = 8)
 
 sub_connect <- connect %>%
   filter(eggs == "low") %>%
@@ -1138,7 +1161,7 @@ p2 <- ggplot(eq_pop_size_sub) +
     color = "Fishing"
   )
 
-ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS8.pdf"), height = 12, width = 8)
+ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS8.png"), height = 12, width = 8)
 
 sub_connect <- connect %>%
   filter(eggs == "low") %>%
@@ -1203,7 +1226,7 @@ p2 <- ggplot(eq_pop_size_sub) +
     color = "Fishing"
   )
 
-ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS9.pdf"), height = 12, width = 8)
+ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS9.png"), height = 12, width = 8)
 
 sub_connect <- connect %>%
   filter(eggs == "low") %>%
@@ -1268,7 +1291,7 @@ p2 <- ggplot(eq_pop_size_sub) +
     color = "Fishing"
   )
 
-ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS10.pdf"), height = 12, width = 8)
+ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS10.png"), height = 12, width = 8)
 
 sub_connect <- connect %>%
   filter(eggs == "low") %>%
@@ -1333,7 +1356,7 @@ p2 <- ggplot(eq_pop_size_sub) +
     color = "Fishing"
   )
 
-ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS11.pdf"), height = 12, width = 8)
+ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS11.png"), height = 12, width = 8)
 
 sub_connect <- connect %>%
   filter(eggs == "low") %>%
@@ -1398,7 +1421,7 @@ p2 <- ggplot(eq_pop_size_sub) +
     color = "Fishing"
   )
 
-ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS12.pdf"), height = 12, width = 8)
+ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS12.png"), height = 12, width = 8)
 
 sub_connect <- connect %>%
   filter(eggs == "low") %>%
@@ -1463,4 +1486,4 @@ p2 <- ggplot(eq_pop_size_sub) +
     color = "Fishing"
   )
 
-ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS13.pdf"), height = 12, width = 8)
+ggsave(p1 / p2, path = here::here("figs"), file = paste0("figS13.png"), height = 12, width = 8)
