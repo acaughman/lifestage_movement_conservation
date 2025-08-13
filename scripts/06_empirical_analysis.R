@@ -197,9 +197,6 @@ p6 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(size, in_out, color
   labs(y = "log(response)", x =  expression(CA~MPA~Size~(km^2)), color = "Movement (Adult / Larval)")
 p6 # make colors match colors from other fig
 
-# ggsave(p6, filename = here::here("figs", "fig6.pdf"), height = 8, width = 10)
-
-
 p2 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(min_dist, in_out, color = movement, group = sciname)) +
   geom_hline(aes(yintercept = 0), alpha = 0.2, linetype = "dashed") +
   # geom_vline(aes(xintercept = 0.5), color = "red", linetype = "dashed") +
