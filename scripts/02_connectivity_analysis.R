@@ -1,21 +1,14 @@
   library(tidyverse)
   library(pheatmap)
   
-  for (eggs in c(10, 100, 10000)) {
-    for (fishing_pressure in c(0.1, 0.5, 0.9)) {
-      if (eggs == 10) {
-        eggs_c <- "low"
-      } else if (eggs == 100) {
-        eggs_c <- "med"
-      } else if (eggs == 10000) {
-        eggs_c <- "high"
-      }
-      if (fishing_pressure == 0.1) {
-        fishing_pressure_c <- "low"
-      } else if (fishing_pressure == 0.5) {
-        fishing_pressure_c <- "med"
-      } else if (fishing_pressure == 0.9) {
-        fishing_pressure_c <- "high"
+
+    for (i in c(1,2,3)) {
+      if (i == 1) {
+        type <- "F"
+      } else if (i == 2) {
+        type <- "R0"
+      } else if (i == 3) {
+        type <- "dd"
       }
   
       resolution <- c(50, 50)
@@ -26,15 +19,22 @@
   
       resolution <- c(50, 50)
       world <- array(1:2500, resolution)
+      
+      for(j in c(1, 2, 3)) {
+        if (j == 1) {
+          var <- "low"
+        } else if (j == 2) {
+          var <- "med"
+        } else if (j == 3) {
+          var <- "high"
+        }
   
-      fp <- fishing_pressure
-  
-      output_df <- read_csv(here::here("outputs", paste0("8x8_2_", eggs_c, "E", fishing_pressure_c, "F.csv"))) %>%
+      output_df <- read_csv(here::here("outputs", paste0("8x8_0_", var, type, ".csv"))) %>%
         mutate(
           mpa = case_when(
             # (lat %in% c(25, 26) & lon %in% c(25, 26)) ~ "MPA 1", # 2 x 2
             # (lat %in% c(24:27) & lon %in% c(24:27)) ~ "MPA 1", # 4 x 4
-            # (lat %in% c(22:29) & lon %in% c(22:29)) ~ "MPA 1", # 8 x 8
+            (lat %in% c(22:29) & lon %in% c(22:29)) ~ "MPA 1", # 8 x 8
             # (lat %in% c(17:32) & lon %in% c(17:32)) ~ "MPA 1", # 16 x 16
             # (lat %in% c(21:24) & lon %in% c(24:27)) ~ "MPA 1", # 4 x 4 2
             # (lat %in% c(27:30) & lon %in% c(24:27)) ~ "MPA 2",
@@ -44,8 +44,8 @@
             # (lat %in% c(30:33) & lon %in% c(24:27)) ~ "MPA 2",
             # (lat %in% c(14:17) & lon %in% c(24:27)) ~ "MPA 1", # 4 x 4 16
             # (lat %in% c(34:37) & lon %in% c(24:27)) ~ "MPA 2",
-            (lat %in% c(17:24) & lon %in% c(22:29)) ~ "MPA 2", # 8 x 8 2
-            (lat %in% c(27:34) & lon %in% c(22:29)) ~ "MPA 2",
+            # (lat %in% c(17:24) & lon %in% c(22:29)) ~ "MPA 2", # 8 x 8 2
+            # (lat %in% c(27:34) & lon %in% c(22:29)) ~ "MPA 2",
             # (lat %in% c(16:23) & lon %in% c(22:29)) ~ "MPA 1", # 8 x 8 4
             # (lat %in% c(28:35) & lon %in% c(22:29)) ~ "MPA 2",
             # (lat %in% c(14:21) & lon %in% c(22:29)) ~ "MPA 1", # 8 x 8 8
@@ -56,9 +56,10 @@
           )
         ) %>% 
         mutate(pop = case_when(
-          # age == "adult" ~ pop * .3,
           TRUE ~ pop
         ))
+      
+      fp = output_df$fishing_pressure[1]
   
       fish_eq <- output_df %>%
         filter(generation == 40)
@@ -84,7 +85,6 @@
       if (length(mpa2) != 0) {
         non_mpa <- non_mpa[-mpa2]
       }
-  
   
       connect_df <- data.frame()
   
@@ -241,6 +241,7 @@
         "adult", "larval"
       )
 
-      write_csv(connect_df, here::here("outputs", paste0("connectivity_8x8_2_", eggs_c, "E", fishing_pressure_c, "F.csv")))
+      write_csv(connect_df, here::here("outputs", paste0("connectivity_8x8_0_", var,type, ".csv")))
+      }
     }
-  }
+  

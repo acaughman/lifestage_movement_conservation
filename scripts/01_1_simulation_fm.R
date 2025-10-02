@@ -104,8 +104,8 @@ for (fishing_pressure in c(calc_fmsy(10, 0.7) - 0.3, calc_fmsy(10, 0.7), calc_fm
         if (t == 41) {
           # f_mort[, , ] <- f_mort / (1 - ((2 * 2) / (resolution[1] * resolution[2]))) # size 2x2
           # f_mort[, ,] = f_mort / (1 - ((4 * 4) / (resolution[1] * resolution[2])))
-          f_mort[, ,] = f_mort / (1 - ((4 * 4 * 2) / (resolution[1] * resolution[2])))
-          # f_mort[, , ] <- f_mort / (1 - ((8 * 8) / (resolution[1] * resolution[2])))
+          # f_mort[, ,] = f_mort / (1 - ((4 * 4 * 2) / (resolution[1] * resolution[2])))
+          f_mort[, , ] <- f_mort / (1 - ((8 * 8) / (resolution[1] * resolution[2])))
           # f_mort[, , ] <- f_mort / (1 - ((8 * 8 * 2) / (resolution[1] * resolution[2])))
           # f_mort[, ,] = f_mort / (1 - ((16 * 16) / (resolution[1] * resolution[2])))
         }
@@ -121,16 +121,16 @@ for (fishing_pressure in c(calc_fmsy(10, 0.7) - 0.3, calc_fmsy(10, 0.7), calc_fm
         # f_mort[28:31, 24:27, ] <- 0 # size 4x4, spacing 4
         # f_mort[18:21, 24:27, ] <- 0 # size 4x4, spacing 8
         # f_mort[30:33, 24:27, ] <- 0 # size 4x4, spacing 8
-        f_mort[14:17, 24:27, ] <- 0 # size 4x4, spacing 16
-        f_mort[34:37, 24:27, ] <- 0 # size 4x4, spacing 16
+        # f_mort[14:17, 24:27, ] <- 0 # size 4x4, spacing 16
+        # f_mort[34:37, 24:27, ] <- 0 # size 4x4, spacing 16
         # f_mort[17:24, 22:29, ] <- 0 # size 8x8, spacing 2
         # f_mort[27:34, 22:29, ] <- 0 # size 8x8, spacing 2
         # f_mort[16:23, 22:29, ] <- 0 # size 8x8, spacing 4
         # f_mort[28:35, 22:29, ] <- 0 # size 8x8, spacing 4
         # f_mort[14:21, 22:29, ] <- 0 # size 8x8, spacing 8
         # f_mort[30:37, 22:29, ] <- 0 # size 8x8, spacing 8
-        # f_mort[10:17, 22:29, ] <- 0 # size 8x8, spacing 16
-        # f_mort[34:41, 22:29, ] <- 0 # size 8x8, spacing 16
+        f_mort[10:17, 22:29, ] <- 0 # size 8x8, spacing 16
+        f_mort[34:41, 22:29, ] <- 0 # size 8x8, spacing 16
       }
 
       # fishing mortality
@@ -232,13 +232,15 @@ for (fishing_pressure in c(calc_fmsy(10, 0.7) - 0.3, calc_fmsy(10, 0.7), calc_fm
     mutate(lon = as.numeric(lon)) %>%
     mutate(generation = as.numeric(generation)) %>%
     mutate(fishing_pressure = fishing_pressure) %>% 
-    group_by(lat, lon, age, generation, adult, larval) %>%
+    mutate(reproductive_output = num_eggs) %>% 
+    mutate(dd_strength = h) %>% 
+    group_by(lat, lon, age, generation, adult, larval, fishing_pressure, reproductive_output, dd_strength) %>%
     summarize(pop = sum(pop))
 
   output_df <- output_df %>%
     full_join(fished_df)
 
-  write_csv(output_df, here::here("outputs", paste0("4x4_16_", fishing_pressure_c, "F.csv")))
+  write_csv(output_df, here::here("outputs", paste0("8x8_16_", fishing_pressure_c, "F.csv")))
 
   rm(fished_df, output_df)
   gc()

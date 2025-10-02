@@ -103,15 +103,15 @@ for (reproductive_output in c(10, 100, 10000)) {
           # f_mort[, , ] <- f_mort / (1 - ((2 * 2) / (resolution[1] * resolution[2]))) # size 2x2
           # f_mort[, ,] = f_mort / (1 - ((4 * 4) / (resolution[1] * resolution[2])))
           # f_mort[, ,] = f_mort / (1 - ((4 * 4 * 2) / (resolution[1] * resolution[2])))
-          # f_mort[, , ] <- f_mort / (1 - ((8 * 8) / (resolution[1] * resolution[2])))
-          f_mort[, , ] <- f_mort / (1 - ((8 * 8 * 2) / (resolution[1] * resolution[2])))
+          f_mort[, , ] <- f_mort / (1 - ((8 * 8) / (resolution[1] * resolution[2])))
+          # f_mort[, , ] <- f_mort / (1 - ((8 * 8 * 2) / (resolution[1] * resolution[2])))
           # f_mort[, ,] = f_mort / (1 - ((16 * 16) / (resolution[1] * resolution[2])))
         }
 
         # create MPA
         # f_mort[25:26, 25:26, ] <- 0 # size 2x2
         # f_mort[24:27, 24:27, ] <- 0 # size 4x4
-        # f_mort[22:29, 22:29, ] <- 0 # size 8x8
+        f_mort[22:29, 22:29, ] <- 0 # size 8x8
         # f_mort[17:32, 17:32, ] <- 0 # size 16x16
         # f_mort[21:24, 24:27, ] <- 0 # size 4x4, spacing 2
         # f_mort[27:30, 24:27, ] <- 0 # size 4x4, spacing 2
@@ -121,8 +121,8 @@ for (reproductive_output in c(10, 100, 10000)) {
         # f_mort[30:33, 24:27, ] <- 0 # size 4x4, spacing 8
         # f_mort[14:17, 24:27, ] <- 0 # size 4x4, spacing 16
         # f_mort[34:37, 24:27, ] <- 0 # size 4x4, spacing 16
-        f_mort[17:24, 22:29, ] <- 0 # size 8x8, spacing 2
-        f_mort[27:34, 22:29, ] <- 0 # size 8x8, spacing 2
+        # f_mort[17:24, 22:29, ] <- 0 # size 8x8, spacing 2
+        # f_mort[27:34, 22:29, ] <- 0 # size 8x8, spacing 2
         # f_mort[16:23, 22:29, ] <- 0 # size 8x8, spacing 4
         # f_mort[28:35, 22:29, ] <- 0 # size 8x8, spacing 4
         # f_mort[14:21, 22:29, ] <- 0 # size 8x8, spacing 8
@@ -229,15 +229,16 @@ for (reproductive_output in c(10, 100, 10000)) {
     mutate(lat = as.numeric(lat)) %>%
     mutate(lon = as.numeric(lon)) %>%
     mutate(generation = as.numeric(generation)) %>%
-    mutate(reproductive_output = reproductive_output) %>% 
     mutate(fishing_pressure = calc_fmsy(num_eggs, h)) %>% 
-    group_by(lat, lon, age, generation, adult, larval) %>%
+    mutate(reproductive_output = num_eggs) %>% 
+    mutate(dd_strength = h) %>% 
+    group_by(lat, lon, age, generation, adult, larval, fishing_pressure, reproductive_output, dd_strength) %>%
     summarize(pop = sum(pop))
 
   output_df <- output_df %>%
     full_join(fished_df)
 
-  write_csv(output_df, here::here("outputs", paste0("8x8_2_", reproductive_output_c, "R0.csv")))
+  write_csv(output_df, here::here("outputs", paste0("8x8_0_", reproductive_output_c, "R0.csv")))
 
   rm(fished_df, output_df)
   gc()
