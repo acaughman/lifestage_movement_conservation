@@ -184,31 +184,29 @@ col <- viridis::viridis(n = 9, end = 0.9)[c(1, 3, 9)]
 
 p6 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(size, in_out, color = movement, group = sciname)) +
   geom_hline(aes(yintercept = 0), alpha = 0.5, linetype = "dashed", color = "red") +
-  # geom_vline(data = hline_df, aes(xintercept = val), linetype = "dashed", alpha = 0.5) +
-  # geom_vline(aes(xintercept = 8 * 2), color = "red", linetype = "dashed")+
-  # geom_vline(aes(xintercept = 32 * 2), color = "red", linetype = "dashed")+
-  # geom_line() +
   geom_smooth(method = "lm", se = FALSE, linewidth = 2) +
+  geom_point(aes(shape = sciname), size = 3, alpha = 0.5) +
   theme_bw(base_size = 16) +
   theme(strip.background = element_rect(fill = "transparent"),
         legend.position = "bottom") +
   scale_color_manual(values = col) +
   facet_wrap(~hr_cat, scales = "free_y") +
+  scale_shape_manual(values = c("circle", "circle", "square", "circle")) +
+  guides(shape = "none") +
   labs(y = "log(response)", x =  expression(CA~MPA~Size~(km^2)), color = "Movement (Adult / Larval)")
 p6 # make colors match colors from other fig
 
 p2 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(min_dist, in_out, color = movement, group = sciname)) +
   geom_hline(aes(yintercept = 0), alpha = 0.2, linetype = "dashed") +
-  # geom_vline(aes(xintercept = 0.5), color = "red", linetype = "dashed") +
-  # geom_vline(aes(xintercept = 8), color = "blue", linetype = "dashed") +
-  # geom_vline(aes(xintercept = 32), color = "red", linetype = "dashed") +
-  # geom_line() +
   geom_smooth(method = "lm", se = FALSE, linewidth = 2) +
+  geom_point(aes(shape = sciname), size = 3, alpha = 0.5) +
   theme_bw(base_size = 16) +
   theme(strip.background = element_rect(fill = "transparent")) +
   scale_color_manual(values = col) +
   # facet_wrap(~movement, scales = "free_y") +
-  labs(y = "log(response)", x = "MPA Spacing", color = "")
+  labs(y = "log(response)", x = "MPA Spacing", color = "") + 
+  scale_shape_manual(values = c("circle", "circle", "square", "circle")) +
+  guides(shape = "none") 
 p2 # add icons
 
 ggsave(p2, filename = here::here("figs", "figS16.pdf"), height = 12, width = 12)
