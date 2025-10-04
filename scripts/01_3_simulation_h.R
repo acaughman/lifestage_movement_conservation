@@ -21,12 +21,12 @@ calc_fmsy <- function(num_eggs, h) {
   return(H)
 }
 
-for (dd_strength in c(10, 100, 10000)) {
-  if (dd_strength == 10) {
+for (dd_strength in c(0.5, 0.7, 0.9)) {
+  if (dd_strength == 0.5) {
     dd_strength_c <- "low"
-  } else if (dd_strength == 100) {
+  } else if (dd_strength == 0.7) {
     dd_strength_c <- "med"
-  } else if (dd_strength == 10000) {
+  } else if (dd_strength == 0.9) {
     dd_strength_c <- "high"
   }
 
@@ -100,16 +100,16 @@ for (dd_strength in c(10, 100, 10000)) {
       if (t > 40) {
         # resdistribution fishing effort
         if (t == 41) {
-          # f_mort[, , ] <- f_mort / (1 - ((2 * 2) / (resolution[1] * resolution[2]))) # size 2x2
+          f_mort[, , ] <- f_mort / (1 - ((2 * 2) / (resolution[1] * resolution[2]))) # size 2x2
           # f_mort[, ,] = f_mort / (1 - ((4 * 4) / (resolution[1] * resolution[2])))
           # f_mort[, ,] = f_mort / (1 - ((4 * 4 * 2) / (resolution[1] * resolution[2])))
           # f_mort[, , ] <- f_mort / (1 - ((8 * 8) / (resolution[1] * resolution[2])))
-          f_mort[, , ] <- f_mort / (1 - ((8 * 8 * 2) / (resolution[1] * resolution[2])))
+          # f_mort[, , ] <- f_mort / (1 - ((8 * 8 * 2) / (resolution[1] * resolution[2])))
           # f_mort[, ,] = f_mort / (1 - ((16 * 16) / (resolution[1] * resolution[2])))
         }
 
         # create MPA
-        # f_mort[25:26, 25:26, ] <- 0 # size 2x2
+        f_mort[25:26, 25:26, ] <- 0 # size 2x2
         # f_mort[24:27, 24:27, ] <- 0 # size 4x4
         # f_mort[22:29, 22:29, ] <- 0 # size 8x8
         # f_mort[17:32, 17:32, ] <- 0 # size 16x16
@@ -121,8 +121,8 @@ for (dd_strength in c(10, 100, 10000)) {
         # f_mort[30:33, 24:27, ] <- 0 # size 4x4, spacing 8
         # f_mort[14:17, 24:27, ] <- 0 # size 4x4, spacing 16
         # f_mort[34:37, 24:27, ] <- 0 # size 4x4, spacing 16
-        f_mort[17:24, 22:29, ] <- 0 # size 8x8, spacing 2
-        f_mort[27:34, 22:29, ] <- 0 # size 8x8, spacing 2
+        # f_mort[17:24, 22:29, ] <- 0 # size 8x8, spacing 2
+        # f_mort[27:34, 22:29, ] <- 0 # size 8x8, spacing 2
         # f_mort[16:23, 22:29, ] <- 0 # size 8x8, spacing 4
         # f_mort[28:35, 22:29, ] <- 0 # size 8x8, spacing 4
         # f_mort[14:21, 22:29, ] <- 0 # size 8x8, spacing 8
@@ -238,7 +238,7 @@ for (dd_strength in c(10, 100, 10000)) {
   output_df <- output_df %>%
     full_join(fished_df)
 
-  write_csv(output_df, here::here("outputs", paste0("8x8_2_", dd_strength_c, "dd.csv")))
+  write_csv(output_df, here::here("outputs", paste0("2x2_0_", dd_strength_c, "dd.csv")))
 
   rm(fished_df, output_df)
   gc()
