@@ -209,7 +209,7 @@ p2 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(min_dist, in_out, c
   guides(shape = "none") 
 p2 # add icons
 
-ggsave(p2, filename = here::here("figs", "figS16.pdf"), height = 12, width = 12)
+ggsave(p2, filename = here::here("figs", "figS13.pdf"), height = 12, width = 12)
 
 # MPA Sup Fig -------------------------------------------------------------
 
@@ -286,4 +286,4 @@ p3 <- ggplot(mpas) +
 
 plot = (p1 + p2) / p3 + plot_annotation(tag_levels = "A")
 
-ggsave(plot, filename = here::here("figs", "figS15.pdf"), height = 10, width = 15)
+ggsave(plot, filename = here::here("figs", "figS12.pdf"), height = 10, width = 15)
