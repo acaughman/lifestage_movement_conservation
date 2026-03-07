@@ -110,7 +110,8 @@ connect <- connect_full %>%
     adult_relative_fished = adult_RS_fished / adult_fished_abs,
     larvae_relative_mpa = larvae_RS_mpa / larvae_mpa_abs,
     larvae_relative_fished = larvae_RS_fished / larvae_fished_abs,
-    relative_ret_imp = mpa_ret / (mpa_import + mpa_ret)
+    relative_ret_imp = mpa_ret / (mpa_import + mpa_ret),
+    relative_ret_imp_fished = fished_ret / (fished_import + fished_ret)
   ) %>%
   mutate(adult_cat = case_when(
     adult %in% c(0.5) ~ "low",
@@ -162,6 +163,10 @@ x_labs <- c(
   "high / low", "**high / medium**", "high / high"
 )
 
+shapes <- c("MPA" = 1, "Non-MPA" = 16)
+
+pd <- 0.2
+
 # Theoretical vs Realized Connectivity ------------------------------------
 
 sub_connect <- connect %>%
@@ -176,16 +181,14 @@ sub_connect <- connect %>%
 
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(adult, relative_mpa_abs, color = larval_cat), size = 3) +
-  geom_line(aes(adult, relative_mpa_abs, color = larval_cat), linewidth = 1) +
+  geom_point(aes(adult, relative_fished_abs, color = larval_cat), size = 3) +
+  geom_line(aes(adult, relative_fished_abs, color = larval_cat), linewidth = 1) +
   theme_bw(base_size = 16) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Adult Movement",
-    y = "Adult Proportion of MPA Origin Settlers ",
-    color = "Larval Movement",
-    shape = "MPA Size",
-    linetype = "MPA Size"
+    y = "Adult Proportion of Settlers ",
+    color = "Larval Movement"
   ) +
   theme(legend.position = "none") +
   scale_x_continuous(
@@ -195,16 +198,14 @@ p1 <- ggplot(sub_connect) +
 
 p2 <- ggplot(sub_connect) +
   #   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(adult, relative_ret_imp, color = larval_cat), size = 3) +
-  geom_line(aes(adult, relative_ret_imp, color = larval_cat), linewidth = 1) +
+  geom_point(aes(adult, relative_ret_imp_fished, color = larval_cat), size = 3) +
+  geom_line(aes(adult, relative_ret_imp_fished, color = larval_cat), linewidth = 1) +
   theme_bw(base_size = 16) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Adult Movement",
-    y = "Retention Proportion of MPA Origin Settlers",
-    color = "Larval Movement",
-    shape = "MPA Size",
-    linetype = "MPA Size"
+    y = "Retention Proportion of Settlers",
+    color = "Larval Movement"
   ) +
   scale_x_continuous(
     breaks = c(0.5, 8, 32),
@@ -225,7 +226,7 @@ p3 <- ggplot(sub_connect) +
   scale_color_viridis_d(end = 0.9) +
   labs(
     x = "Adult Movement",
-    y = "Adult Proportion of MPA Origin Settlers",
+    y = "Adult Proportion of Settlers",
     color = "Larval Movement",
     linetype = ""
   ) +
@@ -244,7 +245,7 @@ p3 <- ggplot(sub_connect) +
   # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  geom_point(aes(move_cat, relative_mpa_abs, color = "Retention + Import"), size = 3) +
+  geom_point(aes(move_cat, relative_fished_abs, color = "Retention + Import"), size = 3) +
   # geom_point(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3) +
   # geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
   # geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 3) +
@@ -255,7 +256,7 @@ p3 <- ggplot(sub_connect) +
   #       axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
   labs(
     x = "Movement (Adult / Larval)",
-    y = "Adult Proportion of MPA Origin Settlers ",
+    y = "Adult Proportion of Settlers",
     color = ""
   ) +
   scale_x_discrete(labels = x_labs) +
@@ -270,7 +271,7 @@ p4 <- ggplot(sub_connect) +
   # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_point(aes(fct_reorder(move_cat, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
-  geom_point(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3) +
+  geom_point(aes(move_cat, relative_fished_R, color = "Retention"), size = 3) +
   # geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
   # geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 3) +
   theme_bw(base_size = 16) +
@@ -296,7 +297,7 @@ p5 <- ggplot(sub_connect) +
   # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
   # geom_point(aes(fct_reorder(move_cat, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
   # geom_point(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3) +
-  geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
+  geom_point(aes(move_cat, relative_fished_I, color = "Import"), size = 3) +
   # geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 3) +
   theme_bw(base_size = 16) +
   # facet_wrap(~fp) +
@@ -322,7 +323,7 @@ p6 <- ggplot(sub_connect) +
   # geom_point(aes(fct_reorder(move_cat, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
   # geom_point(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3) +
   # geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
-  geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 3) +
+  geom_point(aes(move_cat, relative_fished_E, color = "Export"), size = 3) +
   theme_bw(base_size = 16) +
   # facet_wrap(~fp) +
   # theme(strip.text = element_text(face = "bold"),
@@ -341,31 +342,47 @@ p6 <- ggplot(sub_connect) +
 
 connect_mean_a <- sub_connect %>%
   group_by(adult) %>%
-  summarise(mean_set = mean(mpa_abs, na.rm = TRUE))
+  summarise(mean_set = mean(fished_abs, na.rm = TRUE))
 
 connect_mean_l <- sub_connect %>%
   group_by(larval) %>%
-  summarise(mean_set = mean(mpa_abs, na.rm = TRUE))
+  summarise(mean_set = mean(fished_abs, na.rm = TRUE))
 
 p <- (p1 + p2) / (p4 + p6 + p5) + plot_annotation(tag_levels = "A") + plot_layout(heights = c(4, 2))
 
-ggsave(p, path = here::here("figs"), file = paste0("fig2.pdf"), height = 12, width = 15)
+ggsave(p, path = here::here("figs"), file = paste0("fig2.2.pdf"), height = 12, width = 15)
 
 # Percent Settler Change --------------------------------------------------
 
-# adult high to medium 45.74032
+# adult high to medium 38.86806
 (connect_mean_a$mean_set[2] - connect_mean_a$mean_set[3]) / abs(connect_mean_a$mean_set[3]) * 100
 
-# adult medium to low 44.94529
+# adult medium to low 59.39941
 (connect_mean_a$mean_set[1] - connect_mean_a$mean_set[2]) / abs(connect_mean_a$mean_set[2]) * 100
 
-# larval high to medium 37.11947
+# larval high to medium 36.21621
 (connect_mean_l$mean_set[2] - connect_mean_l$mean_set[3]) / abs(connect_mean_l$mean_set[3]) * 100
 
-# adult medium to low 55.66341
+# adult medium to low 55.43283
 (connect_mean_l$mean_set[1] - connect_mean_l$mean_set[2]) / abs(connect_mean_l$mean_set[2]) * 100
 
 # Percent Increase calc ---------------------------------------------------
+
+eq_pop_size_sub_a <- eq_pop_size %>%
+  # filter(mpa_size == 8) %>%
+  # filter(mpa_spacing == 16) %>%
+  filter(sensitivity == "fishing") %>%
+  filter(sen_value == "med") %>%
+  group_by(adult) %>%
+  summarise(mean_adult = log(mean(base_in_out)))
+
+eq_pop_size_sub_l <- eq_pop_size %>%
+  # filter(mpa_size == 8) %>%
+  # filter(mpa_spacing == 16) %>%
+  filter(sensitivity == "fishing") %>%
+  filter(sen_value == "med") %>%
+  group_by(larval) %>%
+  summarise(mean_larval = log(mean(base_in_out)))
 
 # adult high to medium 384.8897
 (eq_pop_size_sub_a$mean_adult[2] - eq_pop_size_sub_a$mean_adult[3]) / abs(eq_pop_size_sub_a$mean_adult[3]) * 100
@@ -379,7 +396,7 @@ ggsave(p, path = here::here("figs"), file = paste0("fig2.pdf"), height = 12, wid
 # adult medium to low 2.457306
 (eq_pop_size_sub_l$mean_larval[1] - eq_pop_size_sub_l$mean_larval[2]) / abs(eq_pop_size_sub_l$mean_larval[2]) * 100
 
-# Across MPA sizes -------------------------------------------
+# Across Patch sizes -------------------------------------------
 
 sub_connect <- connect %>%
   filter(mpa_size == 2) %>%
@@ -417,10 +434,14 @@ eq_pop_size_sub <- eq_pop_size %>%
 
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_R, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_R, color = move_cat, group = move_cat), linewidth = 2) +
+  geom_point(aes(as.numeric(sen_value) - pd, relative_mpa_R, color = "Retention", shape = "MPA"), size = 4) +
+  geom_point(aes(as.numeric(sen_value) - pd, relative_fished_R, color = "Retention", shape = "Non-MPA"), size = 4) +
+  geom_segment(aes(x = as.numeric(sen_value) - pd, xend = as.numeric(sen_value) - pd, y = relative_fished_R, yend = relative_mpa_R, color = "Retention"), linewidth = 1) +
+  geom_point(aes(as.numeric(sen_value), relative_mpa_E, color = "Export", shape = "MPA"), size = 4) +
+  geom_point(aes(as.numeric(sen_value), relative_fished_E, color = "Export", shape = "Non-MPA"), size = 4) +
+  geom_segment(aes(x = as.numeric(sen_value), xend = as.numeric(sen_value), y = relative_fished_E, yend = relative_mpa_E, color = "Export"), linewidth = 1) +
   theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
+  facet_wrap(move_cat~sensitivity, scales = "free_y", ncol = 3) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
@@ -428,46 +449,57 @@ p1 <- ggplot(sub_connect) +
   ) +
   labs(
     x = "",
-    y = "Adult Proportion of Retention",
-    color = "Movement (Adult / Larval)"
+    y = "Adult Proportion of Settlers",
+    color = "",
+    shape = ""
   ) +
-  scale_color_viridis_d(end = 0.9)
+  scale_color_manual(values = colors) +
+  scale_shape_manual(values = shapes) +
+  scale_x_continuous(labels = c("low", "medium", "high"), breaks = c(1, 2, 3))
 
-p2 <- ggplot(sub_connect) +
-  geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_I, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_I, color = move_cat, group = move_cat), linewidth = 2) +
-  theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
-  theme(
-    strip.text = element_text(face = "bold"),
-    strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
-  ) +
-  labs(
-    x = "",
-    y = "Adult Proportion of Import",
-    color = "Movement (Adult / Larval)"
-  ) +
-  scale_color_viridis_d(end = 0.9)
-
-p3 <- ggplot(sub_connect) +
-  geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_E, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat), linewidth = 2) +
-  theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
-  theme(
-    strip.text = element_text(face = "bold"),
-    strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
-  ) +
-  labs(
-    x = "",
-    y = "Adult Proportion of Export",
-    color = "Movement (Adult / Larval)"
-  ) +
-  scale_color_viridis_d(end = 0.9)
+# p2 <- ggplot(sub_connect) +
+#   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
+#   geom_point(aes(sen_value, relative_mpa_I, color = move_cat, shape = "MPA"), size = 4) +
+#   # geom_line(aes(sen_value, relative_mpa_I, color = move_cat, group = move_cat), linewidth = 1) +
+#   geom_point(aes(sen_value, relative_fished_I, color = move_cat, shape = "Non-MPA"), size = 4) +
+#   geom_line(aes(sen_value, relative_fished_I, color = move_cat, group = move_cat), linewidth = 1) +
+#   theme_bw(base_size = 16) +
+#   facet_grid(~sensitivity) +
+#   theme(
+#     strip.text = element_text(face = "bold"),
+#     strip.background = element_rect(fill = "white"),
+#     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+#   ) +
+#   labs(
+#     x = "",
+#     y = "Adult Proportion of Import",
+#     color = "Movement (Adult / Larval)",
+#     shape = ""
+#   ) +
+#   scale_color_viridis_d(end = 0.9) +
+#   scale_shape_manual(values = shapes)
+# 
+# p3 <- ggplot(sub_connect) +
+#   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
+#   geom_point(aes(sen_value, relative_mpa_E, color = move_cat, shape = "MPA"), size = 4) +
+#   # geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat), linewidth = 1) +
+#   geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = "Non-MPA"), size = 4) +
+#   geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat), linewidth = 1) +
+#   theme_bw(base_size = 16) +
+#   facet_grid(~sensitivity) +
+#   theme(
+#     strip.text = element_text(face = "bold"),
+#     strip.background = element_rect(fill = "white"),
+#     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+#   ) +
+#   labs(
+#     x = "",
+#     y = "Adult Proportion of Export",
+#     color = "Movement (Adult / Larval)",
+#     shape = ""
+#   ) +
+#   scale_color_viridis_d(end = 0.9) +
+#   scale_shape_manual(values = shapes)
 
 p4 <- ggplot(eq_pop_size_sub) +
   theme_bw(base_size = 16) +
@@ -477,8 +509,8 @@ p4 <- ggplot(eq_pop_size_sub) +
     color = "Movement (Adult / Larval)"
   ) +
   geom_hline(aes(yintercept = 0), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, in_out, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, in_out, color = move_cat, group = move_cat), linewidth = 2) +
+  geom_point(aes(sen_value, in_out, color = move_cat), size = 4, shape = 1) +
+  geom_line(aes(sen_value, in_out, color = move_cat, group = move_cat), linewidth = 1) +
   theme_bw(base_size = 16) +
   facet_grid(~sensitivity) +
   theme(
@@ -488,9 +520,9 @@ p4 <- ggplot(eq_pop_size_sub) +
   ) +
   scale_color_viridis_d(end = 0.9)
 
-plot = (p4 + p1) / (p3 + plot_spacer()) + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
+plot = (p1 / p4)  + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect", heights = c(10, 1))
 
-ggsave(plot, path = here::here("figs"), file = paste0("figS2.png"), height = 10, width = 15)
+ggsave(plot, path = here::here("figs"), file = paste0("figS2.png"), height = 20, width = 12)
 
 sub_connect <- connect %>%
   filter(mpa_size == 4) %>%
@@ -528,10 +560,14 @@ eq_pop_size_sub <- eq_pop_size %>%
 
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_R, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_R, color = move_cat, group = move_cat), linewidth = 2) +
+  geom_point(aes(as.numeric(sen_value) - pd, relative_mpa_R, color = "Retention", shape = "MPA"), size = 4) +
+  geom_point(aes(as.numeric(sen_value) - pd, relative_fished_R, color = "Retention", shape = "Non-MPA"), size = 4) +
+  geom_segment(aes(x = as.numeric(sen_value) - pd, xend = as.numeric(sen_value) - pd, y = relative_fished_R, yend = relative_mpa_R, color = "Retention"), linewidth = 1) +
+  geom_point(aes(as.numeric(sen_value), relative_mpa_E, color = "Export", shape = "MPA"), size = 4) +
+  geom_point(aes(as.numeric(sen_value), relative_fished_E, color = "Export", shape = "Non-MPA"), size = 4) +
+  geom_segment(aes(x = as.numeric(sen_value), xend = as.numeric(sen_value), y = relative_fished_E, yend = relative_mpa_E, color = "Export"), linewidth = 1) +
   theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
+  facet_wrap(move_cat~sensitivity, scales = "free_y", ncol = 3) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
@@ -539,46 +575,57 @@ p1 <- ggplot(sub_connect) +
   ) +
   labs(
     x = "",
-    y = "Adult Proportion of Retention",
-    color = "Movement (Adult / Larval)"
+    y = "Adult Proportion of Settlers",
+    color = "",
+    shape = ""
   ) +
-  scale_color_viridis_d(end = 0.9)
+  scale_color_manual(values = colors) +
+  scale_shape_manual(values = shapes) +
+  scale_x_continuous(labels = c("low", "medium", "high"), breaks = c(1, 2, 3))
 
-p2 <- ggplot(sub_connect) +
-  geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_I, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_I, color = move_cat, group = move_cat), linewidth = 2) +
-  theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
-  theme(
-    strip.text = element_text(face = "bold"),
-    strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
-  ) +
-  labs(
-    x = "",
-    y = "Adult Proportion of Import",
-    color = "Movement (Adult / Larval)"
-  ) +
-  scale_color_viridis_d(end = 0.9)
-
-p3 <- ggplot(sub_connect) +
-  geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_E, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat), linewidth = 2) +
-  theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
-  theme(
-    strip.text = element_text(face = "bold"),
-    strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
-  ) +
-  labs(
-    x = "",
-    y = "Adult Proportion of Export",
-    color = "Movement (Adult / Larval)"
-  ) +
-  scale_color_viridis_d(end = 0.9)
+# p2 <- ggplot(sub_connect) +
+#   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
+#   geom_point(aes(sen_value, relative_mpa_I, color = move_cat, shape = "MPA"), size = 4) +
+#   # geom_line(aes(sen_value, relative_mpa_I, color = move_cat, group = move_cat), linewidth = 1) +
+#   geom_point(aes(sen_value, relative_fished_I, color = move_cat, shape = "Non-MPA"), size = 4) +
+#   geom_line(aes(sen_value, relative_fished_I, color = move_cat, group = move_cat), linewidth = 1) +
+#   theme_bw(base_size = 16) +
+#   facet_grid(~sensitivity) +
+#   theme(
+#     strip.text = element_text(face = "bold"),
+#     strip.background = element_rect(fill = "white"),
+#     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+#   ) +
+#   labs(
+#     x = "",
+#     y = "Adult Proportion of Import",
+#     color = "Movement (Adult / Larval)",
+#     shape = ""
+#   ) +
+#   scale_color_viridis_d(end = 0.9) +
+#   scale_shape_manual(values = shapes)
+# 
+# p3 <- ggplot(sub_connect) +
+#   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
+#   geom_point(aes(sen_value, relative_mpa_E, color = move_cat, shape = "MPA"), size = 4) +
+#   # geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat), linewidth = 1) +
+#   geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = "Non-MPA"), size = 4) +
+#   geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat), linewidth = 1) +
+#   theme_bw(base_size = 16) +
+#   facet_grid(~sensitivity) +
+#   theme(
+#     strip.text = element_text(face = "bold"),
+#     strip.background = element_rect(fill = "white"),
+#     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+#   ) +
+#   labs(
+#     x = "",
+#     y = "Adult Proportion of Export",
+#     color = "Movement (Adult / Larval)",
+#     shape = ""
+#   ) +
+#   scale_color_viridis_d(end = 0.9) +
+#   scale_shape_manual(values = shapes)
 
 p4 <- ggplot(eq_pop_size_sub) +
   theme_bw(base_size = 16) +
@@ -588,8 +635,8 @@ p4 <- ggplot(eq_pop_size_sub) +
     color = "Movement (Adult / Larval)"
   ) +
   geom_hline(aes(yintercept = 0), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, in_out, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, in_out, color = move_cat, group = move_cat), linewidth = 2) +
+  geom_point(aes(sen_value, in_out, color = move_cat), size = 4, shape = 1) +
+  geom_line(aes(sen_value, in_out, color = move_cat, group = move_cat), linewidth = 1) +
   theme_bw(base_size = 16) +
   facet_grid(~sensitivity) +
   theme(
@@ -599,9 +646,9 @@ p4 <- ggplot(eq_pop_size_sub) +
   ) +
   scale_color_viridis_d(end = 0.9)
 
-plot = (p4 + p1) / (p3 + plot_spacer()) + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
+plot = (p1 / p4)  + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect", heights = c(10, 1))
 
-ggsave(plot, path = here::here("figs"), file = paste0("figS3.png"), height = 10, width = 15)
+ggsave(plot, path = here::here("figs"), file = paste0("figS3.png"), height = 20, width = 12) 
 
 sub_connect <- connect %>%
   filter(mpa_size == 4) %>%
@@ -639,10 +686,17 @@ eq_pop_size_sub <- eq_pop_size %>%
 
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_R, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_R, color = move_cat, group = move_cat), linewidth = 2) +
+  geom_point(aes(as.numeric(sen_value) - pd, relative_mpa_R, color = "Retention", shape = "MPA"), size = 4) +
+  geom_point(aes(as.numeric(sen_value) - pd, relative_fished_R, color = "Retention", shape = "Non-MPA"), size = 4) +
+  geom_segment(aes(x = as.numeric(sen_value) - pd, xend = as.numeric(sen_value) - pd, y = relative_fished_R, yend = relative_mpa_R, color = "Retention"), linewidth = 1) +
+  geom_point(aes(as.numeric(sen_value), relative_mpa_E, color = "Export", shape = "MPA"), size = 4) +
+  geom_point(aes(as.numeric(sen_value), relative_fished_E, color = "Export", shape = "Non-MPA"), size = 4) +
+  geom_segment(aes(x = as.numeric(sen_value), xend = as.numeric(sen_value), y = relative_fished_E, yend = relative_mpa_E, color = "Export"), linewidth = 1) +
+  geom_point(aes(as.numeric(sen_value) + pd, relative_mpa_I, color = "Import", shape = "MPA"), size = 4) +
+  geom_point(aes(as.numeric(sen_value) + pd, relative_fished_I, color = "Import", shape = "Non-MPA"), size = 4) +
+  geom_segment(aes(x = as.numeric(sen_value) + pd, xend = as.numeric(sen_value) + pd, y = relative_fished_I, yend = relative_mpa_I, color = "Import"), linewidth = 1) +
   theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
+  facet_wrap(move_cat~sensitivity, scales = "free_y", ncol = 3) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
@@ -650,46 +704,57 @@ p1 <- ggplot(sub_connect) +
   ) +
   labs(
     x = "",
-    y = "Adult Proportion of Retention",
-    color = "Movement (Adult / Larval)"
+    y = "Adult Proportion of Settlers",
+    color = "",
+    shape = ""
   ) +
-  scale_color_viridis_d(end = 0.9)
+  scale_color_manual(values = colors) +
+  scale_shape_manual(values = shapes) +
+  scale_x_continuous(labels = c("low", "medium", "high"), breaks = c(1, 2, 3))
 
-p2 <- ggplot(sub_connect) +
-  geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_I, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_I, color = move_cat, group = move_cat), linewidth = 2) +
-  theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
-  theme(
-    strip.text = element_text(face = "bold"),
-    strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
-  ) +
-  labs(
-    x = "",
-    y = "Adult Proportion of Import",
-    color = "Movement (Adult / Larval)"
-  ) +
-  scale_color_viridis_d(end = 0.9)
-
-p3 <- ggplot(sub_connect) +
-  geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_E, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat), linewidth = 2) +
-  theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
-  theme(
-    strip.text = element_text(face = "bold"),
-    strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
-  ) +
-  labs(
-    x = "",
-    y = "Adult Proportion of Export",
-    color = "Movement (Adult / Larval)"
-  ) +
-  scale_color_viridis_d(end = 0.9)
+# p2 <- ggplot(sub_connect) +
+#   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
+#   geom_point(aes(sen_value, relative_mpa_I, color = move_cat, shape = "MPA"), size = 4) +
+#   # geom_line(aes(sen_value, relative_mpa_I, color = move_cat, group = move_cat), linewidth = 1) +
+#   geom_point(aes(sen_value, relative_fished_I, color = move_cat, shape = "Non-MPA"), size = 4) +
+#   geom_line(aes(sen_value, relative_fished_I, color = move_cat, group = move_cat), linewidth = 1) +
+#   theme_bw(base_size = 16) +
+#   facet_grid(~sensitivity) +
+#   theme(
+#     strip.text = element_text(face = "bold"),
+#     strip.background = element_rect(fill = "white"),
+#     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+#   ) +
+#   labs(
+#     x = "",
+#     y = "Adult Proportion of Import",
+#     color = "Movement (Adult / Larval)",
+#     shape = ""
+#   ) +
+#   scale_color_viridis_d(end = 0.9) +
+#   scale_shape_manual(values = shapes)
+# 
+# p3 <- ggplot(sub_connect) +
+#   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
+#   geom_point(aes(sen_value, relative_mpa_E, color = move_cat, shape = "MPA"), size = 4) +
+#   # geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat), linewidth = 1) +
+#   geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = "Non-MPA"), size = 4) +
+#   geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat), linewidth = 1) +
+#   theme_bw(base_size = 16) +
+#   facet_grid(~sensitivity) +
+#   theme(
+#     strip.text = element_text(face = "bold"),
+#     strip.background = element_rect(fill = "white"),
+#     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+#   ) +
+#   labs(
+#     x = "",
+#     y = "Adult Proportion of Export",
+#     color = "Movement (Adult / Larval)",
+#     shape = ""
+#   ) +
+#   scale_color_viridis_d(end = 0.9) +
+#   scale_shape_manual(values = shapes)
 
 p4 <- ggplot(eq_pop_size_sub) +
   theme_bw(base_size = 16) +
@@ -699,8 +764,8 @@ p4 <- ggplot(eq_pop_size_sub) +
     color = "Movement (Adult / Larval)"
   ) +
   geom_hline(aes(yintercept = 0), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, in_out, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, in_out, color = move_cat, group = move_cat), linewidth = 2) +
+  geom_point(aes(sen_value, in_out, color = move_cat), size = 4, shape = 1) +
+  geom_line(aes(sen_value, in_out, color = move_cat, group = move_cat), linewidth = 1) +
   theme_bw(base_size = 16) +
   facet_grid(~sensitivity) +
   theme(
@@ -710,9 +775,9 @@ p4 <- ggplot(eq_pop_size_sub) +
   ) +
   scale_color_viridis_d(end = 0.9)
 
-plot = (p4 + p1) / (p3 + p2) + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
+plot = (p1 / p4)  + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect", heights = c(10, 1))
 
-ggsave(plot, path = here::here("figs"), file = paste0("figS4.png"), height = 10, width = 15)
+ggsave(plot, path = here::here("figs"), file = paste0("figS4.png"), height = 20, width = 12) 
 
 sub_connect <- connect %>%
   filter(mpa_size == 4) %>%
@@ -750,10 +815,17 @@ eq_pop_size_sub <- eq_pop_size %>%
 
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_R, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_R, color = move_cat, group = move_cat), linewidth = 2) +
+  geom_point(aes(as.numeric(sen_value) - pd, relative_mpa_R, color = "Retention", shape = "MPA"), size = 4) +
+  geom_point(aes(as.numeric(sen_value) - pd, relative_fished_R, color = "Retention", shape = "Non-MPA"), size = 4) +
+  geom_segment(aes(x = as.numeric(sen_value) - pd, xend = as.numeric(sen_value) - pd, y = relative_fished_R, yend = relative_mpa_R, color = "Retention"), linewidth = 1) +
+  geom_point(aes(as.numeric(sen_value), relative_mpa_E, color = "Export", shape = "MPA"), size = 4) +
+  geom_point(aes(as.numeric(sen_value), relative_fished_E, color = "Export", shape = "Non-MPA"), size = 4) +
+  geom_segment(aes(x = as.numeric(sen_value), xend = as.numeric(sen_value), y = relative_fished_E, yend = relative_mpa_E, color = "Export"), linewidth = 1) +
+  geom_point(aes(as.numeric(sen_value) + pd, relative_mpa_I, color = "Import", shape = "MPA"), size = 4) +
+  geom_point(aes(as.numeric(sen_value) + pd, relative_fished_I, color = "Import", shape = "Non-MPA"), size = 4) +
+  geom_segment(aes(x = as.numeric(sen_value) + pd, xend = as.numeric(sen_value) + pd, y = relative_fished_I, yend = relative_mpa_I, color = "Import"), linewidth = 1) +
   theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
+  facet_wrap(move_cat~sensitivity, scales = "free_y", ncol = 3) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
@@ -761,46 +833,57 @@ p1 <- ggplot(sub_connect) +
   ) +
   labs(
     x = "",
-    y = "Adult Proportion of Retention",
-    color = "Movement (Adult / Larval)"
+    y = "Adult Proportion of Settlers",
+    color = "",
+    shape = ""
   ) +
-  scale_color_viridis_d(end = 0.9)
+  scale_color_manual(values = colors) +
+  scale_shape_manual(values = shapes) +
+  scale_x_continuous(labels = c("low", "medium", "high"), breaks = c(1, 2, 3))
 
-p2 <- ggplot(sub_connect) +
-  geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_I, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_I, color = move_cat, group = move_cat), linewidth = 2) +
-  theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
-  theme(
-    strip.text = element_text(face = "bold"),
-    strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
-  ) +
-  labs(
-    x = "",
-    y = "Adult Proportion of Import",
-    color = "Movement (Adult / Larval)"
-  ) +
-  scale_color_viridis_d(end = 0.9)
-
-p3 <- ggplot(sub_connect) +
-  geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_E, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat), linewidth = 2) +
-  theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
-  theme(
-    strip.text = element_text(face = "bold"),
-    strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
-  ) +
-  labs(
-    x = "",
-    y = "Adult Proportion of Export",
-    color = "Movement (Adult / Larval)"
-  ) +
-  scale_color_viridis_d(end = 0.9)
+# p2 <- ggplot(sub_connect) +
+#   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
+#   geom_point(aes(sen_value, relative_mpa_I, color = move_cat, shape = "MPA"), size = 4) +
+#   # geom_line(aes(sen_value, relative_mpa_I, color = move_cat, group = move_cat), linewidth = 1) +
+#   geom_point(aes(sen_value, relative_fished_I, color = move_cat, shape = "Non-MPA"), size = 4) +
+#   geom_line(aes(sen_value, relative_fished_I, color = move_cat, group = move_cat), linewidth = 1) +
+#   theme_bw(base_size = 16) +
+#   facet_grid(~sensitivity) +
+#   theme(
+#     strip.text = element_text(face = "bold"),
+#     strip.background = element_rect(fill = "white"),
+#     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+#   ) +
+#   labs(
+#     x = "",
+#     y = "Adult Proportion of Import",
+#     color = "Movement (Adult / Larval)",
+#     shape = ""
+#   ) +
+#   scale_color_viridis_d(end = 0.9) +
+#   scale_shape_manual(values = shapes)
+# 
+# p3 <- ggplot(sub_connect) +
+#   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
+#   geom_point(aes(sen_value, relative_mpa_E, color = move_cat, shape = "MPA"), size = 4) +
+#   # geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat), linewidth = 1) +
+#   geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = "Non-MPA"), size = 4) +
+#   geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat), linewidth = 1) +
+#   theme_bw(base_size = 16) +
+#   facet_grid(~sensitivity) +
+#   theme(
+#     strip.text = element_text(face = "bold"),
+#     strip.background = element_rect(fill = "white"),
+#     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+#   ) +
+#   labs(
+#     x = "",
+#     y = "Adult Proportion of Export",
+#     color = "Movement (Adult / Larval)",
+#     shape = ""
+#   ) +
+#   scale_color_viridis_d(end = 0.9) +
+#   scale_shape_manual(values = shapes)
 
 p4 <- ggplot(eq_pop_size_sub) +
   theme_bw(base_size = 16) +
@@ -810,8 +893,8 @@ p4 <- ggplot(eq_pop_size_sub) +
     color = "Movement (Adult / Larval)"
   ) +
   geom_hline(aes(yintercept = 0), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, in_out, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, in_out, color = move_cat, group = move_cat), linewidth = 2) +
+  geom_point(aes(sen_value, in_out, color = move_cat), size = 4, shape = 1) +
+  geom_line(aes(sen_value, in_out, color = move_cat, group = move_cat), linewidth = 1) +
   theme_bw(base_size = 16) +
   facet_grid(~sensitivity) +
   theme(
@@ -821,9 +904,9 @@ p4 <- ggplot(eq_pop_size_sub) +
   ) +
   scale_color_viridis_d(end = 0.9)
 
-plot = (p4 + p1) / (p3 + p2) + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
+plot = (p1 / p4)  + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect", heights = c(10, 1))
 
-ggsave(plot, path = here::here("figs"), file = paste0("figS5.png"), height = 10, width = 15)
+ggsave(plot, path = here::here("figs"), file = paste0("figS5.png"), height = 20, width = 12) 
 
 sub_connect <- connect %>%
   filter(mpa_size == 4) %>%
@@ -861,10 +944,17 @@ eq_pop_size_sub <- eq_pop_size %>%
 
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_R, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_R, color = move_cat, group = move_cat), linewidth = 2) +
+  geom_point(aes(as.numeric(sen_value) - pd, relative_mpa_R, color = "Retention", shape = "MPA"), size = 4) +
+  geom_point(aes(as.numeric(sen_value) - pd, relative_fished_R, color = "Retention", shape = "Non-MPA"), size = 4) +
+  geom_segment(aes(x = as.numeric(sen_value) - pd, xend = as.numeric(sen_value) - pd, y = relative_fished_R, yend = relative_mpa_R, color = "Retention"), linewidth = 1) +
+  geom_point(aes(as.numeric(sen_value), relative_mpa_E, color = "Export", shape = "MPA"), size = 4) +
+  geom_point(aes(as.numeric(sen_value), relative_fished_E, color = "Export", shape = "Non-MPA"), size = 4) +
+  geom_segment(aes(x = as.numeric(sen_value), xend = as.numeric(sen_value), y = relative_fished_E, yend = relative_mpa_E, color = "Export"), linewidth = 1) +
+  geom_point(aes(as.numeric(sen_value) + pd, relative_mpa_I, color = "Import", shape = "MPA"), size = 4) +
+  geom_point(aes(as.numeric(sen_value) + pd, relative_fished_I, color = "Import", shape = "Non-MPA"), size = 4) +
+  geom_segment(aes(x = as.numeric(sen_value) + pd, xend = as.numeric(sen_value) + pd, y = relative_fished_I, yend = relative_mpa_I, color = "Import"), linewidth = 1) +
   theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
+  facet_wrap(move_cat~sensitivity, scales = "free_y", ncol = 3) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
@@ -872,46 +962,57 @@ p1 <- ggplot(sub_connect) +
   ) +
   labs(
     x = "",
-    y = "Adult Proportion of Retention",
-    color = "Movement (Adult / Larval)"
+    y = "Adult Proportion of Settlers",
+    color = "",
+    shape = ""
   ) +
-  scale_color_viridis_d(end = 0.9)
+  scale_color_manual(values = colors) +
+  scale_shape_manual(values = shapes) +
+  scale_x_continuous(labels = c("low", "medium", "high"), breaks = c(1, 2, 3))
 
-p2 <- ggplot(sub_connect) +
-  geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_I, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_I, color = move_cat, group = move_cat), linewidth = 2) +
-  theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
-  theme(
-    strip.text = element_text(face = "bold"),
-    strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
-  ) +
-  labs(
-    x = "",
-    y = "Adult Proportion of Import",
-    color = "Movement (Adult / Larval)"
-  ) +
-  scale_color_viridis_d(end = 0.9)
-
-p3 <- ggplot(sub_connect) +
-  geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_E, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat), linewidth = 2) +
-  theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
-  theme(
-    strip.text = element_text(face = "bold"),
-    strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
-  ) +
-  labs(
-    x = "",
-    y = "Adult Proportion of Export",
-    color = "Movement (Adult / Larval)"
-  ) +
-  scale_color_viridis_d(end = 0.9)
+# p2 <- ggplot(sub_connect) +
+#   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
+#   geom_point(aes(sen_value, relative_mpa_I, color = move_cat, shape = "MPA"), size = 4) +
+#   # geom_line(aes(sen_value, relative_mpa_I, color = move_cat, group = move_cat), linewidth = 1) +
+#   geom_point(aes(sen_value, relative_fished_I, color = move_cat, shape = "Non-MPA"), size = 4) +
+#   geom_line(aes(sen_value, relative_fished_I, color = move_cat, group = move_cat), linewidth = 1) +
+#   theme_bw(base_size = 16) +
+#   facet_grid(~sensitivity) +
+#   theme(
+#     strip.text = element_text(face = "bold"),
+#     strip.background = element_rect(fill = "white"),
+#     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+#   ) +
+#   labs(
+#     x = "",
+#     y = "Adult Proportion of Import",
+#     color = "Movement (Adult / Larval)",
+#     shape = ""
+#   ) +
+#   scale_color_viridis_d(end = 0.9) +
+#   scale_shape_manual(values = shapes)
+# 
+# p3 <- ggplot(sub_connect) +
+#   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
+#   geom_point(aes(sen_value, relative_mpa_E, color = move_cat, shape = "MPA"), size = 4) +
+#   # geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat), linewidth = 1) +
+#   geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = "Non-MPA"), size = 4) +
+#   geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat), linewidth = 1) +
+#   theme_bw(base_size = 16) +
+#   facet_grid(~sensitivity) +
+#   theme(
+#     strip.text = element_text(face = "bold"),
+#     strip.background = element_rect(fill = "white"),
+#     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+#   ) +
+#   labs(
+#     x = "",
+#     y = "Adult Proportion of Export",
+#     color = "Movement (Adult / Larval)",
+#     shape = ""
+#   ) +
+#   scale_color_viridis_d(end = 0.9) +
+#   scale_shape_manual(values = shapes)
 
 p4 <- ggplot(eq_pop_size_sub) +
   theme_bw(base_size = 16) +
@@ -921,8 +1022,8 @@ p4 <- ggplot(eq_pop_size_sub) +
     color = "Movement (Adult / Larval)"
   ) +
   geom_hline(aes(yintercept = 0), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, in_out, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, in_out, color = move_cat, group = move_cat), linewidth = 2) +
+  geom_point(aes(sen_value, in_out, color = move_cat), size = 4, shape = 1) +
+  geom_line(aes(sen_value, in_out, color = move_cat, group = move_cat), linewidth = 1) +
   theme_bw(base_size = 16) +
   facet_grid(~sensitivity) +
   theme(
@@ -932,9 +1033,9 @@ p4 <- ggplot(eq_pop_size_sub) +
   ) +
   scale_color_viridis_d(end = 0.9)
 
-plot = (p4 + p1) / (p3 + p2) + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
+plot = (p1 / p4)  + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect", heights = c(10, 1))
 
-ggsave(plot, path = here::here("figs"), file = paste0("figS6.png"), height = 10, width = 15)
+ggsave(plot, path = here::here("figs"), file = paste0("figS6.png"), height = 20, width = 12) 
 
 sub_connect <- connect %>%
   filter(mpa_size == 8) %>%
@@ -972,10 +1073,14 @@ eq_pop_size_sub <- eq_pop_size %>%
 
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_R, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_R, color = move_cat, group = move_cat), linewidth = 2) +
+  geom_point(aes(as.numeric(sen_value) - pd, relative_mpa_R, color = "Retention", shape = "MPA"), size = 4) +
+  geom_point(aes(as.numeric(sen_value) - pd, relative_fished_R, color = "Retention", shape = "Non-MPA"), size = 4) +
+  geom_segment(aes(x = as.numeric(sen_value) - pd, xend = as.numeric(sen_value) - pd, y = relative_fished_R, yend = relative_mpa_R, color = "Retention"), linewidth = 1) +
+  geom_point(aes(as.numeric(sen_value), relative_mpa_E, color = "Export", shape = "MPA"), size = 4) +
+  geom_point(aes(as.numeric(sen_value), relative_fished_E, color = "Export", shape = "Non-MPA"), size = 4) +
+  geom_segment(aes(x = as.numeric(sen_value), xend = as.numeric(sen_value), y = relative_fished_E, yend = relative_mpa_E, color = "Export"), linewidth = 1) +
   theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
+  facet_wrap(move_cat~sensitivity, scales = "free_y", ncol = 3) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
@@ -983,46 +1088,57 @@ p1 <- ggplot(sub_connect) +
   ) +
   labs(
     x = "",
-    y = "Adult Proportion of Retention",
-    color = "Movement (Adult / Larval)"
+    y = "Adult Proportion of Settlers",
+    color = "",
+    shape = ""
   ) +
-  scale_color_viridis_d(end = 0.9)
+  scale_color_manual(values = colors) +
+  scale_shape_manual(values = shapes) +
+  scale_x_continuous(labels = c("low", "medium", "high"), breaks = c(1, 2, 3))
 
-p2 <- ggplot(sub_connect) +
-  geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_I, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_I, color = move_cat, group = move_cat), linewidth = 2) +
-  theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
-  theme(
-    strip.text = element_text(face = "bold"),
-    strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
-  ) +
-  labs(
-    x = "",
-    y = "Adult Proportion of Import",
-    color = "Movement (Adult / Larval)"
-  ) +
-  scale_color_viridis_d(end = 0.9)
-
-p3 <- ggplot(sub_connect) +
-  geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_E, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat), linewidth = 2) +
-  theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
-  theme(
-    strip.text = element_text(face = "bold"),
-    strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
-  ) +
-  labs(
-    x = "",
-    y = "Adult Proportion of Export",
-    color = "Movement (Adult / Larval)"
-  ) +
-  scale_color_viridis_d(end = 0.9)
+# p2 <- ggplot(sub_connect) +
+#   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
+#   geom_point(aes(sen_value, relative_mpa_I, color = move_cat, shape = "MPA"), size = 4) +
+#   # geom_line(aes(sen_value, relative_mpa_I, color = move_cat, group = move_cat), linewidth = 1) +
+#   geom_point(aes(sen_value, relative_fished_I, color = move_cat, shape = "Non-MPA"), size = 4) +
+#   geom_line(aes(sen_value, relative_fished_I, color = move_cat, group = move_cat), linewidth = 1) +
+#   theme_bw(base_size = 16) +
+#   facet_grid(~sensitivity) +
+#   theme(
+#     strip.text = element_text(face = "bold"),
+#     strip.background = element_rect(fill = "white"),
+#     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+#   ) +
+#   labs(
+#     x = "",
+#     y = "Adult Proportion of Import",
+#     color = "Movement (Adult / Larval)",
+#     shape = ""
+#   ) +
+#   scale_color_viridis_d(end = 0.9) +
+#   scale_shape_manual(values = shapes)
+# 
+# p3 <- ggplot(sub_connect) +
+#   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
+#   geom_point(aes(sen_value, relative_mpa_E, color = move_cat, shape = "MPA"), size = 4) +
+#   # geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat), linewidth = 1) +
+#   geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = "Non-MPA"), size = 4) +
+#   geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat), linewidth = 1) +
+#   theme_bw(base_size = 16) +
+#   facet_grid(~sensitivity) +
+#   theme(
+#     strip.text = element_text(face = "bold"),
+#     strip.background = element_rect(fill = "white"),
+#     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+#   ) +
+#   labs(
+#     x = "",
+#     y = "Adult Proportion of Export",
+#     color = "Movement (Adult / Larval)",
+#     shape = ""
+#   ) +
+#   scale_color_viridis_d(end = 0.9) +
+#   scale_shape_manual(values = shapes)
 
 p4 <- ggplot(eq_pop_size_sub) +
   theme_bw(base_size = 16) +
@@ -1032,8 +1148,8 @@ p4 <- ggplot(eq_pop_size_sub) +
     color = "Movement (Adult / Larval)"
   ) +
   geom_hline(aes(yintercept = 0), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, in_out, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, in_out, color = move_cat, group = move_cat), linewidth = 2) +
+  geom_point(aes(sen_value, in_out, color = move_cat), size = 4, shape = 1) +
+  geom_line(aes(sen_value, in_out, color = move_cat, group = move_cat), linewidth = 1) +
   theme_bw(base_size = 16) +
   facet_grid(~sensitivity) +
   theme(
@@ -1043,9 +1159,9 @@ p4 <- ggplot(eq_pop_size_sub) +
   ) +
   scale_color_viridis_d(end = 0.9)
 
-plot = (p4 + p1) / (p3 + plot_spacer()) + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
+plot = (p1 / p4)  + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect", heights = c(10, 1))
 
-ggsave(plot, path = here::here("figs"), file = paste0("figS7.png"), height = 10, width = 15)
+ggsave(plot, path = here::here("figs"), file = paste0("figS7.png"), height = 20, width = 12) 
 
 sub_connect <- connect %>%
   filter(mpa_size == 8) %>%
@@ -1083,10 +1199,17 @@ eq_pop_size_sub <- eq_pop_size %>%
 
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_R, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_R, color = move_cat, group = move_cat), linewidth = 2) +
+  geom_point(aes(as.numeric(sen_value) - pd, relative_mpa_R, color = "Retention", shape = "MPA"), size = 4) +
+  geom_point(aes(as.numeric(sen_value) - pd, relative_fished_R, color = "Retention", shape = "Non-MPA"), size = 4) +
+  geom_segment(aes(x = as.numeric(sen_value) - pd, xend = as.numeric(sen_value) - pd, y = relative_fished_R, yend = relative_mpa_R, color = "Retention"), linewidth = 1) +
+  geom_point(aes(as.numeric(sen_value), relative_mpa_E, color = "Export", shape = "MPA"), size = 4) +
+  geom_point(aes(as.numeric(sen_value), relative_fished_E, color = "Export", shape = "Non-MPA"), size = 4) +
+  geom_segment(aes(x = as.numeric(sen_value), xend = as.numeric(sen_value), y = relative_fished_E, yend = relative_mpa_E, color = "Export"), linewidth = 1) +
+  geom_point(aes(as.numeric(sen_value) + pd, relative_mpa_I, color = "Import", shape = "MPA"), size = 4) +
+  geom_point(aes(as.numeric(sen_value) + pd, relative_fished_I, color = "Import", shape = "Non-MPA"), size = 4) +
+  geom_segment(aes(x = as.numeric(sen_value) + pd, xend = as.numeric(sen_value) + pd, y = relative_fished_I, yend = relative_mpa_I, color = "Import"), linewidth = 1) +
   theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
+  facet_wrap(move_cat~sensitivity, scales = "free_y", ncol = 3) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
@@ -1094,46 +1217,57 @@ p1 <- ggplot(sub_connect) +
   ) +
   labs(
     x = "",
-    y = "Adult Proportion of Retention",
-    color = "Movement (Adult / Larval)"
+    y = "Adult Proportion of Settlers",
+    color = "",
+    shape = ""
   ) +
-  scale_color_viridis_d(end = 0.9)
+  scale_color_manual(values = colors) +
+  scale_shape_manual(values = shapes) +
+  scale_x_continuous(labels = c("low", "medium", "high"), breaks = c(1, 2, 3))
 
-p2 <- ggplot(sub_connect) +
-  geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_I, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_I, color = move_cat, group = move_cat), linewidth = 2) +
-  theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
-  theme(
-    strip.text = element_text(face = "bold"),
-    strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
-  ) +
-  labs(
-    x = "",
-    y = "Adult Proportion of Import",
-    color = "Movement (Adult / Larval)"
-  ) +
-  scale_color_viridis_d(end = 0.9)
-
-p3 <- ggplot(sub_connect) +
-  geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_E, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat), linewidth = 2) +
-  theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
-  theme(
-    strip.text = element_text(face = "bold"),
-    strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
-  ) +
-  labs(
-    x = "",
-    y = "Adult Proportion of Export",
-    color = "Movement (Adult / Larval)"
-  ) +
-  scale_color_viridis_d(end = 0.9)
+# p2 <- ggplot(sub_connect) +
+#   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
+#   geom_point(aes(sen_value, relative_mpa_I, color = move_cat, shape = "MPA"), size = 4) +
+#   # geom_line(aes(sen_value, relative_mpa_I, color = move_cat, group = move_cat), linewidth = 1) +
+#   geom_point(aes(sen_value, relative_fished_I, color = move_cat, shape = "Non-MPA"), size = 4) +
+#   geom_line(aes(sen_value, relative_fished_I, color = move_cat, group = move_cat), linewidth = 1) +
+#   theme_bw(base_size = 16) +
+#   facet_grid(~sensitivity) +
+#   theme(
+#     strip.text = element_text(face = "bold"),
+#     strip.background = element_rect(fill = "white"),
+#     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+#   ) +
+#   labs(
+#     x = "",
+#     y = "Adult Proportion of Import",
+#     color = "Movement (Adult / Larval)",
+#     shape = ""
+#   ) +
+#   scale_color_viridis_d(end = 0.9) +
+#   scale_shape_manual(values = shapes)
+# 
+# p3 <- ggplot(sub_connect) +
+#   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
+#   geom_point(aes(sen_value, relative_mpa_E, color = move_cat, shape = "MPA"), size = 4) +
+#   # geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat), linewidth = 1) +
+#   geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = "Non-MPA"), size = 4) +
+#   geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat), linewidth = 1) +
+#   theme_bw(base_size = 16) +
+#   facet_grid(~sensitivity) +
+#   theme(
+#     strip.text = element_text(face = "bold"),
+#     strip.background = element_rect(fill = "white"),
+#     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+#   ) +
+#   labs(
+#     x = "",
+#     y = "Adult Proportion of Export",
+#     color = "Movement (Adult / Larval)",
+#     shape = ""
+#   ) +
+#   scale_color_viridis_d(end = 0.9) +
+#   scale_shape_manual(values = shapes)
 
 p4 <- ggplot(eq_pop_size_sub) +
   theme_bw(base_size = 16) +
@@ -1143,8 +1277,8 @@ p4 <- ggplot(eq_pop_size_sub) +
     color = "Movement (Adult / Larval)"
   ) +
   geom_hline(aes(yintercept = 0), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, in_out, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, in_out, color = move_cat, group = move_cat), linewidth = 2) +
+  geom_point(aes(sen_value, in_out, color = move_cat), size = 4, shape = 1) +
+  geom_line(aes(sen_value, in_out, color = move_cat, group = move_cat), linewidth = 1) +
   theme_bw(base_size = 16) +
   facet_grid(~sensitivity) +
   theme(
@@ -1154,9 +1288,9 @@ p4 <- ggplot(eq_pop_size_sub) +
   ) +
   scale_color_viridis_d(end = 0.9)
 
-plot = (p4 + p1) / (p3 + p2) + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
+plot = (p1 / p4)  + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect", heights = c(10, 1))
 
-ggsave(plot, path = here::here("figs"), file = paste0("figS8.png"), height = 10, width = 15)
+ggsave(plot, path = here::here("figs"), file = paste0("figS8.png"), height = 20, width = 12) 
 
 sub_connect <- connect %>%
   filter(mpa_size == 8) %>%
@@ -1194,10 +1328,17 @@ eq_pop_size_sub <- eq_pop_size %>%
 
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_R, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_R, color = move_cat, group = move_cat), linewidth = 2) +
+  geom_point(aes(as.numeric(sen_value) - pd, relative_mpa_R, color = "Retention", shape = "MPA"), size = 4) +
+  geom_point(aes(as.numeric(sen_value) - pd, relative_fished_R, color = "Retention", shape = "Non-MPA"), size = 4) +
+  geom_segment(aes(x = as.numeric(sen_value) - pd, xend = as.numeric(sen_value) - pd, y = relative_fished_R, yend = relative_mpa_R, color = "Retention"), linewidth = 1) +
+  geom_point(aes(as.numeric(sen_value), relative_mpa_E, color = "Export", shape = "MPA"), size = 4) +
+  geom_point(aes(as.numeric(sen_value), relative_fished_E, color = "Export", shape = "Non-MPA"), size = 4) +
+  geom_segment(aes(x = as.numeric(sen_value), xend = as.numeric(sen_value), y = relative_fished_E, yend = relative_mpa_E, color = "Export"), linewidth = 1) +
+  geom_point(aes(as.numeric(sen_value) + pd, relative_mpa_I, color = "Import", shape = "MPA"), size = 4) +
+  geom_point(aes(as.numeric(sen_value) + pd, relative_fished_I, color = "Import", shape = "Non-MPA"), size = 4) +
+  geom_segment(aes(x = as.numeric(sen_value) + pd, xend = as.numeric(sen_value) + pd, y = relative_fished_I, yend = relative_mpa_I, color = "Import"), linewidth = 1) +
   theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
+  facet_wrap(move_cat~sensitivity, scales = "free_y", ncol = 3) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
@@ -1205,46 +1346,57 @@ p1 <- ggplot(sub_connect) +
   ) +
   labs(
     x = "",
-    y = "Adult Proportion of Retention",
-    color = "Movement (Adult / Larval)"
+    y = "Adult Proportion of Settlers",
+    color = "",
+    shape = ""
   ) +
-  scale_color_viridis_d(end = 0.9)
+  scale_color_manual(values = colors) +
+  scale_shape_manual(values = shapes) +
+  scale_x_continuous(labels = c("low", "medium", "high"), breaks = c(1, 2, 3))
 
-p2 <- ggplot(sub_connect) +
-  geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_I, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_I, color = move_cat, group = move_cat), linewidth = 2) +
-  theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
-  theme(
-    strip.text = element_text(face = "bold"),
-    strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
-  ) +
-  labs(
-    x = "",
-    y = "Adult Proportion of Import",
-    color = "Movement (Adult / Larval)"
-  ) +
-  scale_color_viridis_d(end = 0.9)
-
-p3 <- ggplot(sub_connect) +
-  geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_E, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat), linewidth = 2) +
-  theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
-  theme(
-    strip.text = element_text(face = "bold"),
-    strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
-  ) +
-  labs(
-    x = "",
-    y = "Adult Proportion of Export",
-    color = "Movement (Adult / Larval)"
-  ) +
-  scale_color_viridis_d(end = 0.9)
+# p2 <- ggplot(sub_connect) +
+#   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
+#   geom_point(aes(sen_value, relative_mpa_I, color = move_cat, shape = "MPA"), size = 4) +
+#   # geom_line(aes(sen_value, relative_mpa_I, color = move_cat, group = move_cat), linewidth = 1) +
+#   geom_point(aes(sen_value, relative_fished_I, color = move_cat, shape = "Non-MPA"), size = 4) +
+#   geom_line(aes(sen_value, relative_fished_I, color = move_cat, group = move_cat), linewidth = 1) +
+#   theme_bw(base_size = 16) +
+#   facet_grid(~sensitivity) +
+#   theme(
+#     strip.text = element_text(face = "bold"),
+#     strip.background = element_rect(fill = "white"),
+#     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+#   ) +
+#   labs(
+#     x = "",
+#     y = "Adult Proportion of Import",
+#     color = "Movement (Adult / Larval)",
+#     shape = ""
+#   ) +
+#   scale_color_viridis_d(end = 0.9) +
+#   scale_shape_manual(values = shapes)
+# 
+# p3 <- ggplot(sub_connect) +
+#   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
+#   geom_point(aes(sen_value, relative_mpa_E, color = move_cat, shape = "MPA"), size = 4) +
+#   # geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat), linewidth = 1) +
+#   geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = "Non-MPA"), size = 4) +
+#   geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat), linewidth = 1) +
+#   theme_bw(base_size = 16) +
+#   facet_grid(~sensitivity) +
+#   theme(
+#     strip.text = element_text(face = "bold"),
+#     strip.background = element_rect(fill = "white"),
+#     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+#   ) +
+#   labs(
+#     x = "",
+#     y = "Adult Proportion of Export",
+#     color = "Movement (Adult / Larval)",
+#     shape = ""
+#   ) +
+#   scale_color_viridis_d(end = 0.9) +
+#   scale_shape_manual(values = shapes)
 
 p4 <- ggplot(eq_pop_size_sub) +
   theme_bw(base_size = 16) +
@@ -1254,8 +1406,8 @@ p4 <- ggplot(eq_pop_size_sub) +
     color = "Movement (Adult / Larval)"
   ) +
   geom_hline(aes(yintercept = 0), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, in_out, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, in_out, color = move_cat, group = move_cat), linewidth = 2) +
+  geom_point(aes(sen_value, in_out, color = move_cat), size = 4, shape = 1) +
+  geom_line(aes(sen_value, in_out, color = move_cat, group = move_cat), linewidth = 1) +
   theme_bw(base_size = 16) +
   facet_grid(~sensitivity) +
   theme(
@@ -1265,9 +1417,9 @@ p4 <- ggplot(eq_pop_size_sub) +
   ) +
   scale_color_viridis_d(end = 0.9)
 
-plot = (p4 + p1) / (p3 + p2) + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
+plot = (p1 / p4)  + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect", heights = c(10, 1))
 
-ggsave(plot, path = here::here("figs"), file = paste0("figS9.png"), height = 10, width = 15)
+ggsave(plot, path = here::here("figs"), file = paste0("figS9.png"), height = 20, width = 12) 
 
 sub_connect <- connect %>%
   filter(mpa_size == 8) %>%
@@ -1305,10 +1457,17 @@ eq_pop_size_sub <- eq_pop_size %>%
 
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_R, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_R, color = move_cat, group = move_cat), linewidth = 2) +
+  geom_point(aes(as.numeric(sen_value) - pd, relative_mpa_R, color = "Retention", shape = "MPA"), size = 4) +
+  geom_point(aes(as.numeric(sen_value) - pd, relative_fished_R, color = "Retention", shape = "Non-MPA"), size = 4) +
+  geom_segment(aes(x = as.numeric(sen_value) - pd, xend = as.numeric(sen_value) - pd, y = relative_fished_R, yend = relative_mpa_R, color = "Retention"), linewidth = 1) +
+  geom_point(aes(as.numeric(sen_value), relative_mpa_E, color = "Export", shape = "MPA"), size = 4) +
+  geom_point(aes(as.numeric(sen_value), relative_fished_E, color = "Export", shape = "Non-MPA"), size = 4) +
+  geom_segment(aes(x = as.numeric(sen_value), xend = as.numeric(sen_value), y = relative_fished_E, yend = relative_mpa_E, color = "Export"), linewidth = 1) +
+  geom_point(aes(as.numeric(sen_value) + pd, relative_mpa_I, color = "Import", shape = "MPA"), size = 4) +
+  geom_point(aes(as.numeric(sen_value) + pd, relative_fished_I, color = "Import", shape = "Non-MPA"), size = 4) +
+  geom_segment(aes(x = as.numeric(sen_value) + pd, xend = as.numeric(sen_value) + pd, y = relative_fished_I, yend = relative_mpa_I, color = "Import"), linewidth = 1) +
   theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
+  facet_wrap(move_cat~sensitivity, scales = "free_y", ncol = 3) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
@@ -1316,46 +1475,57 @@ p1 <- ggplot(sub_connect) +
   ) +
   labs(
     x = "",
-    y = "Adult Proportion of Retention",
-    color = "Movement (Adult / Larval)"
+    y = "Adult Proportion of Settlers",
+    color = "",
+    shape = ""
   ) +
-  scale_color_viridis_d(end = 0.9)
+  scale_color_manual(values = colors) +
+  scale_shape_manual(values = shapes) +
+  scale_x_continuous(labels = c("low", "medium", "high"), breaks = c(1, 2, 3))
 
-p2 <- ggplot(sub_connect) +
-  geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_I, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_I, color = move_cat, group = move_cat), linewidth = 2) +
-  theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
-  theme(
-    strip.text = element_text(face = "bold"),
-    strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
-  ) +
-  labs(
-    x = "",
-    y = "Adult Proportion of Import",
-    color = "Movement (Adult / Larval)"
-  ) +
-  scale_color_viridis_d(end = 0.9)
-
-p3 <- ggplot(sub_connect) +
-  geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_E, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat), linewidth = 2) +
-  theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
-  theme(
-    strip.text = element_text(face = "bold"),
-    strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
-  ) +
-  labs(
-    x = "",
-    y = "Adult Proportion of Export",
-    color = "Movement (Adult / Larval)"
-  ) +
-  scale_color_viridis_d(end = 0.9)
+# p2 <- ggplot(sub_connect) +
+#   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
+#   geom_point(aes(sen_value, relative_mpa_I, color = move_cat, shape = "MPA"), size = 4) +
+#   # geom_line(aes(sen_value, relative_mpa_I, color = move_cat, group = move_cat), linewidth = 1) +
+#   geom_point(aes(sen_value, relative_fished_I, color = move_cat, shape = "Non-MPA"), size = 4) +
+#   geom_line(aes(sen_value, relative_fished_I, color = move_cat, group = move_cat), linewidth = 1) +
+#   theme_bw(base_size = 16) +
+#   facet_grid(~sensitivity) +
+#   theme(
+#     strip.text = element_text(face = "bold"),
+#     strip.background = element_rect(fill = "white"),
+#     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+#   ) +
+#   labs(
+#     x = "",
+#     y = "Adult Proportion of Import",
+#     color = "Movement (Adult / Larval)",
+#     shape = ""
+#   ) +
+#   scale_color_viridis_d(end = 0.9) +
+#   scale_shape_manual(values = shapes)
+# 
+# p3 <- ggplot(sub_connect) +
+#   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
+#   geom_point(aes(sen_value, relative_mpa_E, color = move_cat, shape = "MPA"), size = 4) +
+#   # geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat), linewidth = 1) +
+#   geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = "Non-MPA"), size = 4) +
+#   geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat), linewidth = 1) +
+#   theme_bw(base_size = 16) +
+#   facet_grid(~sensitivity) +
+#   theme(
+#     strip.text = element_text(face = "bold"),
+#     strip.background = element_rect(fill = "white"),
+#     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+#   ) +
+#   labs(
+#     x = "",
+#     y = "Adult Proportion of Export",
+#     color = "Movement (Adult / Larval)",
+#     shape = ""
+#   ) +
+#   scale_color_viridis_d(end = 0.9) +
+#   scale_shape_manual(values = shapes)
 
 p4 <- ggplot(eq_pop_size_sub) +
   theme_bw(base_size = 16) +
@@ -1365,8 +1535,8 @@ p4 <- ggplot(eq_pop_size_sub) +
     color = "Movement (Adult / Larval)"
   ) +
   geom_hline(aes(yintercept = 0), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, in_out, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, in_out, color = move_cat, group = move_cat), linewidth = 2) +
+  geom_point(aes(sen_value, in_out, color = move_cat), size = 4, shape = 1) +
+  geom_line(aes(sen_value, in_out, color = move_cat, group = move_cat), linewidth = 1) +
   theme_bw(base_size = 16) +
   facet_grid(~sensitivity) +
   theme(
@@ -1376,50 +1546,20 @@ p4 <- ggplot(eq_pop_size_sub) +
   ) +
   scale_color_viridis_d(end = 0.9)
 
-plot = (p4 + p1) / (p3 + p2) + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
+plot = (p1 / p4)  + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect", heights = c(10, 1))
 
-ggsave(plot, path = here::here("figs"), file = paste0("figS10.png"), height = 10, width = 15)
-
-sub_connect <- connect %>%
-  filter(mpa_size == 16) %>%
-  filter(mpa_spacing == 0) %>%
-  mutate(sen_value = case_when(
-    sen_value == "med" ~ "medium",
-    TRUE ~ sen_value
-  )) %>%
-  mutate(sen_value = fct_relevel(sen_value, c("low", "medium", "high"))) %>%
-  mutate(sensitivity = case_when(
-    sensitivity == "fishing" ~ "Fishing",
-    sensitivity == "reproduction" ~ "Reproduction",
-    sensitivity == "density_dependence" ~ "DD"
-  ))
-
-eq_pop_size_sub <- eq_pop_size %>%
-  filter(mpa_size == 16) %>%
-  filter(mpa_spacing == 0) %>%
-  mutate(sen_value = case_when(
-    sen_value == "med" ~ "medium",
-    TRUE ~ sen_value
-  )) %>%
-  mutate(sen_value = fct_relevel(sen_value, c("low", "medium", "high"))) %>%
-  mutate(move_cat = fct_relevel(
-    move_cat,
-    "low / low", "low / medium", "low / high",
-    "medium / low", "medium / medium", "medium / high",
-    "high / low", "high / medium", "high / high"
-  ))%>%
-  mutate(sensitivity = case_when(
-    sensitivity == "fishing" ~ "Fishing",
-    sensitivity == "reproductive" ~ "Reproduction",
-    sensitivity == "density_dependence" ~ "DD"
-  ))
+ggsave(plot, path = here::here("figs"), file = paste0("figS10.png"), height = 20, width = 12) 
 
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_R, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_R, color = move_cat, group = move_cat), linewidth = 2) +
+  geom_point(aes(as.numeric(sen_value) - pd, relative_mpa_R, color = "Retention", shape = "MPA"), size = 4) +
+  geom_point(aes(as.numeric(sen_value) - pd, relative_fished_R, color = "Retention", shape = "Non-MPA"), size = 4) +
+  geom_segment(aes(x = as.numeric(sen_value) - pd, xend = as.numeric(sen_value) - pd, y = relative_fished_R, yend = relative_mpa_R, color = "Retention"), linewidth = 1) +
+  geom_point(aes(as.numeric(sen_value), relative_mpa_E, color = "Export", shape = "MPA"), size = 4) +
+  geom_point(aes(as.numeric(sen_value), relative_fished_E, color = "Export", shape = "Non-MPA"), size = 4) +
+  geom_segment(aes(x = as.numeric(sen_value), xend = as.numeric(sen_value), y = relative_fished_E, yend = relative_mpa_E, color = "Export"), linewidth = 1) +
   theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
+  facet_wrap(move_cat~sensitivity, scales = "free_y", ncol = 3) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
@@ -1427,46 +1567,57 @@ p1 <- ggplot(sub_connect) +
   ) +
   labs(
     x = "",
-    y = "Adult Proportion of Retention",
-    color = "Movement (Adult / Larval)"
+    y = "Adult Proportion of Settlers",
+    color = "",
+    shape = ""
   ) +
-  scale_color_viridis_d(end = 0.9)
+  scale_color_manual(values = colors) +
+  scale_shape_manual(values = shapes) +
+  scale_x_continuous(labels = c("low", "medium", "high"), breaks = c(1, 2, 3))
 
-p2 <- ggplot(sub_connect) +
-  geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_I, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_I, color = move_cat, group = move_cat), linewidth = 2) +
-  theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
-  theme(
-    strip.text = element_text(face = "bold"),
-    strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
-  ) +
-  labs(
-    x = "",
-    y = "Adult Proportion of Import",
-    color = "Movement (Adult / Larval)"
-  ) +
-  scale_color_viridis_d(end = 0.9)
-
-p3 <- ggplot(sub_connect) +
-  geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_mpa_E, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat), linewidth = 2) +
-  theme_bw(base_size = 16) +
-  facet_grid(~sensitivity) +
-  theme(
-    strip.text = element_text(face = "bold"),
-    strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
-  ) +
-  labs(
-    x = "",
-    y = "Adult Proportion of Export",
-    color = "Movement (Adult / Larval)"
-  ) +
-  scale_color_viridis_d(end = 0.9)
+# p2 <- ggplot(sub_connect) +
+#   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
+#   geom_point(aes(sen_value, relative_mpa_I, color = move_cat, shape = "MPA"), size = 4) +
+#   # geom_line(aes(sen_value, relative_mpa_I, color = move_cat, group = move_cat), linewidth = 1) +
+#   geom_point(aes(sen_value, relative_fished_I, color = move_cat, shape = "Non-MPA"), size = 4) +
+#   geom_line(aes(sen_value, relative_fished_I, color = move_cat, group = move_cat), linewidth = 1) +
+#   theme_bw(base_size = 16) +
+#   facet_grid(~sensitivity) +
+#   theme(
+#     strip.text = element_text(face = "bold"),
+#     strip.background = element_rect(fill = "white"),
+#     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+#   ) +
+#   labs(
+#     x = "",
+#     y = "Adult Proportion of Import",
+#     color = "Movement (Adult / Larval)",
+#     shape = ""
+#   ) +
+#   scale_color_viridis_d(end = 0.9) +
+#   scale_shape_manual(values = shapes)
+# 
+# p3 <- ggplot(sub_connect) +
+#   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
+#   geom_point(aes(sen_value, relative_mpa_E, color = move_cat, shape = "MPA"), size = 4) +
+#   # geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat), linewidth = 1) +
+#   geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = "Non-MPA"), size = 4) +
+#   geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat), linewidth = 1) +
+#   theme_bw(base_size = 16) +
+#   facet_grid(~sensitivity) +
+#   theme(
+#     strip.text = element_text(face = "bold"),
+#     strip.background = element_rect(fill = "white"),
+#     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+#   ) +
+#   labs(
+#     x = "",
+#     y = "Adult Proportion of Export",
+#     color = "Movement (Adult / Larval)",
+#     shape = ""
+#   ) +
+#   scale_color_viridis_d(end = 0.9) +
+#   scale_shape_manual(values = shapes)
 
 p4 <- ggplot(eq_pop_size_sub) +
   theme_bw(base_size = 16) +
@@ -1476,8 +1627,8 @@ p4 <- ggplot(eq_pop_size_sub) +
     color = "Movement (Adult / Larval)"
   ) +
   geom_hline(aes(yintercept = 0), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, in_out, color = move_cat), size = 4) +
-  geom_line(aes(sen_value, in_out, color = move_cat, group = move_cat), linewidth = 2) +
+  geom_point(aes(sen_value, in_out, color = move_cat), size = 4, shape = 1) +
+  geom_line(aes(sen_value, in_out, color = move_cat, group = move_cat), linewidth = 1) +
   theme_bw(base_size = 16) +
   facet_grid(~sensitivity) +
   theme(
@@ -1487,16 +1638,21 @@ p4 <- ggplot(eq_pop_size_sub) +
   ) +
   scale_color_viridis_d(end = 0.9)
 
-plot = (p4 + p1) / (p3 + plot_spacer()) + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
+plot = (p1 / p4)  + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect", heights = c(10, 1))
 
-ggsave(plot, path = here::here("figs"), file = paste0("figS11.png"), height = 10, width = 15)
+ggsave(plot, path = here::here("figs"), file = paste0("figS11.png"), height = 20, width = 12) 
 
 # Sensitivity and Connectivity ---------------------------------------
 
 sub_connect <- connect %>%
   filter(mpa_size == 8) %>%
   filter(mpa_spacing == 8) %>%
-  filter(sensitivity == "fishing") %>%
+  mutate(sensitivity = case_when(
+    sensitivity == "fishing" ~ "Fishing",
+    sensitivity == "reproduction" ~ "Reproduction",
+    sensitivity == "density_dependence" ~ "DD"
+  )) %>% 
+  filter(sensitivity == "Fishing") %>%
   mutate(sen_value = case_when(
     sen_value == "med" ~ "medium",
     TRUE ~ sen_value
@@ -1505,101 +1661,109 @@ sub_connect <- connect %>%
 
 p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_jitter(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3, width = 0.25) +
-  # geom_jitter(aes(move_cat, relative_mpa_I, color = "Import"), size = 3, width = 0.25) +
-  # geom_jitter(aes(move_cat, relative_mpa_E, color = "Export"), size = 3, width = 0.25) +
+  geom_point(aes(sen_value, relative_fished_R, color = move_cat), size = 4) +
+  geom_line(aes(sen_value, relative_fished_R, color = move_cat, group = move_cat), linewidth = 1) +
   theme_bw(base_size = 16) +
-  labs(
-    x = "",
-    y = "Adult Proportion of Retention \n Fishing Sensitivity",
-    color = ""
-  ) +
-  scale_x_discrete(labels = x_labs) +
-  facet_wrap(~sen_value, ncol = 3) +
-  scale_color_manual(values = colors) +
+  facet_grid(~sensitivity) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
   ) +
-  theme(axis.text.x = ggtext::element_markdown())
+  labs(
+    x = "",
+    y = "Adult Proportion of Retention",
+    color = "Movement (Adult / Larval)"
+  ) +
+  scale_color_viridis_d(end = 0.9) 
 
 p2 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  # geom_jitter(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3, width = 0.25) +
-  geom_jitter(aes(move_cat, relative_mpa_I, color = "Import"), size = 3, width = 0.25) +
-  # geom_jitter(aes(move_cat, relative_mpa_E, color = "Export"), size = 3, width = 0.25) +
+  geom_point(aes(sen_value, relative_fished_I, color = move_cat), size = 4) +
+  geom_line(aes(sen_value, relative_fished_I, color = move_cat, group = move_cat), linewidth = 1) +
   theme_bw(base_size = 16) +
-  labs(
-    x = "Movement (Adult / Larval)",
-    y = "Adult Proportion of Import \n Fishing Sensitivity",
-    color = ""
-  ) +
-  scale_x_discrete(labels = x_labs) +
-  facet_wrap(~sen_value, ncol = 3) +
-  scale_color_manual(values = colors) +
+  facet_grid(~sensitivity) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
   ) +
-  theme(axis.text.x = ggtext::element_markdown())
+  labs(
+    x = "",
+    y = "Adult Proportion of Import",
+    color = "Movement (Adult / Larval)"
+  ) +
+  scale_color_viridis_d(end = 0.9) 
 
 p3 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  # geom_jitter(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3, width = 0.25) +
-  # geom_jitter(aes(move_cat, relative_mpa_I, color = "Import"), size = 3, width = 0.25) +
-  geom_jitter(aes(move_cat, relative_mpa_E, color = "Export"), size = 3, width = 0.25) +
+  geom_point(aes(sen_value, relative_fished_E, color = move_cat), size = 4) +
+  geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat), linewidth = 1) +
   theme_bw(base_size = 16) +
+  facet_grid(~sensitivity) +
+  theme(
+    strip.text = element_text(face = "bold"),
+    strip.background = element_rect(fill = "white"),
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  ) +
   labs(
     x = "",
-    y = "Adult Proportion of Export \n Fishing Sensitivity",
-    color = ""
+    y = "Adult Proportion of Export",
+    color = "Movement (Adult / Larval)"
   ) +
-  facet_wrap(~sen_value, ncol = 3) +
-  scale_color_manual(values = colors) +
-  scale_x_discrete(labels = x_labs) +
-  theme(
-    strip.text = element_text(face = "bold"),
-    strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
-  ) +
-  theme(axis.text.x = ggtext::element_markdown())
+  scale_color_viridis_d(end = 0.9) 
+
+ggsave(p1 / p3 / p2 + plot_annotation(tag_levels = "A"), path = here::here("figs"), file = paste0("fig3.pdf"), height = 15, width = 10)
+
+# Patch Size Connectivity --------------------------------------------------------------
 
 sub_connect <- connect %>%
-  filter(mpa_size == 8) %>%
-  filter(mpa_spacing == 8) %>%
-  filter(sensitivity == "reproduction") %>%
-  mutate(sen_value = case_when(
-    sen_value == "med" ~ "medium",
-    TRUE ~ sen_value
-  )) %>%
-  mutate(sen_value = fct_relevel(sen_value, c("low", "medium", "high")))
+  filter(mpa_size %in% c(8)) %>%
+  filter(sensitivity == "fishing") %>%
+  filter(sen_value == "med") %>%
+  filter(mpa_spacing != 0) %>%
+  filter(mpa_spacing != 2)
 
-p4 <- ggplot(sub_connect) +
+p1 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  # geom_jitter(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3, width = 0.25) +
-  geom_jitter(aes(move_cat, relative_mpa_I, color = "Import"), size = 3, width = 0.25) +
-  # geom_jitter(aes(move_cat, relative_mpa_E, color = "Export"), size = 3, width = 0.25) +
+  geom_point(aes(mpa_spacing, relative_fished_abs, color = move_cat), size = 3) +
+  geom_line(aes(mpa_spacing, relative_fished_abs, color = move_cat, group = as.factor(move_cat), linetype = ratio_cat), linewidth = 1) +
   theme_bw(base_size = 16) +
+  # facet_wrap(~mpa_size)
   labs(
-    x = "Movement (Adult / Larval)",
-    y = "Adult Proportion of Import \n Reproduction Sensitivity",
-    color = ""
+    x = "Patch Spacing (# grid cells)",
+    y = "Adult Proportion of Settlers ",
+    color = "Movement (Adult / Larval)",
+    linetype = ""
   ) +
-  scale_x_discrete(labels = x_labs) +
-  facet_wrap(~sen_value, ncol = 3) +
-  scale_color_manual(values = colors) +
-  theme(
-    strip.text = element_text(face = "bold"),
-    strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+  scale_color_viridis_d(end = 0.9) +
+  scale_linetype_manual(values = c("solid", "dotted", "dashed"))
+
+sub_connect <- connect %>%
+  filter(mpa_spacing %in% c(8)) %>%
+  filter(sensitivity == "fishing") %>%
+  filter(sen_value == "med")
+
+p2 <- ggplot(sub_connect) +
+  geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
+  geom_point(aes(mpa_size * mpa_size, relative_fished_abs, color = move_cat), size = 3) +
+  geom_line(aes(mpa_size * mpa_size, relative_fished_abs, color = move_cat, group = as.factor(move_cat), linetype = ratio_cat), linewidth = 1) +
+  theme_bw(base_size = 16) +
+  # facet_wrap(~mpa_size)
+  labs(
+    x = "Patch Size (# grid cells)",
+    y = "Adult Proportion of Settlers ",
+    color = "Movement (Adult / Larval)",
+    linetype = ""
   ) +
-  theme(axis.text.x = ggtext::element_markdown())
+  scale_color_viridis_d(end = 0.9) +
+  scale_linetype_manual(values = c("solid", "dotted", "dashed"))
 
-ggsave(p1 / p3 / p2 / p4 + plot_annotation(tag_levels = "A"), path = here::here("figs"), file = paste0("fig3.pdf"), height = 20, width = 10)
+plot <- p2 / p1 + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
 
-# MPA Design Connectivity --------------------------------------------------------------
+ggsave(plot, path = here::here("figs"), file = paste0("fig4.pdf"), height = 12, width = 10)
+
+# MPA Design In/out --------------------------------------------------------------
 
 sub_connect <- connect %>%
   filter(mpa_size %in% c(8)) %>%
@@ -1616,15 +1780,15 @@ p1 <- ggplot(sub_connect) +
   # facet_wrap(~mpa_size)
   labs(
     x = "MPA Spacing (# grid cells)",
-    y = "Adult Proportion of MPA Origin Settlers ",
+    y = "Adult Proportion of Settlers ",
     color = "Movement (Adult / Larval)",
     linetype = ""
   ) +
   scale_color_viridis_d(end = 0.9) +
-  scale_linetype_manual(values = c("solid", "dotted", "dashed"))
+  scale_linetype_manual(values = c("solid", "dotted", "dashed")) 
 
 sub_connect <- connect %>%
-  filter(mpa_spacing %in% c(0)) %>%
+  filter(mpa_spacing %in% c(8)) %>%
   filter(sensitivity == "fishing") %>%
   filter(sen_value == "med")
 
@@ -1636,18 +1800,13 @@ p2 <- ggplot(sub_connect) +
   # facet_wrap(~mpa_size)
   labs(
     x = "MPA Size (# grid cells)",
-    y = "Adult Proportion of MPA Origin Settlers ",
+    y = "Adult Proportion of Settlers ",
     color = "Movement (Adult / Larval)",
     linetype = ""
   ) +
   scale_color_viridis_d(end = 0.9) +
-  scale_linetype_manual(values = c("solid", "dotted", "dashed"))
-
-plot <- p2 / p1 + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
-
-ggsave(plot, path = here::here("figs"), file = paste0("fig4.pdf"), height = 12, width = 10)
-
-# MPA Design In/out --------------------------------------------------------------
+  scale_linetype_manual(values = c("solid", "dotted", "dashed"))+
+  theme(legend.position = "none")
 
 eq_pop_size_sub <- eq_pop_size %>%
   filter(mpa_size %in% c(8)) %>%
@@ -1683,8 +1842,10 @@ p3 <- ggplot(eq_pop_size_sub) +
   ) +
   scale_color_viridis_d(end = 0.9)
 
+ggsave(p3 + p8 + plot_annotation(tag_levels = "A"), filename = here::here("figs", "figS13.pdf"), height = 12, width = 15)
+
 eq_pop_size_sub <- eq_pop_size %>%
-  filter(mpa_spacing %in% c(0)) %>%
+  filter(mpa_spacing %in% c(8)) %>%
   filter(sensitivity == "fishing") %>%
   filter(sen_value == "med") %>%
   mutate(move_cat = fct_relevel(
@@ -1718,22 +1879,6 @@ p4 <- ggplot(eq_pop_size_sub) +
   ) +
   scale_color_viridis_d(end = 0.9)
 
-eq_pop_size_sub_a <- eq_pop_size %>%
-  # filter(mpa_size == 8) %>%
-  # filter(mpa_spacing == 16) %>%
-  filter(sensitivity == "fishing") %>%
-  filter(sen_value == "med") %>%
-  group_by(adult) %>%
-  summarise(mean_adult = log(mean(base_in_out)))
-
-eq_pop_size_sub_l <- eq_pop_size %>%
-  # filter(mpa_size == 8) %>%
-  # filter(mpa_spacing == 16) %>%
-  filter(sensitivity == "fishing") %>%
-  filter(sen_value == "med") %>%
-  group_by(larval) %>%
-  summarise(mean_larval = log(mean(base_in_out)))
-
 p5 <- ggplot() +
   geom_point(data = eq_pop_size_sub_a, aes(adult, mean_adult, color = "Adult"), size = 3) +
   geom_point(data = eq_pop_size_sub_l, aes(larval, mean_larval, color = "Larval"), size = 3) +
@@ -1741,13 +1886,13 @@ p5 <- ggplot() +
   geom_line(data = eq_pop_size_sub_l, aes(larval, mean_larval, color = "Larval"), linewidth = 1) +
   theme_bw(base_size = 16) +
   labs(
-    x = "Movement Extent",
+    x = "Absolute Movement Extent",
     y = "log(response)",
     color = ""
   ) +
   scale_color_manual(values = c("Adult" = "#5ec962", "Larval" = "#440154")) +
   theme(legend.position = "bottom")
 
-plot <- (p4 + p3) / (p5 + p6) + plot_annotation(tag_levels = "A") + plot_layout(heights = c(6, 3))
+plot <- (p2 + p1) / (p4 + p6 + p5) + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect")
 
 ggsave(plot, path = here::here("figs"), file = paste0("fig5.pdf"), height = 15, width = 15)
