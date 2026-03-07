@@ -187,8 +187,7 @@ p6 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(size, in_out, color
   geom_smooth(method = "lm", se = FALSE, linewidth = 2) +
   geom_point(aes(shape = sciname), size = 3, alpha = 0.5) +
   theme_bw(base_size = 16) +
-  theme(strip.background = element_rect(fill = "transparent"),
-        legend.position = "bottom") +
+  theme(strip.background = element_rect(fill = "transparent")) +
   scale_color_manual(values = col) +
   facet_wrap(~hr_cat, scales = "free_y") +
   scale_shape_manual(values = c("circle", "circle", "square", "circle")) +
@@ -196,7 +195,7 @@ p6 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(size, in_out, color
   labs(y = "log(response)", x =  expression(CA~MPA~Size~(km^2)), color = "Movement (Adult / Larval)")
 p6 # make colors match colors from other fig
 
-p2 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(min_dist, in_out, color = movement, group = sciname)) +
+p8 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(min_dist, in_out, color = movement, group = sciname)) +
   geom_hline(aes(yintercept = 0), alpha = 0.2, linetype = "dashed") +
   geom_smooth(method = "lm", se = FALSE, linewidth = 2) +
   geom_point(aes(shape = sciname), size = 3, alpha = 0.5) +
@@ -204,12 +203,10 @@ p2 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(min_dist, in_out, c
   theme(strip.background = element_rect(fill = "transparent")) +
   scale_color_manual(values = col) +
   # facet_wrap(~movement, scales = "free_y") +
-  labs(y = "log(response)", x = "MPA Spacing", color = "") + 
+  labs(y = "log(response)", x = "MPA Spacing", color = "Movement (Adult/Larval)") + 
   scale_shape_manual(values = c("circle", "circle", "square", "circle")) +
   guides(shape = "none") 
-p2 # add icons
-
-ggsave(p2, filename = here::here("figs", "figS13.pdf"), height = 12, width = 12)
+p8 # add icons
 
 # MPA Sup Fig -------------------------------------------------------------
 
