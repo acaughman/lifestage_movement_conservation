@@ -1587,7 +1587,7 @@ p4 <- ggplot(eq_pop_size_sub) +
     strip.background = element_rect(fill = "white"),
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
   ) +
-  scale_color_viridis_d(end = 0.9) 
+  scale_color_viridis_d(end = 0.9)
 
 plot <- ((p1 + p2) / (plot_spacer() + p4) + plot_annotation(tag_levels = "A") + plot_layout(guides = "collect"))
 
