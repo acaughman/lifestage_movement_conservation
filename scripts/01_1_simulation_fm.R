@@ -103,8 +103,8 @@ for (fishing_pressure in c(calc_fmsy(10, 0.7) - 0.3, calc_fmsy(10, 0.7), calc_fm
         # resdistribution fishing effort
         if (t == 41) {
           # f_mort[, , ] <- f_mort / (1 - ((2 * 2) / (resolution[1] * resolution[2]))) # size 2x2
-          f_mort[, ,] = f_mort / (1 - ((4 * 4) / (resolution[1] * resolution[2])))
-          # f_mort[, ,] = f_mort / (1 - ((4 * 4 * 2) / (resolution[1] * resolution[2])))
+          # f_mort[, ,] = f_mort / (1 - ((4 * 4) / (resolution[1] * resolution[2])))
+          f_mort[, ,] = f_mort / (1 - ((4 * 4 * 2) / (resolution[1] * resolution[2])))
           # f_mort[, , ] <- f_mort / (1 - ((8 * 8) / (resolution[1] * resolution[2])))
           # f_mort[, , ] <- f_mort / (1 - ((8 * 8 * 2) / (resolution[1] * resolution[2])))
           # f_mort[, ,] = f_mort / (1 - ((16 * 16) / (resolution[1] * resolution[2])))
@@ -112,15 +112,15 @@ for (fishing_pressure in c(calc_fmsy(10, 0.7) - 0.3, calc_fmsy(10, 0.7), calc_fm
 
         # create MPA
         # f_mort[25:26, 25:26, ] <- 0 # size 2x2
-        f_mort[24:27, 24:27, ] <- 0 # size 4x4
+        # f_mort[24:27, 24:27, ] <- 0 # size 4x4
         # f_mort[22:29, 22:29, ] <- 0 # size 8x8
         # f_mort[17:32, 17:32, ] <- 0 # size 16x16
         # f_mort[21:24, 24:27, ] <- 0 # size 4x4, spacing 2
         # f_mort[27:30, 24:27, ] <- 0 # size 4x4, spacing 2
         # f_mort[20:23, 24:27, ] <- 0 # size 4x4, spacing 4
         # f_mort[28:31, 24:27, ] <- 0 # size 4x4, spacing 4
-        # f_mort[18:21, 24:27, ] <- 0 # size 4x4, spacing 8
-        # f_mort[30:33, 24:27, ] <- 0 # size 4x4, spacing 8
+        f_mort[18:21, 24:27, ] <- 0 # size 4x4, spacing 8
+        f_mort[30:33, 24:27, ] <- 0 # size 4x4, spacing 8
         # f_mort[14:17, 24:27, ] <- 0 # size 4x4, spacing 16
         # f_mort[34:37, 24:27, ] <- 0 # size 4x4, spacing 16
         # f_mort[17:24, 22:29, ] <- 0 # size 8x8, spacing 2
@@ -240,7 +240,7 @@ for (fishing_pressure in c(calc_fmsy(10, 0.7) - 0.3, calc_fmsy(10, 0.7), calc_fm
   output_df <- output_df %>%
     full_join(fished_df)
 
-  write_csv(output_df, here::here("outputs", paste0("4x4_0_", fishing_pressure_c, "F.csv")))
+  write_csv(output_df, here::here("outputs", paste0("4x4_8_", fishing_pressure_c, "F.csv")))
 
   rm(fished_df, output_df)
   gc()
