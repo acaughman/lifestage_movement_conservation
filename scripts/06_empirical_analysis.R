@@ -189,7 +189,7 @@ p6 <- ggplot(sub_pisco %>% filter(site_status == "MPA"), aes(size, in_out, color
   theme_bw(base_size = 16) +
   theme(strip.background = element_rect(fill = "transparent")) +
   scale_color_manual(values = col) +
-  facet_wrap(~hr_cat, scales = "free_y") +
+  facet_wrap(~hr_cat, scales = "free_y", ncol = 1) +
   scale_shape_manual(values = c("circle", "circle", "square", "circle")) +
   guides(shape = "none") +
   labs(y = "log(response)", x =  expression(CA~MPA~Size~(km^2)), color = "Movement (Adult / Larval)")
@@ -283,4 +283,4 @@ p3 <- ggplot(mpas) +
 
 plot = (p1 + p2) / p3 + plot_annotation(tag_levels = "A")
 
-ggsave(plot, filename = here::here("figs", "figS12.pdf"), height = 10, width = 15)
+ggsave(plot, filename = here::here("figs", "figS13.pdf"), height = 10, width = 15)

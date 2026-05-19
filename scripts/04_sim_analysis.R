@@ -4,7 +4,7 @@ library(patchwork)
 # Data Input --------------------------------------------------------------
 
 output <- read_csv(here::here("data", "processed_data", "model_results.csv"))
-connect_full <- read_csv(here::here("data", "processed_data", "connectivity_results.csv"))
+connect_full <- read_csv(here::here("data", "processed_data", "connectivity_results.csv")) 
 
 mpa <- output %>%
   group_by(mpa, mpa_size, mpa_spacing, larval, adult, generation, age, fishing_pressure, reproductive_output, dd_strength, sensitivity) %>%
@@ -30,9 +30,9 @@ mpa <- mpa %>%
     move_ratio = adult / larval
   ) %>%
   mutate(ratio_cat = case_when(
-    move_ratio < 1 ~ "Larval Greater",
+    move_ratio < 1 ~ "Larval Higher",
     move_ratio == 1 ~ "Equal",
-    move_ratio > 1 ~ "Adult Greater"
+    move_ratio > 1 ~ "Adult Higher"
   )) %>%
   mutate(mpa_spacing = as.factor(mpa_spacing)) %>%
   mutate(
@@ -134,9 +134,9 @@ connect <- connect_full %>%
     "32 / 8", "32 / 32", "32 / 192"
   ))) %>%
   mutate(ratio_cat = case_when(
-    move_ratio < 1 ~ "Larval Greater",
+    move_ratio < 1 ~ "Larval Higher",
     move_ratio == 1 ~ "Equal",
-    move_ratio > 1 ~ "Adult Greater"
+    move_ratio > 1 ~ "Adult Higher"
   )) %>%
   mutate(mpa_spacing = as.factor(mpa_spacing)) %>%
   mutate(
@@ -156,7 +156,7 @@ eq_pop_size <- mpa %>%
   filter(age == "adult") %>%
   filter(generation == 90)
 
-colors <- c("Retention" = "#95d840", "Import" = "#238a8d", "Export" = "#440154", "Retention + Import" = "#3dbc74")
+colors <- c("Retention" = "#BDD7E7", "Import" = "#3182BD", "Export" = "#08519C", "Retention + Import" = "#6BAED6")
 x_labs <- c(
   "low / low", "low / medium", "low / high",
   "**medium / low**", "medium / medium", "medium / high",
@@ -171,6 +171,11 @@ pd <- 0.2
 # Theoretical vs Realized Connectivity ------------------------------------
 
 sub_connect <- connect %>%
+  group_by(move_cat) %>% 
+  mutate(max_fish_R = max(relative_fished_R, na.rm=TRUE),
+         max_fish_I = max(relative_fished_I, na.rm=TRUE),
+         min_fish_R = min(relative_fished_R, na.rm=TRUE),
+         min_fish_I = min(relative_fished_I, na.rm=TRUE)) %>% 
   filter(mpa_size %in% c(8)) %>%
   filter(mpa_spacing == 8) %>%
   filter(sensitivity == "fishing") %>%
@@ -241,45 +246,10 @@ ggsave(p3, path = here::here("figs"), file = paste0("figS1.pdf"), height = 8, wi
 
 # Connectivity ---------------------------------------
 
-p3 <- ggplot(sub_connect) +
-  geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  geom_point(aes(move_cat, relative_fished_abs, color = "Retention + Import"), size = 3) +
-  # geom_point(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3) +
-  # geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
-  # geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 3) +
-  theme_bw(base_size = 16) +
-  # facet_wrap(~fp) +
-  # theme(strip.text = element_text(face = "bold"),
-  #       strip.background = element_rect(fill = "white"),
-  #       axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-  labs(
-    x = "Movement (Adult / Larval)",
-    y = "Adult Proportion to Overall Connectivity",
-    color = ""
-  ) +
-  scale_x_discrete(labels = x_labs) +
-  # ylim(c(NA, 11)) +
-  scale_color_manual(values = colors) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
-  theme(axis.text.x = ggtext::element_markdown())
-
 p4 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  # geom_point(aes(fct_reorder(move_cat, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
-  geom_point(aes(move_cat, relative_fished_R, color = "Retention"), size = 3) +
-  # geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
-  # geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 3) +
+  geom_pointrange(aes(x = move_cat, y = relative_fished_R, ymin = max_fished_R, min = min_fished_R, color = "Retention"), size = 3) +
   theme_bw(base_size = 16) +
-  # facet_wrap(~fp) +
-  # theme(strip.text = element_text(face = "bold"),
-  #       strip.background = element_rect(fill = "white"),
-  #       axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
   labs(
     x = "Movement (Adult / Larval)",
     y = "Adult Proportion of Retention",
@@ -289,57 +259,23 @@ p4 <- ggplot(sub_connect) +
   # ylim(c(NA, 11)) +
   scale_color_manual(values = colors) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
-  theme(axis.text.x = ggtext::element_markdown())
+  theme(axis.text.x = ggtext::element_markdown(),
+        legent.position = "none")
 
 p5 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  # geom_point(aes(fct_reorder(move_cat, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
-  # geom_point(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3) +
-  geom_point(aes(move_cat, relative_fished_I, color = "Import"), size = 3) +
-  # geom_point(aes(move_cat, relative_mpa_E, color = "Export"), size = 3) +
-  theme_bw(base_size = 16) +
-  # facet_wrap(~fp) +
-  # theme(strip.text = element_text(face = "bold"),
-  #       strip.background = element_rect(fill = "white"),
-  #       axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  geom_pointrange(aes(x = move_cat, y = relative_fished_I, ymin = max_fished_I, min = min_fished_I, color = "Import"), size = 3) +
+  theme_bw(base_size = 16) 
   labs(
     x = "Movement (Adult / Larval)",
     y = "Adult Proportion of Import",
     color = ""
   ) +
   scale_x_discrete(labels = x_labs) +
-  # ylim(c(NA, 11)) +
   scale_color_manual(values = colors) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
-  theme(axis.text.x = ggtext::element_markdown())
-
-p6 <- ggplot(sub_connect) +
-  geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  # geom_rect(aes(xmin = 0.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  # geom_rect(aes(xmin = 4.5, xmax = 5.5, ymin = 0, ymax = 16, color = "Export"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  # geom_rect(aes(xmin = 6.5, xmax = 9.5, ymin = 0, ymax = 16, color = "Retention"), fill = "transparent", linetype = "dashed", linewidth = 0.2) +
-  # geom_point(aes(fct_reorder(move_cat, relative_mpa_abs, .desc = TRUE), relative_mpa_abs, color = "Retention + Import"), size = 3.5) +
-  # geom_point(aes(move_cat, relative_mpa_R, color = "Retention"), size = 3) +
-  # geom_point(aes(move_cat, relative_mpa_I, color = "Import"), size = 3) +
-  geom_point(aes(move_cat, relative_fished_E, color = "Export"), size = 3) +
-  theme_bw(base_size = 16) +
-  # facet_wrap(~fp) +
-  # theme(strip.text = element_text(face = "bold"),
-  #       strip.background = element_rect(fill = "white"),
-  #       axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-  labs(
-    x = "Movement (Adult / Larval)",
-    y = "Adult Proportion of Export",
-    color = ""
-  ) +
-  scale_x_discrete(labels = x_labs) +
-  # ylim(c(NA, 11)) +
-  scale_color_manual(values = colors) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
-  theme(axis.text.x = ggtext::element_markdown())
+  theme(axis.text.x = ggtext::element_markdown(),
+        legent.position = "none")
 
 p <- (p1 + p2) / (p4 + p5) + plot_annotation(tag_levels = "A")
 
@@ -396,6 +332,39 @@ eq_pop_size_sub_l <- eq_pop_size %>%
 
 # adult medium to low 2.457306
 (eq_pop_size_sub_l$mean_larval[1] - eq_pop_size_sub_l$mean_larval[2]) / abs(eq_pop_size_sub_l$mean_larval[2]) * 100
+
+
+p4 <- ggplot() +
+  geom_point(data = connect_mean_a, aes(adult, mean_set, color = "Adult"), size = 3) +
+  geom_point(data = connect_mean_l, aes(larval, mean_set, color = "Larval"), size = 3) +
+  geom_line(data = connect_mean_a, aes(adult, mean_set, color = "Adult"), linewidth = 1) +
+  geom_line(data = connect_mean_l, aes(larval, mean_set, color = "Larval"), linewidth = 1) +
+  theme_bw(base_size = 16) +
+  labs(
+    x = "Absolute Movement Extent",
+    y = "Adult Proportion to Overall Connectivity",
+    color = ""
+  ) +
+  scale_color_manual(values = c("Adult" = "#5ec962", "Larval" = "#440154")) +
+  theme(legend.position = "bottom")
+
+p5 <- ggplot() +
+  geom_point(data = eq_pop_size_sub_a, aes(adult, mean_adult, color = "Adult"), size = 3) +
+  geom_point(data = eq_pop_size_sub_l, aes(larval, mean_larval, color = "Larval"), size = 3) +
+  geom_line(data = eq_pop_size_sub_a, aes(adult, mean_adult, color = "Adult"), linewidth = 1) +
+  geom_line(data = eq_pop_size_sub_l, aes(larval, mean_larval, color = "Larval"), linewidth = 1) +
+  theme_bw(base_size = 16) +
+  labs(
+    x = "Absolute Movement Extent",
+    y = "log(response)",
+    color = ""
+  ) +
+  scale_color_manual(values = c("Adult" = "#5ec962", "Larval" = "#440154")) +
+  theme(legend.position = "bottom")
+
+plot <- (p4 + p5) + plot_annotation(tag_levels = "A")
+
+ggsave(plot, path = here::here("figs"), file = paste0("figS12.pdf"), height = 10, width = 15)
 
 # Across Patch sizes -------------------------------------------
 
@@ -459,8 +428,8 @@ p1 <- ggplot(sub_connect) +
 
 p2 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = ratio_cat), size = 4) +
-  geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat, linetype = "Non-MPA"), linewidth = 1) +
+  # geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = ratio_cat), size = 4) +
+  # geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat, linetype = "Non-MPA"), linewidth = 1) +
   geom_point(aes(sen_value, relative_mpa_E, color = move_cat, shape = ratio_cat), size = 4) +
   geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat, linetype = "MPA"), linewidth = 1) +
   theme_bw(base_size = 16) +
@@ -468,7 +437,8 @@ p2 <- ggplot(sub_connect) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    legend.position = "none"
   ) +
   labs(
     x = "",
@@ -496,7 +466,8 @@ p4 <- ggplot(eq_pop_size_sub) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    legend.position = "none"
   ) +
   scale_color_viridis_d(end = 0.9)
 
@@ -564,8 +535,8 @@ p1 <- ggplot(sub_connect) +
 
 p2 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = ratio_cat), size = 4) +
-  geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat, linetype = "Non-MPA"), linewidth = 1) +
+  # geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = ratio_cat), size = 4) +
+  # geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat, linetype = "Non-MPA"), linewidth = 1) +
   geom_point(aes(sen_value, relative_mpa_E, color = move_cat, shape = ratio_cat), size = 4) +
   geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat, linetype = "MPA"), linewidth = 1) +
   theme_bw(base_size = 16) +
@@ -573,7 +544,8 @@ p2 <- ggplot(sub_connect) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    legend.position = "none"
   ) +
   labs(
     x = "",
@@ -601,7 +573,8 @@ p4 <- ggplot(eq_pop_size_sub) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    legend.position = "none"
   ) +
   scale_color_viridis_d(end = 0.9)
 
@@ -669,8 +642,8 @@ p1 <- ggplot(sub_connect) +
 
 p2 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = ratio_cat), size = 4) +
-  geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat, linetype = "Non-MPA"), linewidth = 1) +
+  # geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = ratio_cat), size = 4) +
+  # geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat, linetype = "Non-MPA"), linewidth = 1) +
   geom_point(aes(sen_value, relative_mpa_E, color = move_cat, shape = ratio_cat), size = 4) +
   geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat, linetype = "MPA"), linewidth = 1) +
   theme_bw(base_size = 16) +
@@ -678,7 +651,8 @@ p2 <- ggplot(sub_connect) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    legend.position = "none"
   ) +
   labs(
     x = "",
@@ -702,7 +676,8 @@ p3 <- ggplot(sub_connect) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    legend.position = "none"
   ) +
   labs(
     x = "",
@@ -730,7 +705,8 @@ p4 <- ggplot(eq_pop_size_sub) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    legend.position = "none"
   ) +
   scale_color_viridis_d(end = 0.9)
 
@@ -798,8 +774,8 @@ p1 <- ggplot(sub_connect) +
 
 p2 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = ratio_cat), size = 4) +
-  geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat, linetype = "Non-MPA"), linewidth = 1) +
+  # geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = ratio_cat), size = 4) +
+  # geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat, linetype = "Non-MPA"), linewidth = 1) +
   geom_point(aes(sen_value, relative_mpa_E, color = move_cat, shape = ratio_cat), size = 4) +
   geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat, linetype = "MPA"), linewidth = 1) +
   theme_bw(base_size = 16) +
@@ -807,7 +783,8 @@ p2 <- ggplot(sub_connect) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    legend.position = "none"
   ) +
   labs(
     x = "",
@@ -831,11 +808,12 @@ p3 <- ggplot(sub_connect) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    legend.position = "none"
   ) +
   labs(
     x = "",
-    y = "Adult Proportion of Export",
+    y = "Adult Proportion of Import",
     color = "Movement (Adult / Larval)",
     shape = "",
     linetype = ""
@@ -859,7 +837,8 @@ p4 <- ggplot(eq_pop_size_sub) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    legend.position = "none"
   ) +
   scale_color_viridis_d(end = 0.9)
 
@@ -927,8 +906,8 @@ p1 <- ggplot(sub_connect) +
 
 p2 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = ratio_cat), size = 4) +
-  geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat, linetype = "Non-MPA"), linewidth = 1) +
+  # geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = ratio_cat), size = 4) +
+  # geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat, linetype = "Non-MPA"), linewidth = 1) +
   geom_point(aes(sen_value, relative_mpa_E, color = move_cat, shape = ratio_cat), size = 4) +
   geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat, linetype = "MPA"), linewidth = 1) +
   theme_bw(base_size = 16) +
@@ -936,7 +915,8 @@ p2 <- ggplot(sub_connect) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    legend.position = "none"
   ) +
   labs(
     x = "",
@@ -960,7 +940,8 @@ p3 <- ggplot(sub_connect) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    legend.position = "none"
   ) +
   labs(
     x = "",
@@ -988,7 +969,8 @@ p4 <- ggplot(eq_pop_size_sub) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    legend.position = "none"
   ) +
   scale_color_viridis_d(end = 0.9)
 
@@ -1056,8 +1038,8 @@ p1 <- ggplot(sub_connect) +
 
 p2 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = ratio_cat), size = 4) +
-  geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat, linetype = "Non-MPA"), linewidth = 1) +
+  # geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = ratio_cat), size = 4) +
+  # geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat, linetype = "Non-MPA"), linewidth = 1) +
   geom_point(aes(sen_value, relative_mpa_E, color = move_cat, shape = ratio_cat), size = 4) +
   geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat, linetype = "MPA"), linewidth = 1) +
   theme_bw(base_size = 16) +
@@ -1065,7 +1047,8 @@ p2 <- ggplot(sub_connect) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    legend.position = "none"
   ) +
   labs(
     x = "",
@@ -1161,8 +1144,8 @@ p1 <- ggplot(sub_connect) +
 
 p2 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = ratio_cat), size = 4) +
-  geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat, linetype = "Non-MPA"), linewidth = 1) +
+  # geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = ratio_cat), size = 4) +
+  # geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat, linetype = "Non-MPA"), linewidth = 1) +
   geom_point(aes(sen_value, relative_mpa_E, color = move_cat, shape = ratio_cat), size = 4) +
   geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat, linetype = "MPA"), linewidth = 1) +
   theme_bw(base_size = 16) +
@@ -1170,7 +1153,8 @@ p2 <- ggplot(sub_connect) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    legend.position = "none"
   ) +
   labs(
     x = "",
@@ -1194,7 +1178,8 @@ p3 <- ggplot(sub_connect) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    legend.position = "none"
   ) +
   labs(
     x = "",
@@ -1222,7 +1207,8 @@ p4 <- ggplot(eq_pop_size_sub) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    legend.position = "none"
   ) +
   scale_color_viridis_d(end = 0.9)
 
@@ -1290,8 +1276,8 @@ p1 <- ggplot(sub_connect) +
 
 p2 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = ratio_cat), size = 4) +
-  geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat, linetype = "Non-MPA"), linewidth = 1) +
+  # geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = ratio_cat), size = 4) +
+  # geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat, linetype = "Non-MPA"), linewidth = 1) +
   geom_point(aes(sen_value, relative_mpa_E, color = move_cat, shape = ratio_cat), size = 4) +
   geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat, linetype = "MPA"), linewidth = 1) +
   theme_bw(base_size = 16) +
@@ -1299,7 +1285,8 @@ p2 <- ggplot(sub_connect) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    legend.position = "none"
   ) +
   labs(
     x = "",
@@ -1323,7 +1310,8 @@ p3 <- ggplot(sub_connect) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    legend.position = "none"
   ) +
   labs(
     x = "",
@@ -1351,7 +1339,8 @@ p4 <- ggplot(eq_pop_size_sub) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    legend.position = "none"
   ) +
   scale_color_viridis_d(end = 0.9)
 
@@ -1419,8 +1408,8 @@ p1 <- ggplot(sub_connect) +
 
 p2 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = ratio_cat), size = 4) +
-  geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat, linetype = "Non-MPA"), linewidth = 1) +
+  # geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = ratio_cat), size = 4) +
+  # geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat, linetype = "Non-MPA"), linewidth = 1) +
   geom_point(aes(sen_value, relative_mpa_E, color = move_cat, shape = ratio_cat), size = 4) +
   geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat, linetype = "MPA"), linewidth = 1) +
   theme_bw(base_size = 16) +
@@ -1428,7 +1417,8 @@ p2 <- ggplot(sub_connect) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    legend.position = "none"
   ) +
   labs(
     x = "",
@@ -1452,7 +1442,8 @@ p3 <- ggplot(sub_connect) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    legend.position = "none"
   ) +
   labs(
     x = "",
@@ -1480,7 +1471,8 @@ p4 <- ggplot(eq_pop_size_sub) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    legend.position = "none"
   ) +
   scale_color_viridis_d(end = 0.9)
 
@@ -1548,8 +1540,8 @@ p1 <- ggplot(sub_connect) +
 
 p2 <- ggplot(sub_connect) +
   geom_hline(aes(yintercept = 0.5), color = "red", alpha = 0.5, linetype = "dashed", linewidth = 1) +
-  geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = ratio_cat), size = 4) +
-  geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat, linetype = "Non-MPA"), linewidth = 1) +
+  # geom_point(aes(sen_value, relative_fished_E, color = move_cat, shape = ratio_cat), size = 4) +
+  # geom_line(aes(sen_value, relative_fished_E, color = move_cat, group = move_cat, linetype = "Non-MPA"), linewidth = 1) +
   geom_point(aes(sen_value, relative_mpa_E, color = move_cat, shape = ratio_cat), size = 4) +
   geom_line(aes(sen_value, relative_mpa_E, color = move_cat, group = move_cat, linetype = "MPA"), linewidth = 1) +
   theme_bw(base_size = 16) +
@@ -1557,11 +1549,12 @@ p2 <- ggplot(sub_connect) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    legend.position = "none"
   ) +
   labs(
     x = "",
-    y = "Adult Proportion of Import",
+    y = "Adult Proportion of Export",
     color = "Movement (Adult / Larval)",
     shape = "",
     linetype = ""
@@ -1585,7 +1578,8 @@ p4 <- ggplot(eq_pop_size_sub) +
   theme(
     strip.text = element_text(face = "bold"),
     strip.background = element_rect(fill = "white"),
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+    legend.position = "none"
   ) +
   scale_color_viridis_d(end = 0.9)
 
@@ -1760,7 +1754,7 @@ p3 <- ggplot(eq_pop_size_sub) +
   ) +
   scale_color_viridis_d(end = 0.9)
 
-ggsave(p3 + p8 + plot_annotation(tag_levels = "A"), filename = here::here("figs", "figS13.pdf"), height = 12, width = 15)
+ggsave(p3 + p8 + plot_annotation(tag_levels = "A"), filename = here::here("figs", "figS14.pdf"), height = 12, width = 15)
 
 eq_pop_size_sub <- eq_pop_size %>%
   filter(mpa_spacing %in% c(8)) %>%
@@ -1811,6 +1805,6 @@ p5 <- ggplot() +
   scale_color_manual(values = c("Adult" = "#5ec962", "Larval" = "#440154")) +
   theme(legend.position = "bottom")
 
-plot <- (p5 / (p4 + p6)) + plot_annotation(tag_levels = "A")
+plot <- (p4 + p6) + plot_annotation(tag_levels = "A")
 
-ggsave(plot, path = here::here("figs"), file = paste0("fig5.pdf"), height = 15, width = 15)
+ggsave(plot, path = here::here("figs"), file = paste0("fig5.pdf"), height = 10, width = 15)
